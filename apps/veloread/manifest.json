@@ -8,7 +8,7 @@
   "theme_color": "#cb4b16",
   "icons": [
     {
-      "src": "Veloread-favicon.png",
+      "src": "Veloread-Favicon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

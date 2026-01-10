@@ -1,17 +1,16 @@
 [
     {
-    "id": "ulucapp-fastreader",
-    "title": "FastReader",
+    "id": "ulucapp-veloread",
+    "title": "VeloRead",
     "type": "Reading App",
     "date": "2026_01_15",
-    "description": "I always wanted to read more.\n\nYou can install this website as an app on nearly every device.\n[App Link](https://uluckaymak.com/apps/fastreader/)",
+    "description": "Veloread is a minimalist web application based on the RSVP (Fast Serial Visual Presentation) technique, developed to maximize reading speed and focus. With ORP (Optimum Recognition Point) highlighting, it highlights the focal point of each word, increasing the processing speed of information coming to the brain and minimizing eye fatigue in long-term readings.\n\nYou can install this website as an app on nearly every device.\n[VeloRead App](https://www.uluckaymak.com/apps/veloread/)",
     "role": "Developer",
-    "thumbnail": "_projects/2026_01_15-FastReader/FastReader.jpeg",
+    "thumbnail": "_projects/2026_01_15-VeloRead/VeloRead-Thumbnail.jpeg",
     "media": [
-      "_projects/2026_01_15-FastReader/FastReader.jpeg",
-      "_projects/2026_01_15-FastReader/FastReader.gif",
-      "_projects/2026_01_15-FastReader/fastreader_1.png",
-      "_projects/2026_01_15-FastReader/fastreader_2.png"
+      "_projects/2026_01_15-VeloRead/fastreader_1.png",
+      "_projects/2026_01_15-VeloRead/FastReader.gif",
+      "_projects/2026_01_15-VeloRead/fastreader_2.png"
     ],
     "tags": [
       "#AppDevelopment"
