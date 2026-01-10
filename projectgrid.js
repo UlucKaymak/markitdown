@@ -35,11 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function handleUrlRouting(fromPopState = false) {
-    const path = window.location.pathname;
-    const projectMatch = path.match(/\/projects\/([^\/]+)\/?$/);
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('id');
     
-    if (projectMatch) {
-        const projectId = projectMatch[1];
+    if (projectId) {
         const project = allProjects.find(p => p.id === projectId);
         if (project) {
             openProjectModal(project, true);
@@ -184,7 +183,7 @@ function openProjectModal(project, fromRouting = false) {
 
     // Update URL if not called from routing/popstate
     if (!fromRouting) {
-        const newUrl = "/projects/" + project.id;
+        const newUrl = window.location.pathname + "?id=" + project.id;
         history.pushState({ projectId: project.id }, "", newUrl);
     }
 
@@ -281,7 +280,7 @@ function closeProjectModal(fromRouting = false) {
 
     // Update URL if not called from routing/popstate
     if (!fromRouting) {
-        history.pushState(null, "", "/projects");
+        history.pushState(null, "", window.location.pathname);
     }
 }
 
@@ -306,7 +305,8 @@ async function loadProjectsSidebar() {
         sidebarList.innerHTML = '';
         projects.filter(p => p.enabled).forEach(p => {
             const li = document.createElement('li');
-            li.innerHTML = `<a href="/projects/${p.id}" class="project-nav-link">${p.title}</a>`;
+            // Change: Use query param for link with .html extension
+            li.innerHTML = `<a href="/projects.html?id=${p.id}" class="project-nav-link">${p.title}</a>`;
             sidebarList.appendChild(li);
         });
     } catch (e) { console.error("Sidebar error", e); }
