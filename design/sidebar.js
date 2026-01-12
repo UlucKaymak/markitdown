@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function loadSidebar() {
-    fetch('design/sidebar.html')
+    fetch('/design/sidebar.html')
         .then(response => response.text())
         .then(data => {
             document.getElementById('sidebar-container').innerHTML = data;
@@ -208,11 +208,16 @@ function initPageTransitions() {
 
         // Only add transitions to internal HTML page links
         if (href &&
-            (href.endsWith('.html') || href === 'index.html' || href === 'projects.html' || href === 'aboutme.html' || href === 'contentmanager.html') &&
+            (href.endsWith('.html') || href === '/' || href === '/projects' || href === '/aboutme' || href.startsWith('/projects/')) &&
             !href.startsWith('http') &&
             !href.startsWith('#')) {
 
             link.addEventListener('click', function(e) {
+                // If it's a project deep link, let the modal handle it without a full page reload if we're already on projects page
+                if (href.startsWith('/projects/') && document.body.classList.contains('projects-page')) {
+                    return; 
+                }
+
                 e.preventDefault();
                 const destination = this.getAttribute('href');
 

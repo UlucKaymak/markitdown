@@ -113,7 +113,7 @@
     "title": "Synthesizer Prototype",
     "type": "Musical Instrument",
     "date": "2025_08",
-    "description": "From the project's engineer, Reha:\n\n\"Developed within Turkey’s growing music technology scene, focuses on creating a cost-effective analog synthesizer that preserves the warm and dynamic qualities of analog sound. A Voltage-Controlled Oscillator (VCO) with sawtooth and pulse outputs (including Pulse-Width Modulation) has been successfully implemented, along with a Voltage-Controlled Amplifier (VCA) for dynamic output control. Control Voltage (CV) functionality is also supported, enabling precise pitch control and modular integration. Future work will expand on these foundations to enhance the synthesizer’s versatility and usability.\"\n\ntldr: made musical blip-blop machine blocks with a very passionate team.",
+    "description": "From the project's engineer, Reha:\n\"Developed within Turkey’s growing music technology scene, focuses on creating a cost-effective analog synthesizer that preserves the warm and dynamic qualities of analog sound. A Voltage-Controlled Oscillator (VCO) with sawtooth and pulse outputs (including Pulse-Width Modulation) has been successfully implemented, along with a Voltage-Controlled Amplifier (VCA) for dynamic output control. Control Voltage (CV) functionality is also supported, enabling precise pitch control and modular integration. Future work will expand on these foundations to enhance the synthesizer’s versatility and usability.\"\n\ntldr: made musical blip-blop machine blocks with a very passionate team.",
     "role": "Consultant",
     "thumbnail": "_projects/2025_08-asynth/synthproto-cover.jpeg",
     "media": [

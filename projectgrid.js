@@ -1,6 +1,7 @@
 // Global state for Lightbox navigation
 let currentLightboxImages = []; 
 let currentImageIndex = 0;
+let allProjects = []; // Store all projects globally
 
 const lightboxElements = {
     overlay: null,
@@ -17,13 +18,39 @@ document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const filterParam = urlParams.get('filter');
         const filter = filterParam ? (filterParam.startsWith('#') ? filterParam : '#' + filterParam) : 'all';
-        loadProjectThumbnails(filter);
+        loadProjectThumbnails(filter).then(() => {
+            // Check for project ID in URL after projects are loaded
+            handleUrlRouting();
+        });
     } else {
         loadProjectsSidebar();
     }
 
     setupLightboxListeners();
+    
+    // Handle back/forward navigation
+    window.addEventListener('popstate', function(event) {
+        handleUrlRouting(true);
+    });
 });
+
+function handleUrlRouting(fromPopState = false) {
+    const path = window.location.pathname;
+    const projectMatch = path.match(/\/projects\/([^\/]+)\/?$/);
+    
+    if (projectMatch) {
+        const projectId = projectMatch[1];
+        const project = allProjects.find(p => p.id === projectId);
+        if (project) {
+            openProjectModal(project, true);
+        }
+    } else {
+        // If we are on projects page but no project ID, close modal
+        if (document.body.classList.contains('projects-page')) {
+            closeProjectModal(true);
+        }
+    }
+}
 
 // --- LIGHTBOX LOGIC ---
 
@@ -95,10 +122,11 @@ function closeLightbox() {
 
 async function loadProjectThumbnails(filter = 'all') {
     try {
-        const response = await fetch('projects.json');
+        const response = await fetch('/projects.json');
         if (!response.ok) throw new Error('Failed to load projects.json');
 
-        const allProjects = await response.json();
+        const projectsData = await response.json();
+        allProjects = projectsData; // Update global allProjects
         let projects = allProjects.filter(project => project.enabled === true);
 
         if (filter !== 'all') {
@@ -123,7 +151,11 @@ async function loadProjectThumbnails(filter = 'all') {
         projects.forEach((project) => {
             const card = document.createElement('div');
             card.className = 'project-card';
-            const thumbnailUrl = project.thumbnail || (project.media && project.media[0]) || 'placeholder.jpg';
+            // Use absolute path for thumbnails if they start with _projects
+            const thumbnailUrl = (project.thumbnail && project.thumbnail.startsWith('_projects')) 
+                ? '/' + project.thumbnail 
+                : (project.thumbnail || 'placeholder.jpg');
+            
             const typeRoleText = project.role ? `${project.type} | ${project.role}` : project.type;
 
             card.innerHTML = `
@@ -136,7 +168,7 @@ async function loadProjectThumbnails(filter = 'all') {
                 </div>
             `;
             card.onclick = () => {
-                window.location.href = `_projects/${project.id}.html`;
+                openProjectModal(project);
             };
             projectsGrid.appendChild(card);
         });
@@ -146,9 +178,15 @@ async function loadProjectThumbnails(filter = 'all') {
     }
 }
 
-function openProjectModal(project) {
+function openProjectModal(project, fromRouting = false) {
     const modal = document.getElementById('project-modal');
     const modalBody = modal.querySelector('.modal-body');
+
+    // Update URL if not called from routing/popstate
+    if (!fromRouting) {
+        const newUrl = "/projects/" + project.id;
+        history.pushState({ projectId: project.id }, "", newUrl);
+    }
 
     // 1. CLEAR AND RE-POPULATE the lightbox array for THIS specific project
     currentLightboxImages = []; 
@@ -165,17 +203,18 @@ function openProjectModal(project) {
     if (project.media) {
         project.media.forEach(mediaPath => {
             const ext = mediaPath.split('.').pop().toLowerCase();
+            const absolutePath = mediaPath.startsWith('_projects') ? '/' + mediaPath : mediaPath;
             
             if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
                 contentGrid += `
                     <div class="grid-item grid-item-image expandable-image-container">
-                        <img src="${mediaPath}" alt="${project.title}">
+                        <img src="${absolutePath}" alt="${project.title}">
                     </div>`;
             } else if (['mp4', 'webm', 'ogg'].includes(ext)) {
                 contentGrid += `
                     <div class="grid-item grid-item-video">
                         <video controls controlsList="nodownload">
-                            <source src="${mediaPath}" type="video/${ext}">
+                            <source src="${absolutePath}" type="video/${ext}">
                         </video>
                     </div>`;
             } else if (['mp3', 'wav', 'ogg'].includes(ext)) {
@@ -185,7 +224,7 @@ function openProjectModal(project) {
                         <div class="audio-wrapper">
                             <div class="audio-title">${audioTitle}</div>
                             <audio controls controlsList="nodownload">
-                                <source src="${mediaPath}" type="audio/${ext}">
+                                <source src="${absolutePath}" type="audio/${ext}">
                             </audio>
                         </div>
                     </div>`;
@@ -228,15 +267,22 @@ function openProjectModal(project) {
     document.body.style.overflow = 'hidden';
 
     const closeBtn = modal.querySelector('.modal-close');
-    closeBtn.onclick = closeProjectModal;
+    closeBtn.onclick = () => closeProjectModal();
     modal.onclick = (e) => { if (e.target === modal) closeProjectModal(); };
 }
 
-function closeProjectModal() {
+function closeProjectModal(fromRouting = false) {
     const modal = document.getElementById('project-modal');
+    if (!modal || modal.style.display === 'none') return;
+
     modal.querySelectorAll('video, audio').forEach(media => media.pause());
     modal.style.display = 'none';
     document.body.style.overflow = 'auto';
+
+    // Update URL if not called from routing/popstate
+    if (!fromRouting) {
+        history.pushState(null, "", "/projects");
+    }
 }
 
 function formatDate(dateString) {
@@ -254,12 +300,13 @@ async function loadProjectsSidebar() {
     const sidebarList = document.querySelector('.sidebar-projects');
     if (!sidebarList) return;
     try {
-        const response = await fetch('projects.json');
+        const response = await fetch('/projects.json');
         const projects = await response.json();
+        allProjects = projects; // Populate global state
         sidebarList.innerHTML = '';
         projects.filter(p => p.enabled).forEach(p => {
             const li = document.createElement('li');
-            li.innerHTML = `<a href="projects.html?filter=${p.id}" class="project-nav-link">${p.title}</a>`;
+            li.innerHTML = `<a href="/projects/${p.id}" class="project-nav-link">${p.title}</a>`;
             sidebarList.appendChild(li);
         });
     } catch (e) { console.error("Sidebar error", e); }
