@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Roboto&family=Roboto+Mono&family=Roboto+Slab&display=swap">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         :root {
             --bg-color: #f4f4f7;
@@ -385,7 +386,7 @@ I am waiting for you… in the never-all. </textarea>
                     <button id="upload-btn" class="upload-btn-styled"><i class="fas fa-upload"></i> Upload File</button>
                 </div>
             </div>
-            <input type="file" id="file-input" accept=".txt" style="display: none;">
+            <input type="file" id="file-input" accept=".txt,.pdf" style="display: none;">
 
         </div>
     </div>
@@ -825,13 +826,37 @@ I am waiting for you… in the never-all. </textarea>
                     }
                 });
 
-                fileInput.addEventListener('change', (event) => {
+                fileInput.addEventListener('change', async (event) => {
                     const file = event.target.files[0];
-                    if (file) {
+                    if (!file) return;
+
+                    if (file.type === "application/pdf") {
+                        try {
+                            const arrayBuffer = await file.arrayBuffer();
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                            let fullText = "";
+
+                            for (let i = 1; i <= pdf.numPages; i++) {
+                                const page = await pdf.getPage(i);
+                                const textContent = await page.getTextContent();
+                                const pageText = textContent.items.map(item => item.str).join(" ");
+                                fullText += pageText + "\n";
+                            }
+
+                            input.value = fullText.trim();
+                            textInputPanel.classList.add('hidden');
+                            reset();
+                        } catch (err) {
+                            console.error('Error reading PDF:', err);
+                            alert('Error reading PDF file.');
+                        }
+                    } else {
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             input.value = e.target.result;
                             textInputPanel.classList.add('hidden');
+                            reset();
                         };
                         reader.readAsText(file);
                     }
