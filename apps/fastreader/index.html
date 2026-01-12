@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto&family=Roboto+Mono&family=Roboto+Slab&display=swap">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
     <style>
         :root {
@@ -401,9 +402,9 @@ I am waiting for you… in the never-all. </textarea>
                 <div class="input-group">
                     <button id="upload-btn" class="upload-btn-styled"><i class="fas fa-upload"></i> Upload File</button>
                 </div>
-                <div class="hint" id="upload-hint">Supported Files: TXT, PDF</div>
+                <div class="hint" id="upload-hint">Supported Files: TXT, PDF, DOCX</div>
             </div>
-            <input type="file" id="file-input" accept=".txt,.pdf" style="display: none;">
+            <input type="file" id="file-input" accept=".txt,.pdf,.docx" style="display: none;">
 
         </div>
     </div>
@@ -941,6 +942,18 @@ I am waiting for you… in the never-all. </textarea>
                         } catch (err) {
                             console.error('Error reading PDF:', err);
                             alert('Error reading PDF file.');
+                        }
+                    } else if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+                        try {
+                            const arrayBuffer = await file.arrayBuffer();
+                            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                            input.value = result.value.trim();
+                            textInputPanel.classList.add('hidden');
+                            reset();
+                            localStorage.setItem('fastReaderText', input.value);
+                        } catch (err) {
+                            console.error('Error reading DOCX:', err);
+                            alert('Error reading DOCX file.');
                         }
                     } else {
                         const reader = new FileReader();
