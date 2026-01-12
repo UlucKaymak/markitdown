@@ -457,7 +457,7 @@ body {
     display: none; /* Hidden by default */
     width: 30px;
     height: 24px;
-    position: absolute;
+    position: fixed;
     top: 1.5rem;
     right: 1.5rem;
     flex-direction: column;
@@ -545,7 +545,6 @@ body {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 50%; /* Make it round on mobile for a common pattern */
     }
 
     .hero-landing h2 {
@@ -1449,5 +1448,10 @@ body {
     .lightbox-prev, .lightbox-next {
         padding: 15px 10px;
         font-size: 1.5rem;
+    }
+
+    .projects-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
     }
 }

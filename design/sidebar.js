@@ -1,23 +1,41 @@
 // Sidebar navigation functionality
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize layout immediately (toggle button, overlay) so it doesn't depend on fetch
+    initLayout(); 
     loadSidebar();
-    // initializeSidebar will be called in the loadSidebar's then() block
     initPageTransitions();
 });
 
 function loadSidebar() {
-    fetch('/design/sidebar.html')
-        .then(response => response.text())
+    // Use relative path to be more robust for local file viewing
+    fetch('design/sidebar.html')
+        .then(response => {
+            if (!response.ok) throw new Error("Sidebar fetch failed");
+            return response.text();
+        })
         .then(data => {
             document.getElementById('sidebar-container').innerHTML = data;
-            initializeSidebar(); // Call initializeSidebar AFTER sidebar content is loaded
+            initSidebarContent(); // Initialize internal sidebar logic
+        })
+        .catch(err => {
+            console.warn("Could not load sidebar content (likely due to local file protocol restrictions):", err);
+            // Even if content fails, the layout structure (sidebar container) exists
         });
 }
 
-function initializeSidebar() {
+function initLayout() {
     // --- Hamburger menu logic ---
-    const sidebarToggle = document.getElementById('sidebarToggle');
+    // Create toggle if it doesn't exist (fixing missing HTML element)
+    let sidebarToggle = document.getElementById('sidebarToggle');
+    if (!sidebarToggle) {
+        sidebarToggle = document.createElement('div');
+        sidebarToggle.id = 'sidebarToggle';
+        sidebarToggle.className = 'sidebar-toggle';
+        sidebarToggle.innerHTML = '<span></span><span></span><span></span>';
+        document.body.appendChild(sidebarToggle);
+    }
+
     const sidebar = document.getElementById('sidebar-container');
     
     // Create an overlay for when the sidebar is open on mobile
@@ -36,10 +54,18 @@ function initializeSidebar() {
 
     // Close sidebar when clicking outside (on the overlay)
     mobileOverlay.addEventListener('click', function() {
-        if (sidebar.classList.contains('open')) {
+        if (sidebar && sidebar.classList.contains('open')) {
             toggleMobileSidebar(sidebar, sidebarToggle, mobileOverlay);
         }
     });
+}
+
+function initSidebarContent() {
+    const sidebar = document.getElementById('sidebar-container');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+
+    if (!sidebar) return;
     
     // Close sidebar if a link is clicked on mobile
     sidebar.querySelectorAll('a').forEach(link => {
@@ -150,6 +176,8 @@ function initializeSidebar() {
 }
 
 function toggleMobileSidebar(sidebar, sidebarToggle, overlay) {
+    if (!sidebar || !sidebarToggle || !overlay) return;
+    
     sidebar.classList.toggle('open');
     sidebarToggle.classList.toggle('open');
     if (sidebar.classList.contains('open')) {
