@@ -1,0 +1,17 @@
+{
+  "name": "Fast Reader by Uluç Kaymak",
+  "short_name": "FastReader",
+  "description": "A high-performance speed reading application.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f1e7d0",
+  "theme_color": "#cb4b16",
+  "icons": [
+    {
+      "src": "../../design/favicon/favicon-fastreader.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
