@@ -11,6 +11,69 @@
         rel="stylesheet">
     <style>
         /* Content Manager Styles */
+        /* Login Overlay */
+        #login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0a0a0a;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .login-box {
+            background-color: #1a1a1a;
+            padding: 2rem;
+            border: 1px solid #333;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            background-color: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #4a9eff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1rem;
+        }
+
+        .login-box button:hover {
+            background-color: #3a8eef;
+        }
+
+        .login-error {
+            color: #d32f2f;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
 
         * {
             margin: 0;
@@ -320,9 +383,21 @@
 
 <body class="manager-page">
 
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>Content Manager Login</h2>
+            <input type="password" id="password-input" placeholder="Enter Password">
+            <button id="login-btn">Login</button>
+            <p id="login-error" class="login-error">Incorrect password</p>
+        </div>
+    </div>
+
     <div class="page-content">
         <main class="manager-main">
-            <h2>Content Manager</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>Content Manager</h2>
+                <button id="logout-btn" class="btn-small">Logout</button>
+            </div>
             <p class="manager-intro">Add, edit, and manage your portfolio projects. Changes are saved locally in your
                 browser.</p>
 
@@ -445,11 +520,19 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function () {
+            checkAuth();
             loadProjectsFromJson();
             setupEventListeners();
         });
 
         function setupEventListeners() {
+            // Login
+            document.getElementById('login-btn').addEventListener('click', attemptLogin);
+            document.getElementById('password-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') attemptLogin();
+            });
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
             // Project form
             projectForm.addEventListener('submit', handleProjectSubmit);
             cancelBtn.addEventListener('click', cancelEdit);
@@ -463,6 +546,37 @@
             exportJsonBtn.addEventListener('click', exportToProjectsJson);
             importJsonBtn.addEventListener('click', () => importJsonFile.click());
             importJsonFile.addEventListener('change', importFromJson);
+        }
+
+        // Authentication Logic
+        function checkAuth() {
+            const isAuthenticated = sessionStorage.getItem('manager_auth');
+            const overlay = document.getElementById('login-overlay');
+            if (isAuthenticated === 'true') {
+                overlay.style.display = 'none';
+            } else {
+                overlay.style.display = 'flex';
+            }
+        }
+
+        function attemptLogin() {
+            const password = document.getElementById('password-input').value;
+            const errorMsg = document.getElementById('login-error');
+            
+            // Simple client-side check (Note: Not secure for high-stakes protection)
+            if (password === 'defibrilatör') {
+                sessionStorage.setItem('manager_auth', 'true');
+                document.getElementById('login-overlay').style.display = 'none';
+                errorMsg.style.display = 'none';
+                document.getElementById('password-input').value = '';
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('manager_auth');
+            location.reload();
         }
 
         // Load projects from projects.json file
