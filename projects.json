@@ -1,6 +1,6 @@
 [
     {
-    "id": "2026_01_15-fastreader",
+    "id": "ulucapp-fastreader",
     "title": "FastReader",
     "type": "Reading App",
     "date": "2026_01_15",
@@ -19,7 +19,7 @@
     "enabled": true
   },
   {
-    "id": "18_09_2025-sarn-ne-duydu",
+    "id": "ulucart-sarnicneduydu",
     "title": "Sarnıç Ne Duydu?",
     "type": "Audio Installation",
     "date": "18_09_2025",
@@ -84,7 +84,7 @@
     "enabled": true
   },
   {
-    "id": "2025_09_2-excuse-me-i-have-to-check-your-belonging",
+    "id": "Lumenfish-thebiscuit",
     "title": "Excuse Me! I Have to Check Your Belongings",
     "type": "Video Game",
     "date": "2025_09_2",
