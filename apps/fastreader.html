@@ -666,17 +666,22 @@ I am waiting for you… in the never-all. </textarea>
                 function displayChunk(index) {
                     if (index < chunks.length) {
                         const currentChunk = chunks[index];
-                        const firstWord = currentChunk.split(' ')[0];
-                        const formattedChunk = currentChunk.split(' ').map(formatWord).join(' ');
+                        const words = currentChunk.split(' ');
+                        const targetWordIndex = words.length >= 3 ? 1 : 0;
+                        const targetWord = words[targetWordIndex];
+                        const formattedChunk = words.map(formatWord).join(' ');
 
                         display.innerHTML = formattedChunk;
 
                         if (alignmentInput.value === 'center') {
                             const font = `${getComputedStyle(display).fontWeight} ${getComputedStyle(display).fontSize} ${getComputedStyle(display).fontFamily}`;
                             const widthChunk = getTextWidth(currentChunk, font);
-                            const orpIndex = calculateORP(firstWord);
-                            const textBeforeOrp = firstWord.substring(0, orpIndex);
-                            const orpLetter = firstWord[orpIndex];
+                            
+                            const orpIndex = calculateORP(targetWord);
+                            const textBeforeTarget = words.slice(0, targetWordIndex).join(' ') + (targetWordIndex > 0 ? ' ' : '');
+                            const textBeforeOrp = textBeforeTarget + targetWord.substring(0, orpIndex);
+                            const orpLetter = targetWord[orpIndex];
+                            
                             const widthBeforeOrp = getTextWidth(textBeforeOrp, font);
                             const orpWidth = getTextWidth(orpLetter, font);
                             const offset = (widthChunk / 2) - (widthBeforeOrp + (orpWidth / 2));
