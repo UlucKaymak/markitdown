@@ -27,6 +27,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <style>
         :root {
@@ -402,9 +403,9 @@ I am waiting for you… in the never-all. </textarea>
                 <div class="input-group">
                     <button id="upload-btn" class="upload-btn-styled"><i class="fas fa-upload"></i> Upload File</button>
                 </div>
-                <div class="hint" id="upload-hint">Supported Files: TXT, PDF, DOCX</div>
+                <div class="hint" id="upload-hint">Supported Files: TXT, PDF, DOCX, EPUB</div>
             </div>
-            <input type="file" id="file-input" accept=".txt,.pdf,.docx" style="display: none;">
+            <input type="file" id="file-input" accept=".txt,.pdf,.docx,.epub" style="display: none;">
 
         </div>
     </div>
@@ -564,6 +565,32 @@ I am waiting for you… in the never-all. </textarea>
 
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
+
+                async function extractTextFromEpub(arrayBuffer) {
+                    const zip = await JSZip.loadAsync(arrayBuffer);
+                    const containerXml = await zip.file("META-INF/container.xml").async("string");
+                    const parser = new DOMParser();
+                    const containerDoc = parser.parseFromString(containerXml, "text/xml");
+                    const opfPath = containerDoc.querySelector("rootfile").getAttribute("full-path");
+                    const opfXml = await zip.file(opfPath).async("string");
+                    const opfDoc = parser.parseFromString(opfXml, "text/xml");
+                    const opfDir = opfPath.includes("/") ? opfPath.substring(0, opfPath.lastIndexOf("/") + 1) : "";
+                    const manifestItems = {};
+                    opfDoc.querySelectorAll("manifest > item").forEach(item => {
+                        manifestItems[item.getAttribute("id")] = item.getAttribute("href");
+                    });
+                    const spineIds = Array.from(opfDoc.querySelectorAll("spine > itemref")).map(item => item.getAttribute("idref"));
+                    let fullText = "";
+                    for (const id of spineIds) {
+                        const href = manifestItems[id];
+                        const filePath = opfDir + href;
+                        const fileContent = await zip.file(filePath).async("string");
+                        const doc = parser.parseFromString(fileContent, "text/html");
+                        doc.querySelectorAll("script, style").forEach(el => el.remove());
+                        fullText += doc.body.textContent + "\n";
+                    }
+                    return fullText.trim();
+                }
 
                 function getTextWidth(text, font) {
                     context.font = font;
@@ -954,6 +981,18 @@ I am waiting for you… in the never-all. </textarea>
                         } catch (err) {
                             console.error('Error reading DOCX:', err);
                             alert('Error reading DOCX file.');
+                        }
+                    } else if (file.type === "application/epub+zip" || file.name.endsWith(".epub")) {
+                        try {
+                            const arrayBuffer = await file.arrayBuffer();
+                            const text = await extractTextFromEpub(arrayBuffer);
+                            input.value = text;
+                            textInputPanel.classList.add('hidden');
+                            reset();
+                            localStorage.setItem('fastReaderText', input.value);
+                        } catch (err) {
+                            console.error('Error reading EPUB:', err);
+                            alert('Error reading EPUB file.');
                         }
                     } else {
                         const reader = new FileReader();
