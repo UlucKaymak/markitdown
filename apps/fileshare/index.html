@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>_fileShare - P2P Transfer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,300;1,500;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-paper-plane"></i> _fileShare</h1>
+            <p>Direct device-to-device file transfer</p>
+        </header>
+
+        <main>
+            <div class="connection-panel">
+                <div class="card my-id-card">
+                    <h3>My Device ID</h3>
+                    <div class="id-display">
+                        <span id="display-peer-id">Initializing...</span>
+                        <button id="copy-id-btn" title="Copy ID"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="status-indicator" id="conn-status-text">Network sync...</div>
+                </div>
+
+                <div class="card connect-card">
+                    <h3>Connect</h3>
+                    <div class="input-group">
+                        <input type="text" id="target-id-input" placeholder="Enter remote ID">
+                        <button id="start-connect-btn">Connect</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="transfer-panel" id="main-transfer-panel" style="display: none;">
+                <div class="card upload-card">
+                    <h3>Send File</h3>
+                    <div class="drop-zone" id="file-drop-zone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & Drop or Click</p>
+                        <input type="file" id="main-file-input" hidden>
+                    </div>
+                    <div id="selected-file-info"></div>
+                    <button id="execute-send-btn" disabled>Send File</button>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="transfer-progress-bar"></div>
+                    </div>
+                </div>
+
+                <div class="card download-card">
+                    <h3>Incoming Files</h3>
+                    <div id="files-list-container">
+                        <p class="placeholder-text">Waiting for files...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

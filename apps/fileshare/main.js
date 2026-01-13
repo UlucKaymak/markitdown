@@ -1,0 +1,235 @@
+(function() {
+    // --- Configuration ---
+    var peer = null;
+    var conn = null;
+    var myAliasID = "";
+    var selectedFile = null;
+    
+    // --- Alias Generators ---
+    var adjectives = ["Fast", "Swift", "Silent", "Neon", "Brave", "Clever", "Cool", "Epic", "Magic", "Hyper", "Wild", "Bold", "Quick", "Smart", "Kind", "Calm", "Fierce", "Lucky", "Bright", "Dark"];
+    var nouns = ["Lion", "Eagle", "Falcon", "Wolf", "Tiger", "Shark", "Dragon", "Phoenix", "Ghost", "Pilot", "Robot", "Space", "Star", "Cloud", "Storm", "Shadow", "Hunter", "Warrior", "Knight", "Rider"];
+
+    // --- DOM Elements ---
+    var els = {};
+
+    function getElements() {
+        els.myId = document.getElementById('display-peer-id');
+        els.status = document.getElementById('conn-status-text');
+        els.remoteId = document.getElementById('target-id-input');
+        els.connectBtn = document.getElementById('start-connect-btn');
+        els.panel = document.getElementById('main-transfer-panel');
+        els.dropZone = document.getElementById('file-drop-zone');
+        els.fileInput = document.getElementById('main-file-input');
+        els.fileInfo = document.getElementById('selected-file-info');
+        els.sendBtn = document.getElementById('execute-send-btn');
+        els.progress = document.getElementById('transfer-progress-bar');
+        els.incomingList = document.getElementById('files-list-container');
+        els.copyBtn = document.getElementById('copy-id-btn');
+    }
+
+    // --- Core Functions ---
+    function init() {
+        getElements();
+
+        // Check if PeerJS is loaded
+        if (typeof Peer === 'undefined') {
+            els.status.textContent = "Error: PeerJS library missing.";
+            els.status.style.color = "red";
+            return;
+        }
+
+        myAliasID = generateSafeId();
+        startPeerNetwork();
+        bindEvents();
+    }
+
+    function generateSafeId() {
+        var adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+        var noun = nouns[Math.floor(Math.random() * nouns.length)];
+        var num = Math.floor(Math.random() * 99) + 1; 
+        return (adj + "-" + noun + "-" + num).toLowerCase();
+    }
+
+    function startPeerNetwork() {
+        if (peer) peer.destroy();
+        
+        els.status.textContent = "Connecting to cloud...";
+        
+        try {
+            peer = new Peer(myAliasID, { 
+                debug: 1,
+                config: {'iceServers': [{ url: 'stun:stun.l.google.com:19302' }]} 
+            });
+
+            peer.on('open', function(id) {
+                if(els.myId) els.myId.textContent = id;
+                if(els.status) {
+                    els.status.textContent = "Online & Ready.";
+                    els.status.style.color = "#27ae60"; // Green
+                }
+            });
+
+            peer.on('connection', function(c) {
+                // If we already have a connection, close the new one? 
+                // Or allow reconnection. Let's allow and switch.
+                if (conn) { conn.close(); }
+                setupConnection(c);
+            });
+
+            peer.on('error', function(err) {
+                console.error("Peer Error:", err);
+                if (err.type === 'unavailable-id') {
+                    // Retry with new ID
+                    myAliasID = generateSafeId();
+                    startPeerNetwork();
+                } else if (err.type === 'network') {
+                     if(els.status) {
+                        els.status.textContent = "Network Error. Retrying...";
+                        setTimeout(startPeerNetwork, 3000);
+                     }
+                } else {
+                    if(els.status) {
+                        els.status.textContent = "Error: " + err.type;
+                        els.status.style.color = "#e74c3c";
+                    }
+                }
+            });
+
+            peer.on('disconnected', function() {
+                if(els.status) els.status.textContent = "Disconnected. Reconnecting...";
+                peer.reconnect();
+            });
+
+        } catch (e) {
+            console.error("Peer Init Error:", e);
+            els.status.textContent = "Critical Error: " + e.message;
+        }
+    }
+
+    function bindEvents() {
+        if(els.connectBtn) {
+            els.connectBtn.onclick = function() {
+                var id = els.remoteId.value.trim().toLowerCase();
+                if (id) {
+                    els.status.textContent = "Dialing " + id + "...";
+                    var c = peer.connect(id, { metadata: { name: myAliasID } });
+                    setupConnection(c);
+                }
+            };
+        }
+
+        if(els.copyBtn) {
+            els.copyBtn.onclick = function() {
+                navigator.clipboard.writeText(els.myId.textContent).then(function() {
+                    var icon = els.copyBtn.querySelector('i');
+                    icon.className = "fas fa-check";
+                    setTimeout(function() { icon.className = "fas fa-copy"; }, 2000);
+                });
+            };
+        }
+
+        // File Handling
+        if(els.dropZone) {
+            els.dropZone.onclick = function() { els.fileInput.click(); };
+            
+            ['dragenter', 'dragover'].forEach(n => {
+                els.dropZone.addEventListener(n, (e) => { e.preventDefault(); els.dropZone.classList.add('highlight'); });
+            });
+            ['dragleave', 'drop'].forEach(n => {
+                els.dropZone.addEventListener(n, (e) => { e.preventDefault(); els.dropZone.classList.remove('highlight'); });
+            });
+
+            els.dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (e.dataTransfer.files.length > 0) onFileReady(e.dataTransfer.files[0]);
+            });
+        }
+
+        if(els.fileInput) {
+            els.fileInput.onchange = function(e) {
+                if (e.target.files.length > 0) onFileReady(e.target.files[0]);
+            };
+        }
+
+        if(els.sendBtn) {
+            els.sendBtn.onclick = function() {
+                if (selectedFile && conn && conn.open) {
+                    conn.send({ type: 'meta', name: selectedFile.name, size: selectedFile.size, fileType: selectedFile.type, sender: myAliasID });
+                    conn.send({ type: 'file', content: selectedFile });
+                    
+                    els.sendBtn.disabled = true;
+                    els.sendBtn.textContent = "Sending...";
+                    els.progress.style.width = "100%";
+                    
+                    setTimeout(function() {
+                        els.sendBtn.textContent = "Sent!";
+                        setTimeout(function() {
+                            els.sendBtn.textContent = "Send File";
+                            els.sendBtn.disabled = false;
+                            els.progress.style.width = "0%";
+                        }, 2000);
+                    }, 1000);
+                }
+            };
+        }
+    }
+
+    function onFileReady(file) {
+        selectedFile = file;
+        els.fileInfo.innerHTML = `<strong>${file.name}</strong> (${(file.size/1024/1024).toFixed(2)} MB)`;
+        els.sendBtn.disabled = false;
+    }
+
+    function setupConnection(c) {
+        conn = c;
+        
+        conn.on('open', function() {
+            var rName = (conn.metadata && conn.metadata.name) ? conn.metadata.name : "Remote";
+            els.status.textContent = "Connected: " + rName;
+            els.status.style.color = "#3498db";
+            els.panel.style.display = "block"; // Show transfer panel
+            
+            // Send Handshake
+            conn.send({ type: 'handshake', name: myAliasID });
+        });
+
+        conn.on('data', function(data) {
+            if (data.type === 'handshake') {
+                els.status.textContent = "Connected: " + data.name;
+            } else if (data.type === 'meta') {
+                this.incomingMeta = data;
+            } else if (data.type === 'file') {
+                var m = this.incomingMeta;
+                var blob = new Blob([data.content], { type: m.fileType });
+                var url = URL.createObjectURL(blob);
+                
+                // Clear placeholder
+                var ph = els.incomingList.querySelector('.placeholder-text');
+                if(ph) ph.remove();
+
+                var div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `<div><strong>${m.name}</strong></div><a href="${url}" download="${m.name}"><button class="small-btn"><i class="fas fa-download"></i></button></a>`;
+                els.incomingList.appendChild(div);
+            }
+        });
+
+        conn.on('close', function() {
+            els.status.textContent = "Connection Lost.";
+            els.status.style.color = "#e74c3c";
+            setTimeout(function() { location.reload(); }, 2000);
+        });
+        
+        conn.on('error', function(err) {
+            console.error("Conn Error:", err);
+        });
+    }
+
+    // Init when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+})();
