@@ -29,15 +29,15 @@
         "cactus", "penguin", "broccoli", "headphones", "astronaut", "toothpick", "lego",
         "box", "balloon", "detergent", "ant", "umbrella", "cloud", "screw", "lightbulb",
         "misdemeanor", "statue", "microchip", "notepad", "television", "jar",
-        "fruit juice", "slipper", "curtain", "guitar", "telescope", "microscope", "chessboard",
+        "fruitjuice", "slipper", "curtain", "guitar", "telescope", "microscope", "chessboard",
         "tomato", "eggplant", "daisy", "satellite", "planetesimal", "merry-go-round", "ventilator",
         "pencil", "eraser", "mouse", "speaker", "wall clock", "hourglass", "mirror",
-        "lighter", "keychain", "coin", "newspaper", "magazine", "coffee machine",
+        "lighter", "keychain", "coin", "newspaper", "magazine", "coffeemachine",
         "iron", "brush", "soap", "toothpaste", "towel", "blanket", "pillow",
-        "armchair", "coffee table", "lamp", "bicycle", "skateboard", "skates", "drone",
+        "armchair", "coffeetable", "lamp", "bicycle", "skateboard", "skates", "drone",
         "robot", "algorithm", "database", "pixel", "monitor", "processor", "memory",
-        "graphics card", "motherboard", "power supply", "cable", "socket", "plug", "switch",
-        "lock", "door handle", "window", "ladder", "roof", "chimney", "wall",
+        "graphicscard", "motherboard", "powersupply", "cable", "socket", "plug", "switch",
+        "lock", "doorhandle", "window", "ladder", "roof", "chimney", "wall",
         "floor", "ceiling", "room", "house"
     ];
 
