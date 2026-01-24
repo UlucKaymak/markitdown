@@ -52,7 +52,6 @@ function handleUrlRouting(fromPopState = false) {
 }
 
 // --- LIGHTBOX LOGIC ---
-
 function setupLightboxListeners() {
     lightboxElements.overlay = document.getElementById('image-lightbox');
     lightboxElements.image = document.getElementById('expanded-image');
@@ -117,8 +116,8 @@ function closeLightbox() {
     }
 }
 
-// --- PROJECT LOADING LOGIC ---
 
+// --- PROJECT LOADING LOGIC ---
 async function loadProjectThumbnails(filter = 'all') {
     try {
         const response = await fetch('/projects.json');
@@ -241,15 +240,25 @@ function openProjectModal(project, fromRouting = false) {
     // 4. Inject into Modal
     let tagsHtml = (project.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
 
+    // Determine thumbnail URL
+    const thumbnailUrl = (project.thumbnail && project.thumbnail.startsWith('_projects')) 
+        ? '/' + project.thumbnail 
+        : (project.thumbnail || 'placeholder.jpg');
+
     modalBody.innerHTML = `
-        <div class="modal-header">
-            <h2>${project.title}</h2>
-            <div class="modal-meta">
-                <span class="project-type-badge">${project.type}</span>
-                <span class="project-date">${formatDate(project.date)}</span>
+        <div class="project-overview-header">
+            <div class="project-overview-thumbnail">
+                <img src="${thumbnailUrl}" alt="${project.title}">
+            </div>
+            <div class="project-overview-info">
+                <h2>${project.title}</h2>
+                <div class="modal-meta">
+                    <span class="project-type-badge">${project.type}</span>
+                    <span class="project-date" style="margin-bottom: 0 !important;">${formatDate(project.date)}</span>
+                </div>
+                ${project.role ? `<p class="project-role" style="margin-top: 1rem;"><strong>My Role:</strong> ${project.role}</p>` : ''}
             </div>
         </div>
-        ${project.role ? `<p class="project-role"><strong>Role:</strong> ${project.role}</p>` : ''}
         ${contentGrid}
         <div class="project-tags">${tagsHtml}</div>
     `;

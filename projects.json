@@ -42,14 +42,14 @@
     "title": "Livber: Smoke and Mirrors",
     "type": "Video Game",
     "date": "2025_05_02",
-    "description": "Lilith, whom you believed dead for years, calls to you with nothing but a letter, summoning you back to the old house, silent witness to your past.  Inside the letter, there is only an address and a few haunting lines: *\"I will birth our creation in our home. Come, and crown us in the dark. You and I must always be one.\"*  \n\nLivber: Smoke and Mirrors, is a text-based interactive fiction game in the *choose-your-own-adventure* tradition. Your choices don’t just influence your next move; they reshape the entire narrative. \n\nI started the project for audible parts, but I spread to other departments like a virus.  \n\n[Steam](https://store.steampowered.com/app/3700580/Livber_Smoke_and_Mirrors/)\n[Itch.io](https://inevgames.itch.io/livber-smoke-and-mirrors-prologue)\n[InEvGames](http://inevgames.com/)",
+    "description": "Lilith, whom you believed dead for years, calls to you with nothing but a letter, summoning you back to the old house, silent witness to your past.  Inside the letter, there is only an address and a few haunting lines: *\"I will birth our creation in our home. Come, and crown us in the dark. You and I must always be one.\"*  \n\nLivber: Smoke and Mirrors, is a text-based interactive fiction game in the *choose-your-own-adventure* tradition. Your choices don’t just influence your next move; they reshape the entire narrative. \n\nI started the project for audible parts, but I spread to other departments like a virus.  \n\n[Steam](https://store.steampowered.com/app/3700580/Livber_Smoke_and_Mirrors/)\n[Itch.io](https://inevgames.itch.io/livber-smoke-and-mirrors-prologue)\n[InEvGames.com](http://inevgames.com/)\n[Listen Soundtrack](https://open.spotify.com/album/5VqKzfWkdPsGZBoykKeJeX?si=31e2ce14626b492c)",
     "role": "Soundtrack Composer, Audio Engineer, Audio FXs, and some other things",
     "thumbnail": "_projects/2025_06-InEvGames-Livber/Livber-Square.jpeg",
     "media": [
       "_projects/2025_06-InEvGames-Livber/Livber-Square.jpeg",
-      "_projects/2025_06-InEvGames-Livber/02 - livber_-_smoke_and_mirrors-unexpected_letter-preview.mp4",
-      "_projects/2025_06-InEvGames-Livber/03 - livber_-_smoke_and_mirrors-runing_from-preview.mp4",
-      "_projects/2025_06-InEvGames-Livber/04 - livber_-_smoke_and_mirrors-grand_unification-preview.mp4",
+      "_projects/2025_06-InEvGames-Livber/LivberOST_Preview_Clara.wav",
+      "_projects/2025_06-InEvGames-Livber/LivberOST_Preview_GrandUnification.wav",
+      "_projects/2025_06-InEvGames-Livber/LivberOST_Preview_Porph.wav",
       "_projects/2025_06-InEvGames-Livber/Livber_Screenshot_(1).jpg",
       "_projects/2025_06-InEvGames-Livber/Livber_Screenshot_(3).jpg",
       "_projects/2025_06-InEvGames-Livber/Livber_Screenshot_(5).jpg",
@@ -102,7 +102,7 @@
     "tags": [
       "#Audio",
       "#Soundtrack",
-      "GameDesign",
+      "#GameDesign",
       "#VideoGame"
     ],
     "enabled": true
@@ -113,7 +113,7 @@
     "type": "Musical Instrument",
     "date": "2025_08",
     "description": "From the project's engineer, Reha:\n\"Developed within Turkey’s growing music technology scene, focuses on creating a cost-effective analog synthesizer that preserves the warm and dynamic qualities of analog sound. A Voltage-Controlled Oscillator (VCO) with sawtooth and pulse outputs (including Pulse-Width Modulation) has been successfully implemented, along with a Voltage-Controlled Amplifier (VCA) for dynamic output control. Control Voltage (CV) functionality is also supported, enabling precise pitch control and modular integration. Future work will expand on these foundations to enhance the synthesizer’s versatility and usability.\"\n\ntldr: made musical blip-blop machine blocks with a very passionate team.",
-    "role": "Consultant",
+    "role": "Musical Consultant",
     "thumbnail": "_projects/2025_08-asynth/synthproto-cover.jpeg",
     "media": [
       "_projects/2025_08-asynth/WhatsApp Image 2024-12-20 at 12.07.52.jpeg",
