@@ -5,7 +5,7 @@
   "display": "standalone",
   "background_color": "#f4f4f9",
   "theme_color": "#007bff",
-  "description": "Sunucusuz, güvenli ve hızlı dosya aktarımı.",
+  "description": "Serverless, peer-to-peer file sharing.",
   "icons": [
     {
       "src": "../../design/favicon-main.png",

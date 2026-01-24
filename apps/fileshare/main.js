@@ -14,7 +14,7 @@
         "anarchist", "porcelain", "blurry", "rhythmic", "metallic", "plastic", "acidic",
         "neurotic", "square", "smoked", "wind-up", "acrobatic", "abstract", "organic",
         "vintage", "static", "hypnotic", "ironic", "futuristic", "cutesy", "hollow",
-        "criss-cross", "match-selling", "virtual", "atonal", "decayed", "shattered", "monotonous",
+        "virtual", "atonal", "decayed", "shattered", "monotonous",
         "electromagnetic", "boiled", "simulationist", "holographic", "shoeless",
         "unadjusted", "crypto", "nostalgic", "mechanical", "sarky", "pastoral", "chaotic",
         "sterile", "mystic", "potato-fied", "striped", "checkered", "bubbling",
@@ -24,13 +24,13 @@
         "parasitic", "reverberating", "silent"
     ];
     var nouns = [
-        "zinc-carbonbattery", "lizard", "notebook", "toaster", "modem", "pixel",
+        "zinccarbonbattery", "lizard", "notebook", "toaster", "modem", "pixel",
         "grasshopper", "radiator", "keyboard", "mushroom", "jellyfish", "muesli", "outlet",
         "cactus", "penguin", "broccoli", "headphones", "astronaut", "toothpick", "lego",
         "box", "balloon", "detergent", "ant", "umbrella", "cloud", "screw", "lightbulb",
         "misdemeanor", "statue", "microchip", "notepad", "television", "jar",
         "fruitjuice", "slipper", "curtain", "guitar", "telescope", "microscope", "chessboard",
-        "tomato", "eggplant", "daisy", "satellite", "planetesimal", "merry-go-round", "ventilator",
+        "tomato", "eggplant", "daisy", "satellite", "planetesimal", "ventilator",
         "pencil", "eraser", "mouse", "speaker", "wallclock", "hourglass", "mirror",
         "lighter", "keychain", "coin", "newspaper", "magazine", "coffeemachine",
         "iron", "brush", "soap", "toothpaste", "towel", "blanket", "pillow",
