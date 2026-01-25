@@ -1,5 +1,5 @@
 [
-    {
+  {
     "id": "ulucapp-veloread",
     "title": "VeloRead",
     "type": "Reading App",
@@ -34,6 +34,26 @@
       "#ArtPiece",
       "#Audio",
       "#Algorithmic"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "ibrightgames-milord",
+    "title": "MiLord",
+    "type": "Video Game",
+    "date": "14_04_2025",
+    "description": "Milord is a Kingdom Management RPG with city-building mechanics. Immerse yourself in a world where your decisions shape your fiefdom's destiny. Rule wisely as you construct, strategize, and navigate the challenges of leadership. Will you rise to glory or crumble under the weight of your choices?\n\n[iBrightGames.com](https://www.ibrightgames.com)\n[MiLord On Steam](https://store.steampowered.com/app/2455460/Milord/)",
+    "role": "Soundtrack Composer, UX Consultant ",
+    "thumbnail": "_projects/2025_07-iBright-MiLord/Milord-Thumbnail.jpeg",
+    "media": [
+      "_projects/2025_07-iBright-MiLord/Milord-Thumbnail.jpeg",
+      "_projects/2025_07-iBright-MiLord/Milord_Preview1.jpg",
+      "_projects/2025_07-iBright-MiLord/Milord_Preview2.jpg"
+    ],
+    "tags": [
+      "#VideoGame",
+      "#UXDesign",
+      "#Soundtrack"
     ],
     "enabled": true
   },
