@@ -1,0 +1,43 @@
+/* Page Transition Animations - Only for content area */
+.page-content {
+    animation: pageEnter 0.2s ease-in-out;
+}
+
+.page-content.page-transition-exit {
+    animation: pageExit 0.2s ease-in-out forwards;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pageExit {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Zoom Animation */
+@keyframes zoomIn {
+    from {transform:scale(0.8); opacity: 0;}
+    to {transform:scale(1); opacity: 1;}
+}

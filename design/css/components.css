@@ -1,0 +1,208 @@
+/* Profile Image */
+.profile-image {
+    width: 300px;
+    height: 300px;
+    margin: 0 auto 2rem;
+    overflow: hidden;
+    border: 1px solid var(--accent);
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group input[type="email"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    background-color: var(--secondary-bg);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary,
+.btn-small,
+.btn-edit,
+.btn-delete {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--accent);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+}
+
+.btn-secondary:hover {
+    background-color: var(--accent);
+    color: white;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+}
+
+.btn-small:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn-edit,
+.btn-delete {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+}
+
+.btn-edit {
+    background-color: var(--accent);
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn-delete {
+    background-color: transparent;
+    color: #dc2626;
+    border: 1px solid #dc2626;
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+    color: white;
+}
+
+/* Tags and Badges */
+.tag {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background-color: var(--primary-bg);
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.tag:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.media-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: var(--accent);
+    color: white;
+    font-size: 0.7rem;
+    border-radius: 3px;
+}
+
+.badge-enabled {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: #28a745;
+    color: white;
+    font-size: 0.7rem;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.badge-disabled {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: #6c757d;
+    color: white;
+    font-size: 0.7rem;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.tag-badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    background-color: var(--primary-bg);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+    .profile-image {
+        width: 180px; /* Adjusted for better mobile fit */
+        height: 180px; /* Adjusted for better mobile fit */
+        margin: 0 auto 1.5rem; /* Center and reduce margin */
+    }
+    
+    .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .btn-edit,
+    .btn-delete {
+        flex: 1;
+    }
+}

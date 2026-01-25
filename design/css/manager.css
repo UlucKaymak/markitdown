@@ -1,0 +1,126 @@
+/* Content Manager Page */
+.manager-main {
+    max-width: 1100px; 
+    margin: 0 auto;
+    padding: 3rem 5%;
+}
+
+.manager-main h2 {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.manager-intro {
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    font-size: 0.8rem; /* CHANGED */
+}
+
+.manager-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.manager-form-section h3,
+.manager-list-section h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+}
+
+/* Projects List */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.list-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.project-card-manager {
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.project-card-content h4 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.project-date-small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.project-desc-preview {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.project-role-small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.project-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.no-projects,
+.error-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.error-message {
+    color: #dc2626;
+}
+
+/* Responsive Manager */
+@media (max-width: 768px) {
+    .manager-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .project-card-manager {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .project-card-actions {
+        width: 100%;
+    }
+}
