@@ -54,17 +54,17 @@
 .links-list,
 .exhibitions-list {
     list-style: none;
-    margin-bottom: 2rem;
+    /* margin-bottom: 2rem; */
 }
 
 .links-list li,
 .exhibitions-list li {
-    padding: 0.4rem 0;
-    padding-left: 1.5rem;
+    /* padding: 0.4rem 0; */
+    /* padding-left: 1.5rem; */
     position: relative;
     color: var(--text-secondary);
     font-size: 0.8rem;
-    line-height: 1.4;
+    /* line-height: 1.4; */
 }
 
 .links-list li:before,
@@ -90,12 +90,12 @@
 
 .contact-links {
     display: flex;
-    gap: 1.5rem;
+    /* gap: 1.5rem; */
     margin-top: 1rem;
 }
 
 .contact-links a {
-    padding: 0.75rem 2rem;
+    /* padding: 0.75rem 2rem; */
     border: 2px solid var(--accent);
     color: var(--accent);
     text-decoration: none;
