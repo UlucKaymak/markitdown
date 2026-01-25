@@ -120,7 +120,7 @@ function closeLightbox() {
 // --- PROJECT LOADING LOGIC ---
 async function loadProjectThumbnails(filter = 'all') {
     try {
-        const response = await fetch('/projects.json');
+        const response = await fetch('projects.json');
         if (!response.ok) throw new Error('Failed to load projects.json');
 
         const projectsData = await response.json();
@@ -201,7 +201,7 @@ function openProjectModal(project, fromRouting = false) {
     if (project.media) {
         project.media.forEach(mediaPath => {
             const ext = mediaPath.split('.').pop().toLowerCase();
-            const absolutePath = mediaPath.startsWith('_projects') ? '/' + mediaPath : mediaPath;
+            const absolutePath = mediaPath;
             
             if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
                 contentGrid += `
@@ -242,7 +242,7 @@ function openProjectModal(project, fromRouting = false) {
 
     // Determine thumbnail URL
     const thumbnailUrl = (project.thumbnail && project.thumbnail.startsWith('_projects')) 
-        ? '/' + project.thumbnail 
+        ? project.thumbnail 
         : (project.thumbnail || 'placeholder.jpg');
 
     modalBody.innerHTML = `
@@ -308,14 +308,14 @@ async function loadProjectsSidebar() {
     const sidebarList = document.querySelector('.sidebar-projects');
     if (!sidebarList) return;
     try {
-        const response = await fetch('/projects.json');
+        const response = await fetch('projects.json');
         const projects = await response.json();
         allProjects = projects; // Populate global state
         sidebarList.innerHTML = '';
         projects.filter(p => p.enabled).forEach(p => {
             const li = document.createElement('li');
             // Change: Use query param for link with .html extension
-            li.innerHTML = `<a href="/projects.html?id=${p.id}" class="project-nav-link">${p.title}</a>`;
+            li.innerHTML = `<a href="projects.html?id=${p.id}" class="project-nav-link">${p.title}</a>`;
             sidebarList.appendChild(li);
         });
     } catch (e) { console.error("Sidebar error", e); }

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function loadSidebar() {
     // Use absolute path to ensure sidebar loads from any subpath or domain
-    fetch('/design/sidebar.html')
+    fetch('design/sidebar.html')
         .then(response => {
             if (!response.ok) throw new Error("Sidebar fetch failed");
             return response.text();
