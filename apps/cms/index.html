@@ -9,8 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="../../design/css/variables.css">
+    <link rel="stylesheet" href="../../design/css/base.css">
+    <link rel="stylesheet" href="../../design/css/components.css">
+    <link rel="stylesheet" href="style.css">
     <style>
-        /* Content Manager Styles */
         /* Login Overlay */
         #login-overlay {
             position: fixed;
@@ -73,310 +76,6 @@
             margin-top: 1rem;
             font-size: 0.9rem;
             display: none;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Roboto Mono', monospace;
-            background-color: #0a0a0a;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
-
-        .manager-page {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Main Content */
-        .page-content {
-            flex: 1;
-            padding: 3rem;
-        }
-
-        .manager-main {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .manager-main h2 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: #fff;
-        }
-
-        .manager-intro {
-            color: #a0a0a0;
-            margin-bottom: 2rem;
-            font-size: 1.1em;
-        }
-
-        /* Form Section */
-        .manager-form-section {
-            background-color: #1a1a1a;
-            border: 1px solid #333;
-            padding: 2rem;
-            border-radius: 8px;
-            margin-bottom: 3rem;
-        }
-
-        .manager-form-section h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: #fff;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #e0e0e0;
-            font-weight: 500;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 4px;
-            color: #e0e0e0;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 0.95em;
-        }
-
-        .form-group input[type="text"]:focus,
-        .form-group input[type="number"]:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #555;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-        }
-
-        .form-group small {
-            display: block;
-            margin-top: 0.25rem;
-            color: #666;
-            font-size: 0.85em;
-        }
-
-        .form-group input[type="checkbox"] {
-            margin-right: 0.5rem;
-        }
-
-        /* Buttons */
-        .btn-primary,
-        .btn-secondary,
-        .btn-small {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 0.95em;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .btn-primary {
-            background-color: #4a9eff;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background-color: #3a8eef;
-        }
-
-        .btn-secondary {
-            background-color: #333;
-            color: #e0e0e0;
-        }
-
-        .btn-secondary:hover {
-            background-color: #444;
-        }
-
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.85em;
-            background-color: #2a2a2a;
-            color: #e0e0e0;
-        }
-
-        .btn-small:hover {
-            background-color: #3a3a3a;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        /* Projects List Section */
-        .manager-list-section {
-            background-color: #1a1a1a;
-            border: 1px solid #333;
-            padding: 2rem;
-            border-radius: 8px;
-        }
-
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .list-header h3 {
-            font-size: 1.5rem;
-            color: #fff;
-        }
-
-        .list-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .projects-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .project-item {
-            background-color: #0a0a0a;
-            border: 1px solid #333;
-            padding: 1.5rem;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            transition: border-color 0.2s;
-        }
-
-        .project-item:hover {
-            border-color: #555;
-        }
-
-        .project-info {
-            flex: 1;
-        }
-
-        .project-info h4 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-            color: #fff;
-        }
-
-        .project-meta {
-            color: #a0a0a0;
-            font-size: 0.9em;
-            margin-bottom: 0.5rem;
-        }
-
-        .project-tags {
-            color: #4a9eff;
-            font-size: 0.85em;
-        }
-
-        .project-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .project-actions button {
-            padding: 0.5rem 1rem;
-            font-size: 0.85em;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Roboto Mono', monospace;
-            transition: background-color 0.2s;
-        }
-
-        .btn-edit {
-            background-color: #333;
-            color: #e0e0e0;
-        }
-
-        .btn-edit:hover {
-            background-color: #444;
-        }
-
-        .btn-delete {
-            background-color: #d32f2f;
-            color: #fff;
-        }
-
-        .btn-delete:hover {
-            background-color: #c62828;
-        }
-
-        /* Media List */
-        #media-list {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 0.5rem;
-            background-color: #0a0a0a;
-        }
-
-        .media-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem;
-            margin-bottom: 0.5rem;
-            background-color: #1a1a1a;
-            border-radius: 4px;
-        }
-
-        .media-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .media-item span {
-            color: #e0e0e0;
-            font-size: 0.9em;
-            word-break: break-all;
-        }
-
-        .media-item button {
-            background-color: #d32f2f;
-            color: #fff;
-            border: none;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8em;
-        }
-
-        .media-item button:hover {
-            background-color: #c62828;
-        }
-
-        /* Disabled projects */
-        .project-item.disabled {
-            opacity: 0.6;
-        }
-
-        .project-item.disabled .project-info h4::before {
-            content: "[DISABLED] ";
-            color: #d32f2f;
         }
     </style>
 </head>
@@ -447,11 +146,11 @@
                         <label>Media Files</label>
                         <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
                             <button type="button" id="select-folder-btn" class="btn-secondary">Select Folder</button>
-                            <button type="button" id="add-media-manual-btn" class="btn-secondary">Add File
-                                Manually</button>
+                            <button type="button" id="add-media-manual-btn" class="btn-secondary">Add Path Manually</button>
+                            <button type="button" id="add-media-url-btn" class="btn-secondary">Add from URL</button>
                         </div>
                         <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;">
-                        <small>Select a folder to import all media files, or add paths manually</small>
+                        <small>Select a folder to import all media files, or add paths/URLs manually</small>
                         <div id="media-list" style="margin-top: 0.5rem;">
                             <!-- Media files will be listed here -->
                         </div>
@@ -477,6 +176,9 @@
                     </div>
                 </form>
             </div>
+
+            <hr>
+            <br>
 
             <!-- Projects List -->
             <div class="manager-list-section">
@@ -515,6 +217,7 @@
         const importJsonFile = document.getElementById('import-json-file');
         const selectFolderBtn = document.getElementById('select-folder-btn');
         const addMediaManualBtn = document.getElementById('add-media-manual-btn');
+        const addMediaUrlBtn = document.getElementById('add-media-url-btn');
         const folderInput = document.getElementById('folder-input');
         const mediaList = document.getElementById('media-list');
 
@@ -541,6 +244,7 @@
             selectFolderBtn.addEventListener('click', () => folderInput.click());
             folderInput.addEventListener('change', handleFolderSelect);
             addMediaManualBtn.addEventListener('click', addMediaManually);
+            addMediaUrlBtn.addEventListener('click', addMediaFromUrl);
 
             // Import/Export
             exportJsonBtn.addEventListener('click', exportToProjectsJson);
@@ -625,8 +329,8 @@
             // Add to current media files list
             mediaFiles.forEach(file => {
                 const relativePath = file.webkitRelativePath;
-                // Convert to projects/ relative path
-                const projectPath = 'projects/' + relativePath;
+                // Convert to _projects/ relative path
+                const projectPath = '_projects/' + relativePath;
                 if (!currentMediaFiles.includes(projectPath)) {
                     currentMediaFiles.push(projectPath);
                 }
@@ -638,10 +342,21 @@
 
         // Add media file manually
         function addMediaManually() {
-            const path = prompt('Enter media file path (e.g., projects/2025_08-project/image.jpg):');
+            const path = prompt('Enter media file path (e.g., _projects/2025_08-project/image.jpg):');
             if (path && path.trim()) {
                 if (!currentMediaFiles.includes(path.trim())) {
                     currentMediaFiles.push(path.trim());
+                    renderMediaList();
+                }
+            }
+        }
+
+        // Add media from URL
+        function addMediaFromUrl() {
+            const url = prompt('Enter media URL (e.g., https://example.com/image.jpg):');
+            if (url && url.trim()) {
+                if (!currentMediaFiles.includes(url.trim())) {
+                    currentMediaFiles.push(url.trim());
                     renderMediaList();
                 }
             }
@@ -738,8 +453,18 @@
                 const mediaBadge = project.media && project.media.length > 0
                     ? `<span class="media-badge">${project.media.length} media files</span>`
                     : '';
+                
+                let thumbSrc = '';
+                if (project.thumbnail) {
+                    thumbSrc = project.thumbnail.startsWith('http') ? project.thumbnail : '../' + project.thumbnail;
+                }
+
+                const thumbnailHTML = thumbSrc
+                    ? `<img src="${thumbSrc}" alt="${project.title}" class="project-card-thumbnail">`
+                    : '<div class="project-card-thumbnail" style="display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #666;">No Image</div>';
 
                 projectCard.innerHTML = `
+    ${thumbnailHTML}
     <div class="project-card-content">
         <h4>${project.title}</h4>
         <p class="project-date-small">${project.date} | ${project.type}</p>
@@ -748,6 +473,8 @@
         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
             ${enabledBadge}
             ${mediaBadge}
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
             ${project.tags ? project.tags.map(tag => `<span class="tag-badge">${tag}</span>`).join('') : ''}
         </div>
     </div>

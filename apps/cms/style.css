@@ -57,6 +57,23 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    overflow: hidden;
+    gap: 1rem;
+}
+
+.project-card-thumbnail {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background-color: #333;
+    display: block;
+}
+
+.project-card-content {
+    flex: 1;
+    min-width: 0; /* Important for flexbox overflow */
 }
 
 .project-card-content h4 {
@@ -89,6 +106,35 @@
     flex-shrink: 0;
 }
 
+/* Badges */
+.badge-enabled, .badge-disabled, .media-badge, .tag-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.badge-enabled {
+    background-color: #1b4332;
+    color: #8fce00;
+}
+
+.badge-disabled {
+    background-color: #432818;
+    color: #ff9f1c;
+}
+
+.media-badge {
+    background-color: #1e2749;
+    color: #4a9eff;
+}
+
+.tag-badge {
+    background-color: #333;
+    color: #ccc;
+    border: 1px solid #444;
+}
+
 .empty-state {
     text-align: center;
     padding: 3rem 1rem;
@@ -118,6 +164,14 @@
     .project-card-manager {
         flex-direction: column;
         gap: 1rem;
+    }
+
+    .project-card-thumbnail {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        margin-right: 0;
+        margin-bottom: 0.5rem;
     }
 
     .project-card-actions {
