@@ -197,27 +197,30 @@ function openProjectModal(project, fromRouting = false) {
 
     let contentGrid = '<div class="modal-content-grid">';
 
-    // 2. Build the Media Grid
+    let mediaItems = [];
+    let textItems = [];
+
+    // 2. Prepare Media Items
     if (project.media) {
         project.media.forEach(mediaPath => {
             const ext = mediaPath.split('.').pop().toLowerCase();
             const absolutePath = mediaPath;
             
             if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-                contentGrid += `
+                mediaItems.push(`
                     <div class="grid-item grid-item-image expandable-image-container">
                         <img src="${absolutePath}" alt="${project.title}">
-                    </div>`;
+                    </div>`);
             } else if (['mp4', 'webm', 'ogg'].includes(ext)) {
-                contentGrid += `
+                mediaItems.push(`
                     <div class="grid-item grid-item-video">
                         <video controls controlsList="nodownload">
                             <source src="${absolutePath}" type="video/${ext}">
                         </video>
-                    </div>`;
+                    </div>`);
             } else if (['mp3', 'wav', 'ogg'].includes(ext)) {
                 const audioTitle = mediaPath.split('/').pop().split('.')[0].replace(/[-_]/g, ' ');
-                contentGrid += `
+                mediaItems.push(`
                     <div class="grid-item grid-item-audio">
                         <div class="audio-wrapper">
                             <div class="audio-title">${audioTitle}</div>
@@ -225,16 +228,38 @@ function openProjectModal(project, fromRouting = false) {
                                 <source src="${absolutePath}" type="audio/${ext}">
                             </audio>
                         </div>
-                    </div>`;
+                    </div>`);
             }
         });
     }
 
-    // 3. Add Text
+    // 3. Prepare Text Items
     let description = (project.description || "").replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
     description.split(/\n\n+/).filter(p => p.trim()).forEach(p => {
-        contentGrid += `<div class="grid-item grid-item-text"><p>${p.replace(/\n/g, '<br>')}</p></div>`;
+        textItems.push(`<div class="grid-item grid-item-text"><p>${p.replace(/\n/g, '<br>')}</p></div>`);
     });
+
+    // 4. Merge Randomly while preserving order
+    let distribution = [];
+    for (let i = 0; i < mediaItems.length; i++) distribution.push('media');
+    for (let i = 0; i < textItems.length; i++) distribution.push('text');
+
+    // Shuffle the distribution array (Fisher-Yates)
+    for (let i = distribution.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [distribution[i], distribution[j]] = [distribution[j], distribution[i]];
+    }
+
+    let mIndex = 0;
+    let tIndex = 0;
+    distribution.forEach(type => {
+        if (type === 'media') {
+            contentGrid += mediaItems[mIndex++];
+        } else {
+            contentGrid += textItems[tIndex++];
+        }
+    });
+
     contentGrid += '</div>';
 
     // 4. Inject into Modal

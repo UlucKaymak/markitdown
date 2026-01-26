@@ -191,6 +191,7 @@
     line-height: 1.6;
     color: var(--text-secondary);
     font-size: 0.85rem;
+    text-align: justify;
 }
 
 .grid-item-text a {
