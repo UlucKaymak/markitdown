@@ -59,12 +59,11 @@
 
 .links-list li,
 .exhibitions-list li {
-    /* padding: 0.4rem 0; */
-    /* padding-left: 1.5rem; */
+    padding-left: 1.5rem;
     position: relative;
     color: var(--text-secondary);
     font-size: 0.8rem;
-    /* line-height: 1.4; */
+    line-height: 1;
 }
 
 .links-list li:before,
