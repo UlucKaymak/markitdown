@@ -58,7 +58,17 @@ export function renderBlogPosts() {
             ? '<span class="badge-enabled">Published</span>'
             : '<span class="badge-disabled">Draft</span>';
 
+        let thumbSrc = '';
+        if (post.thumbnail) {
+            thumbSrc = post.thumbnail.startsWith('http') ? post.thumbnail : '../../' + post.thumbnail;
+        }
+
+        const thumbnailHTML = thumbSrc
+            ? `<img src="${thumbSrc}" alt="${post.title}" class="project-card-thumbnail">`
+            : '<div class="project-card-thumbnail" style="display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #666;">No Image</div>';
+
         card.innerHTML = `
+            ${thumbnailHTML}
             <div class="project-card-content">
                 <h4>${post.title}</h4>
                 <p class="project-date-small">${post.date}</p>
@@ -97,6 +107,7 @@ export function handleBlogSubmit(e) {
         id: blogEditingId || generateId('blog'),
         title: document.getElementById('blog-title').value,
         date: document.getElementById('blog-date').value,
+        thumbnail: document.getElementById('blog-thumbnail').value,
         description: document.getElementById('blog-description').value,
         media: [...blogCurrentMediaFiles],
         tags: tags,
@@ -123,6 +134,7 @@ export function editBlogPost(id) {
     document.getElementById('blog-id').value = post.id;
     document.getElementById('blog-title').value = post.title;
     document.getElementById('blog-date').value = post.date;
+    document.getElementById('blog-thumbnail').value = post.thumbnail || '';
     document.getElementById('blog-description').value = post.description;
     document.getElementById('blog-tags').value = post.tags ? post.tags.join(', ') : '';
     document.getElementById('blog-enabled').checked = post.enabled !== false;
@@ -149,9 +161,37 @@ export function resetBlogForm() {
     document.getElementById('blog-form').reset();
     blogEditingId = null;
     blogCurrentMediaFiles = [];
+    document.getElementById('blog-thumbnail').value = '';
     document.getElementById('blog-form-title').textContent = 'Add New Post';
     document.getElementById('blog-cancel-btn').style.display = 'none';
     renderBlogMediaList();
+}
+
+export function handleBlogMarkdownUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const content = event.target.result;
+        const textarea = document.getElementById('blog-description');
+        const preview = document.getElementById('blog-preview');
+        textarea.value = content;
+        updatePreview(textarea, preview);
+    };
+    reader.readAsText(file);
+}
+
+export function handleBlogThumbnailSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // We can't get the full path for security reasons, 
+    // but we can try to guess or at least put the filename
+    // Usually the user organizes them in a specific way.
+    // If they select a file, we'll just put the filename or a suggested path
+    const path = `blog/${file.name}`;
+    document.getElementById('blog-thumbnail').value = path;
 }
 
 export function renderBlogMediaList() {

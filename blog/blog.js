@@ -136,17 +136,24 @@ async function loadBlogPosts() {
             
             const tagsHtml = (post.tags || []).map(tag => `<span class="blog-tag">${tag}</span>`).join('');
 
+            const thumbnailHtml = post.thumbnail 
+                ? `<div class="blog-post-thumbnail"><img src="${post.thumbnail}" alt="${post.title}"></div>` 
+                : '';
+
             card.innerHTML = `
-                <div class="blog-post-header">
-                    <h2 class="blog-post-title">${post.title}</h2>
-                    <div class="blog-post-meta">
-                        <span class="blog-post-date">${formatDate(post.date)}</span>
+                ${thumbnailHtml}
+                <div class="blog-post-card-content">
+                    <div class="blog-post-header">
+                        <h2 class="blog-post-title">${post.title}</h2>
+                        <div class="blog-post-meta">
+                            <span class="blog-post-date">${formatDate(post.date)}</span>
+                        </div>
                     </div>
-                </div>
-                <p class="blog-post-excerpt">${excerpt}</p>
-                <div class="blog-tags">${tagsHtml}</div>
-                <div style="margin-top: 1rem;">
-                    <span class="blog-read-more">Read Article</span>
+                    <p class="blog-post-excerpt">${excerpt}</p>
+                    <div class="blog-tags">${tagsHtml}</div>
+                    <div style="margin-top: 1rem;">
+                        <span class="blog-read-more">Read Article</span>
+                    </div>
                 </div>
             `;
             card.onclick = () => {

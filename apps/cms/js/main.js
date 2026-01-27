@@ -6,7 +6,9 @@ import {
     resetProjectForm, 
     handleFolderSelect,
     renderProjects,
-    getProjects
+    getProjects,
+    handleProjectMarkdownUpload,
+    handleProjectThumbnailSelect
 } from './projects.js';
 import { 
     loadBlogPostsFromJson, 
@@ -15,7 +17,9 @@ import {
     renderBlogPosts,
     getBlogPosts,
     addBlogMediaManually,
-    addBlogMediaFromUrl
+    addBlogMediaFromUrl,
+    handleBlogMarkdownUpload,
+    handleBlogThumbnailSelect
 } from './blog.js';
 import { toggleList } from './utils.js';
 
@@ -67,6 +71,10 @@ function setupEventListeners() {
     document.getElementById('cancel-btn').addEventListener('click', resetProjectForm);
     document.getElementById('select-folder-btn').addEventListener('click', () => document.getElementById('folder-input').click());
     document.getElementById('folder-input').addEventListener('change', handleFolderSelect);
+    document.getElementById('project-select-thumbnail-btn').addEventListener('click', () => document.getElementById('project-thumbnail-input').click());
+    document.getElementById('project-thumbnail-input').addEventListener('change', handleProjectThumbnailSelect);
+    document.getElementById('project-upload-md-btn').addEventListener('click', () => document.getElementById('project-md-input').click());
+    document.getElementById('project-md-input').addEventListener('change', handleProjectMarkdownUpload);
     
     // Media management (manual/URL for projects - currently missing in project.js refactor but added here)
     document.getElementById('add-media-manual-btn').addEventListener('click', () => {
@@ -128,6 +136,10 @@ function setupEventListeners() {
     document.getElementById('blog-cancel-btn').addEventListener('click', resetBlogForm);
     document.getElementById('blog-add-media-manual-btn').addEventListener('click', addBlogMediaManually);
     document.getElementById('blog-add-media-url-btn').addEventListener('click', addBlogMediaFromUrl);
+    document.getElementById('blog-select-thumbnail-btn').addEventListener('click', () => document.getElementById('blog-thumbnail-input').click());
+    document.getElementById('blog-thumbnail-input').addEventListener('change', handleBlogThumbnailSelect);
+    document.getElementById('blog-upload-md-btn').addEventListener('click', () => document.getElementById('blog-md-input').click());
+    document.getElementById('blog-md-input').addEventListener('change', handleBlogMarkdownUpload);
 
     // Import/Export Blog
     document.getElementById('export-blog-json-btn').addEventListener('click', () => {

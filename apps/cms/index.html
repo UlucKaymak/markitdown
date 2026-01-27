@@ -351,6 +351,9 @@
                                     <button type="button"
                                         onclick="insertFormat('project-description', '![', '](image-url)')">Img</button>
                                     <button type="button" onclick="insertTable('project-description')">Table</button>
+                                    <div style="border-left: 1px solid var(--border); margin: 0 0.5rem;"></div>
+                                    <button type="button" id="project-upload-md-btn" title="Upload Markdown File">Upload MD</button>
+                                    <input type="file" id="project-md-input" style="display: none;" accept=".md,.markdown,.txt">
                                 </div>
                                 <div class="md-split-view">
                                     <textarea id="project-description" required
@@ -358,7 +361,7 @@
                                     <div id="project-preview" class="md-preview"></div>
                                 </div>
                             </div>
-                            <small>Markdown supported with live preview.</small>
+                            <small>Markdown supported with live preview. You can also upload a .md file.</small>
                         </div>
 
                         <div class="form-group">
@@ -368,8 +371,11 @@
 
                         <div class="form-group">
                             <label for="project-thumbnail">Thumbnail Path</label>
-                            <input type="text" id="project-thumbnail"
-                                placeholder="e.g., projects/2025_08-project/cover.jpg">
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="text" id="project-thumbnail" placeholder="e.g., projects/2025_08-project/cover.jpg" style="flex: 1;">
+                                <button type="button" id="project-select-thumbnail-btn" class="btn-secondary">Select File</button>
+                            </div>
+                            <input type="file" id="project-thumbnail-input" style="display: none;" accept="image/*">
                             <small>Path to the cover/thumbnail image</small>
                         </div>
 
@@ -483,6 +489,9 @@
                                     <button type="button"
                                         onclick="insertFormat('blog-description', '![', '](image-url)')">Img</button>
                                     <button type="button" onclick="insertTable('blog-description')">Table</button>
+                                    <div style="border-left: 1px solid var(--border); margin: 0 0.5rem;"></div>
+                                    <button type="button" id="blog-upload-md-btn" title="Upload Markdown File">Upload MD</button>
+                                    <input type="file" id="blog-md-input" style="display: none;" accept=".md,.markdown,.txt">
                                 </div>
                                 <div class="md-split-view">
                                     <textarea id="blog-description" required
@@ -511,6 +520,16 @@
                             <label for="blog-tags">Tags</label>
                             <input type="text" id="blog-tags" placeholder="e.g., #Updates, #Thoughts">
                             <small>Separate tags with commas</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="blog-thumbnail">Thumbnail Path</label>
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="text" id="blog-thumbnail" placeholder="e.g., blog/2026_01-welcome/thumb.jpg" style="flex: 1;">
+                                <button type="button" id="blog-select-thumbnail-btn" class="btn-secondary">Select File</button>
+                            </div>
+                            <input type="file" id="blog-thumbnail-input" style="display: none;" accept="image/*">
+                            <small>Path to the post's thumbnail image</small>
                         </div>
 
                         <div class="form-group">

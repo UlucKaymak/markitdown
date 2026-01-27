@@ -200,6 +200,30 @@ export function handleFolderSelect(e) {
     e.target.value = '';
 }
 
+export function handleProjectMarkdownUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const content = event.target.result;
+        const textarea = document.getElementById('project-description');
+        const preview = document.getElementById('project-preview');
+        textarea.value = content;
+        updatePreview(textarea, preview);
+    };
+    reader.readAsText(file);
+}
+
+export function handleProjectThumbnailSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Suggest a path based on typical structure
+    const path = `projects/${file.name}`;
+    document.getElementById('project-thumbnail').value = path;
+}
+
 export function renderMediaList() {
     const listEl = document.getElementById('media-list');
     if (!listEl) return;
