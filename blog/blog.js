@@ -18,26 +18,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     setupLightboxListeners();
-    
-    // Handle back/forward navigation
-    window.addEventListener('popstate', function(event) {
-        handleUrlRouting(true);
-    });
 });
 
-function handleUrlRouting(fromPopState = false) {
+function handleUrlRouting() {
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('id');
+    const isPostPage = window.location.pathname.includes('post.html');
     
-    if (postId) {
+    if (isPostPage && postId) {
         const post = allPosts.find(p => p.id === postId);
         if (post) {
-            openPostModal(post, true);
-        }
-    } else {
-        // If we are on blog page but no post ID, close modal
-        if (document.body.classList.contains('blog-page')) {
-            closePostModal(true);
+            showBlogPost(post);
+        } else {
+            // Post not found, redirect to blog index or show error
+            window.location.href = 'index.html';
         }
     }
 }
@@ -118,7 +112,8 @@ async function loadBlogPosts() {
         allPosts = postsData.filter(post => post.enabled === true);
 
         const blogList = document.querySelector('.blog-list');
-        if (!blogList) return;
+        if (!blogList) return; // Not on index page
+        
         blogList.innerHTML = '';
 
         if (allPosts.length === 0) {
@@ -155,7 +150,7 @@ async function loadBlogPosts() {
                 </div>
             `;
             card.onclick = () => {
-                openPostModal(post);
+                window.location.href = `post.html?id=${post.id}`;
             };
             blogList.appendChild(card);
         });
@@ -165,15 +160,16 @@ async function loadBlogPosts() {
     }
 }
 
-function openPostModal(post, fromRouting = false) {
-    const modal = document.getElementById('project-modal');
-    const modalBody = modal.querySelector('.modal-body');
+function showBlogPost(post) {
+    const contentContainer = document.getElementById('blog-post-content');
 
-    // Update URL if not called from routing/popstate
-    if (!fromRouting) {
-        const newUrl = window.location.pathname + "?id=" + post.id;
-        history.pushState({ postId: post.id }, "", newUrl);
-    }
+    if (!contentContainer) return;
+
+    // Update document title
+    document.title = `${post.title} - Uluç Kaymak`;
+
+    // Scroll to top
+    window.scrollTo(0, 0);
 
     // 1. CLEAR AND RE-POPULATE the lightbox array for THIS specific post
     currentLightboxImages = []; 
@@ -233,10 +229,10 @@ function openPostModal(post, fromRouting = false) {
         htmlContent = `<p>${htmlContent}</p>`;
     }
 
-    // 4. Inject into Modal
+    // 4. Inject Content
     let tagsHtml = (post.tags || []).map(tag => `<span class="blog-tag">${tag}</span>`).join('');
 
-    modalBody.innerHTML = `
+    contentContainer.innerHTML = `
         <article class="blog-article">
             <header class="blog-article-header">
                 <div class="blog-post-meta" style="justify-content: center; margin-bottom: 1rem;">
@@ -255,26 +251,23 @@ function openPostModal(post, fromRouting = false) {
     `;
 
     // 5. ATTACH LIGHTBOX TRIGGERS
-    const imagesInModal = modalBody.querySelectorAll('.expandable-image-container img');
-    imagesInModal.forEach((img, index) => {
+    const imagesInView = contentContainer.querySelectorAll('.expandable-image-container img');
+    imagesInView.forEach((img, index) => {
         img.onclick = () => openLightbox(index);
     });
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-
-    const closeBtn = modal.querySelector('.modal-close');
-    closeBtn.onclick = () => closePostModal();
-    modal.onclick = (e) => { if (e.target === modal) closePostModal(); };
 }
 
-function closePostModal(fromRouting = false) {
-    const modal = document.getElementById('project-modal');
-    if (!modal || modal.style.display === 'none') return;
+function showBlogList(fromRouting = false) {
+    const blogMain = document.querySelector('.blog-main');
+    const blogView = document.querySelector('.blog-post-view');
+    
+    if (!blogMain || !blogView) return;
 
-    modal.querySelectorAll('video, audio').forEach(media => media.pause());
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
+    // Pause any playing media
+    blogView.querySelectorAll('video, audio').forEach(media => media.pause());
+
+    blogMain.style.display = 'block';
+    blogView.style.display = 'none';
 
     // Update URL if not called from routing/popstate
     if (!fromRouting) {

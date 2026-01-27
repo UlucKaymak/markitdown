@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog - Uluç Kaymak</title>
-    <link rel="icon" type="image/png" href="design/favicon-main.png">
+    <link rel="icon" type="image/png" href="../design/favicon-main.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600&display=swap"
@@ -15,18 +15,19 @@
     <link rel="stylesheet" href="../design/css/blog.css">
 </head>
 
-<body class="blog-page">
+<body class="text-based-page">
     <!-- Left Sidebar -->
     <aside id="sidebar-container" class="left-sidebar"></aside>
 
     <div class="page-content">
-        <main class="blog-main">
-            <div class="blog-header">
-                <h1>Blog</h1>
-                <p>Mostly my research and UX reports.</p>
+        <main class="blog-post-view">
+            <div id="blog-post-content">
+                <!-- Content will be loaded by blog.js -->
             </div>
-            <div class="blog-list"></div>
         </main>
+        <div class="blog-view-nav">
+            <a href="index.html" class="back-to-blog">← Back to Blog</a>
+        </div>
     </div>
 
     <!-- Reusing lightbox for potential images in blog posts -->
