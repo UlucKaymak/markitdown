@@ -1,6 +1,12 @@
 // Sidebar navigation functionality
 
 document.addEventListener('DOMContentLoaded', function () {
+    // URL Cleanup: Remove index.html
+    if (window.location.pathname.endsWith('index.html')) {
+        const newPath = window.location.pathname.replace(/index\.html$/, '');
+        window.history.replaceState(null, '', newPath + window.location.search + window.location.hash);
+    }
+
     // Initialize layout immediately (toggle button, overlay) so it doesn't depend on fetch
     initLayout(); 
     loadSidebar();
@@ -8,8 +14,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function loadSidebar() {
+    // Determine path to sidebar.html based on sidebar.js script tag
+    let sidebarPath = '/design/sidebar.html'; // Default fallback
+    
+    const script = document.querySelector('script[src*="sidebar.js"]');
+    if (script) {
+        const src = script.getAttribute('src');
+        // Replace sidebar.js with sidebar.html to get the correct sibling file
+        // This handles cases like "../design/sidebar.js" -> "../design/sidebar.html"
+        sidebarPath = src.replace('sidebar.js', 'sidebar.html');
+    }
+
     // Use absolute path to ensure sidebar loads from any subpath or domain
-    fetch('design/sidebar.html')
+    fetch(sidebarPath)
         .then(response => {
             if (!response.ok) throw new Error("Sidebar fetch failed");
             return response.text();
