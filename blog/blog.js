@@ -242,11 +242,9 @@ function showBlogPost(post) {
     contentContainer.innerHTML = `
         <article class="blog-article">
             <header class="blog-article-header">
-                <div class="blog-post-meta" style="justify-content: center; margin-bottom: 1rem;">
-                    <span class="blog-post-date">${formatDate(post.date)}</span>
-                </div>
+                <span class="eyebrow">${formatDate(post.date)}</span>
                 <h2>${post.title}</h2>
-                <div class="blog-tags" style="justify-content: center;">${tagsHtml}</div>
+                <div class="blog-tags">${tagsHtml}</div>
             </header>
             
             <div class="blog-article-content">
@@ -257,9 +255,12 @@ function showBlogPost(post) {
         </article>
     `;
 
-    // 5. ATTACH LIGHTBOX TRIGGERS
-    const imagesInView = contentContainer.querySelectorAll('.expandable-image-container img');
-    imagesInView.forEach((img, index) => {
+    // 5. ATTACH LIGHTBOX TRIGGERS for ALL images in the post
+    const allImages = contentContainer.querySelectorAll('img');
+    currentLightboxImages = Array.from(allImages).map(img => img.src);
+    
+    allImages.forEach((img, index) => {
+        img.style.cursor = 'zoom-in';
         img.onclick = () => openLightbox(index);
     });
 }

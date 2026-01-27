@@ -1,5 +1,18 @@
 [
   {
+    "id": "ux-perspektifinden-helltaker",
+    "title": "UX Perspektifinden - HELLTAKER [TR]",
+    "date": "2026_02_06",
+    "thumbnail": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1289310/header.jpg?t=1620755466",
+    "description": "![Thumbnail](https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1289310/header.jpg?t=1620755466)\n\n# HELLTAKER\n## 0.1. Raporun Amacı ve Kapsamı\n\nBu rapor, Helltaker adlı oyunun kullanıcı deneyimi (UX) süreçlerini incelemek amacıyla hazırlanmıştır. Tamamen eğitim ve pratik amaçlı bir rapordur. Analizin temel noktası oyuncunun oyun dünyasıyla kurduğu etkileşimin akıcılığını (flow), bilişsel yükü (cognitive load) ve “Game Feel” parametrelerini ölçme ve raporlama pratiği yapmaktır.\n\nRapor, steam releaseini ve bu releasein ilk 15 dakikalık kullanıcı deneyimi süreçlerini kapsamakta. Son boss’u kapsamamaktadır, yalnızca oyunun çoğunluğunu kapsayan core gameloop incelenecektir. \n\n(Steam’de toplam 8,5 saat oynadım ama bunun konumuzla alakası yok.)\n\n## 0.2. Oyunun Steam Sayfası Beyanı\n\n\"You woke up one day with a dream. A harem full of demon girls. You've opened the portal in hopes of fulfilling your wildest desires. Hellfire burns through your lungs, death awaits around every corner, and everything looks like from a cutesy mobile game. You are in hell.\"\n\n# Giriş\n\n## 1.1. Core Game Loop\n\nOyun içerisinde puzzle ve dialogue choice olarak iki farklı mekanik bulunmakta: \n\n1. **Puzzle;**  \n   * Level içerisinde, sınırlı sayıda hamle ile hamle harcayan engelleri aşarak final karesindeki hedefe ulaşma gameplay’i  \n2. **Dialogue Choice;**  \n   * Diyalog halinde olduğumuz NPC’nin karakteriyle uyumlu doğru cevabı bulmaya çalıştığımız tek adımlı diyalog minigame’i.\n\nBu iki mekanik gameloop içerisinde sırayla yaşanıyor. Önce Puzzle sonra Dialogue Choice geliyor. Doğru seçenek ile oyuncu yeni bölüme geçiyor, yanlış seçenek ile level’a baştan başlıyor.   \nBu durum oyunu gameplay noktasında bir minimalliğe götürmüş. Ancak oyun, iki kopuk mekanik sunuyor, mekanikler arasında bütünlük olduğunu belirten tek özellik puzzle sonundaki hedef tile’ında “demon girl in suit” görselliğinde bir karakter olması.  \n\n## 1.2. Hedef Oyuncu Motivasyonu\n\nDeneyimlenen süre boyunca;   \n\n* **Oyuncu Motivasyonları:** Completion, Challange ve Fantasy;     \n* **Oyuncu Tipleri:** Architect, Gladiator, Acrobat.  \n\nolarak belirlenmiştir.\n\nBu veri oyunun beceri ve strateji mantığını kendi içinde tutarlı bir narratif yapıyla verdiğini gösteriyor. Oyunculara hedef dahilindeki “Demon Girls in Suits” anlatısını aktarabilecek yapıya sahip.\n\nAyrıca bu üç arketipin aynı oyunda buluşması, oyunun çift katmanlı yapısını ortaya koyuyor.\n\n",
+    "media": [],
+    "tags": [
+      "#UXreport",
+      "#GameDesign"
+    ],
+    "enabled": true
+  },
+  {
     "id": "hearing-livber-the-feeling",
     "title": "Hearing Livber: The Feeling",
     "date": "2025_09_19",
