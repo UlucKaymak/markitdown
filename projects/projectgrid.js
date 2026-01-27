@@ -120,7 +120,7 @@ function closeLightbox() {
 // --- PROJECT LOADING LOGIC ---
 async function loadProjectThumbnails(filter = 'all') {
     try {
-        const response = await fetch('projects.json');
+        const response = await fetch('projects/projects.json');
         if (!response.ok) throw new Error('Failed to load projects.json');
 
         const projectsData = await response.json();
@@ -151,7 +151,7 @@ async function loadProjectThumbnails(filter = 'all') {
             card.className = 'project-card';
             // Use absolute path for thumbnails if they start with _projects
             const thumbnailUrl = (project.thumbnail && project.thumbnail.startsWith('_projects')) 
-                ? '/' + project.thumbnail 
+                ? 'projects/' + project.thumbnail 
                 : (project.thumbnail || 'placeholder.jpg');
             
             const typeRoleText = project.role ? `${project.type} | ${project.role}` : project.type;
@@ -192,7 +192,7 @@ function openProjectModal(project, fromRouting = false) {
         currentLightboxImages = project.media.filter(path => {
             const ext = path.split('.').pop().toLowerCase();
             return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
-        });
+        }).map(path => path.startsWith('_projects') ? 'projects/' + path : path);
     }
 
     let contentGrid = '<div class="modal-content-grid">';
@@ -204,7 +204,10 @@ function openProjectModal(project, fromRouting = false) {
     if (project.media) {
         project.media.forEach(mediaPath => {
             const ext = mediaPath.split('.').pop().toLowerCase();
-            const absolutePath = mediaPath;
+            let absolutePath = mediaPath;
+            if (mediaPath.startsWith('_projects')) {
+                absolutePath = 'projects/' + mediaPath;
+            }
             
             if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
                 mediaItems.push(`
@@ -234,9 +237,22 @@ function openProjectModal(project, fromRouting = false) {
     }
 
     // 3. Prepare Text Items
-    let description = (project.description || "").replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-    description.split(/\n\n+/).filter(p => p.trim()).forEach(p => {
-        textItems.push(`<div class="grid-item grid-item-text"><p>${p.replace(/\n/g, '<br>')}</p></div>`);
+    let rawDescription = project.description || "";
+    
+    // Split by double newlines to treat chunks as separate markdown blocks
+    // This allows maintaining the grid layout mixed with media
+    rawDescription.split(/\n\n+/).filter(p => p.trim()).forEach(p => {
+        // Parse the chunk with marked if available, otherwise fallback to basic link replacement
+        let htmlContent = p;
+        if (typeof marked !== 'undefined') {
+            htmlContent = marked.parse(p);
+        } else {
+            // Fallback for basic links if marked isn't loaded
+            htmlContent = p.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+                           .replace(/\n/g, '<br>');
+            htmlContent = `<p>${htmlContent}</p>`;
+        }
+        textItems.push(`<div class="grid-item grid-item-text">${htmlContent}</div>`);
     });
 
     // 4. Merge Randomly while preserving order
@@ -267,7 +283,7 @@ function openProjectModal(project, fromRouting = false) {
 
     // Determine thumbnail URL
     const thumbnailUrl = (project.thumbnail && project.thumbnail.startsWith('_projects')) 
-        ? project.thumbnail 
+        ? 'projects/' + project.thumbnail 
         : (project.thumbnail || 'placeholder.jpg');
 
     modalBody.innerHTML = `
@@ -333,14 +349,14 @@ async function loadProjectsSidebar() {
     const sidebarList = document.querySelector('.sidebar-projects');
     if (!sidebarList) return;
     try {
-        const response = await fetch('projects.json');
+        const response = await fetch('projects/projects.json');
         const projects = await response.json();
         allProjects = projects; // Populate global state
         sidebarList.innerHTML = '';
         projects.filter(p => p.enabled).forEach(p => {
             const li = document.createElement('li');
             // Change: Use query param for link with .html extension
-            li.innerHTML = `<a href="projects.html?id=${p.id}" class="project-nav-link">${p.title}</a>`;
+            li.innerHTML = `<a href="/projects.html?id=${p.id}" class="project-nav-link">${p.title}</a>`;
             sidebarList.appendChild(li);
         });
     } catch (e) { console.error("Sidebar error", e); }
