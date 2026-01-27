@@ -34,6 +34,12 @@
     font-size: 0.8rem;
 }
 
+.about-text .highlight {
+    background: var(--highlight-color);
+    color: whitesmoke;
+    padding: 0.0em 0.3em;
+}
+
 .about-text a {
     color: var(--accent);
     text-decoration: none;
