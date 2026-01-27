@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Uluç Kaymak</title>
+    <link rel="icon" type="image/png" href="design/favicon-main.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="design/style.css">
+    <link rel="stylesheet" href="design/css/blog.css">
+</head>
+
+<body class="blog-page">
+    <!-- Left Sidebar -->
+    <aside id="sidebar-container" class="left-sidebar"></aside>
+
+    <div class="page-content">
+        <main class="blog-main">
+            <div class="blog-header">
+                <h1>Blog</h1>
+                <p>Thoughts, updates, and stories.</p>
+            </div>
+            <div class="blog-list"></div>
+        </main>
+    </div>
+
+    <div id="project-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Reusing lightbox for potential images in blog posts -->
+    <div id="image-lightbox" class="lightbox-overlay">
+        <span class="lightbox-close">&times;</span>
+        <button id="lightbox-prev" class="lightbox-prev">&lt;</button>
+        <img class="lightbox-content" id="expanded-image" src="" alt="expanded view">
+        <button id="lightbox-next" class="lightbox-next">&gt;</button>
+    </div>
+
+    <script src="design/sidebar.js"></script>
+    <script src="blog.js"></script>
+</body>
+
+</html>

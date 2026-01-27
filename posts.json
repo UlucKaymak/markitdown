@@ -1,0 +1,18 @@
+[
+  {
+    "id": "welcome-to-blog",
+    "title": "Welcome to My Blog",
+    "date": "2026_01_27",
+    "description": "This is the first post on my new blog. I will be sharing my thoughts on technology, art, and my projects here.\n\nStay tuned for more updates!",
+    "tags": ["#Announcement"],
+    "enabled": true
+  },
+  {
+    "id": "working-on-portfolio",
+    "title": "Refining the Portfolio",
+    "date": "2026_01_20",
+    "description": "I've been working hard on updating my portfolio website. The goal is to make it more interactive and cleaner.\n\nAdding a blog section was one of the key features I wanted to include to keep everyone updated on my latest work.",
+    "tags": ["#Portfolio", "#Update"],
+    "enabled": true
+  }
+]
