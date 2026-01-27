@@ -144,7 +144,7 @@ async function loadBlogPosts() {
                 ${thumbnailHtml}
                 <div class="blog-post-card-content">
                     <div class="blog-post-header">
-                        <h2 class="blog-post-title">${post.title}</h2>
+                        <h1 class="blog-post-title">${post.title}</h1>
                         <div class="blog-post-meta">
                             <span class="blog-post-date">${formatDate(post.date)}</span>
                         </div>
@@ -243,7 +243,7 @@ function showBlogPost(post) {
         <article class="blog-article">
             <header class="blog-article-header">
                 <span class="eyebrow">${formatDate(post.date)}</span>
-                <h2>${post.title}</h2>
+                <h1>${post.title}</h1>
                 <div class="blog-tags">${tagsHtml}</div>
             </header>
             
