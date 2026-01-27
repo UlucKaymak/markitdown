@@ -1,0 +1,21 @@
+{
+  "name": "FateSheet",
+  "short_name": "FateSheet",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f4f9",
+  "theme_color": "#007bff",
+  "description": "A mobile Fate Character Sheet",
+  "icons": [
+    {
+      "src": "../../design/favicon-main.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../../design/favicon-main.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
