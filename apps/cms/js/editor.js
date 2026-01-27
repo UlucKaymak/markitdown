@@ -55,3 +55,32 @@ export function insertTable(textareaId) {
 `;
     insertFormat(textareaId, tableTemplate, "");
 }
+
+export function insertList(textareaId, type) {
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end);
+    
+    let replacement = "";
+    const lines = selectedText.split('\n');
+    
+    if (type === 'bullet') {
+        replacement = lines.map(line => `- ${line}`).join('\n');
+    } else if (type === 'number') {
+        replacement = lines.map((line, index) => `${index + 1}. ${line}`).join('\n');
+    }
+
+    textarea.value = text.substring(0, start) + replacement + text.substring(end);
+    
+    textarea.focus();
+    textarea.selectionStart = start + replacement.length;
+    textarea.selectionEnd = start + replacement.length;
+
+    const previewId = textareaId === 'project-description' ? 'project-preview' : 'blog-preview';
+    const preview = document.getElementById(previewId);
+    updatePreview(textarea, preview);
+}

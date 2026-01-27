@@ -1,5 +1,5 @@
 import { checkAuth, attemptLogin, logout } from './auth.js';
-import { setupMarkdownEditor, insertFormat, insertTable } from './editor.js';
+import { setupMarkdownEditor, insertFormat, insertTable, insertList } from './editor.js';
 import { 
     loadProjectsFromJson, 
     handleProjectSubmit, 
@@ -177,5 +177,6 @@ function setupEventListeners() {
     // Global helper for markdown buttons (since they use onclick in HTML currently)
     window.insertFormat = insertFormat;
     window.insertTable = insertTable;
+    window.insertList = insertList;
     window.toggleList = toggleList;
 }
