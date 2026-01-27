@@ -112,6 +112,122 @@
     color: var(--text-secondary);
 }
 
+/* Blog Article (Modal View) */
+.blog-article {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 0;
+}
+
+.blog-article-header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.blog-article-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.blog-article-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+}
+
+.blog-article-content p {
+    margin-bottom: 1.5rem;
+}
+
+.blog-article-content h1, 
+.blog-article-content h2, 
+.blog-article-content h3 {
+    margin: 2.5rem 0 1rem;
+    color: var(--text-primary);
+}
+
+.blog-article-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 2rem 0;
+    display: block;
+    border: 1px solid var(--border);
+}
+
+.blog-article-media {
+    margin: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.blog-article-media img, 
+.blog-article-media video {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+}
+
+.blog-article-media audio {
+    width: 100%;
+}
+
+.blog-article-media-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.blog-media-caption {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-align: center;
+    font-style: italic;
+}
+
+/* Markdown Specifics */
+.blog-article-content blockquote {
+    border-left: 4px solid var(--accent);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.blog-article-content pre {
+    background-color: #1a1a1a;
+    padding: 1.5rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+}
+
+.blog-article-content code {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9em;
+}
+
+.blog-article-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+}
+
+.blog-article-content th, 
+.blog-article-content td {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.blog-article-content th {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
 /* Modal specific overrides for Blog if needed */
 .blog-modal-date {
     display: block;
@@ -133,5 +249,13 @@
     
     .blog-post-title {
         font-size: 1.3rem;
+    }
+
+    .blog-article-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .blog-article-content {
+        font-size: 1rem;
     }
 }

@@ -131,8 +131,13 @@ async function loadBlogPosts() {
             card.className = 'blog-post-card';
             
             // Format description for excerpt (remove links, take first paragraph)
-            const cleanDesc = (post.description || "").replace(/[\[\]\( \)]/g, '$1');
-            const excerpt = cleanDesc.split('\n')[0].substring(0, 150) + '...';
+            const cleanDesc = (post.description || "")
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // [text](url) -> text
+                .replace(/[#*`_~]/g, '')                // Remove common MD symbols
+                .replace(/\s+/g, ' ')                   // Normalize whitespace
+                .trim();
+
+            const excerpt = cleanDesc.length > 150 ? cleanDesc.substring(0, 150) + '...' : cleanDesc;
             
             const tagsHtml = (post.tags || []).map(tag => `<span class="blog-tag">${tag}</span>`).join('');
 
@@ -179,87 +184,77 @@ function openPostModal(post, fromRouting = false) {
         });
     }
 
-    let contentGrid = '<div class="modal-content-grid">';
-
-    // Similar logic to projects, but focused on text first
-    let mediaItems = [];
-    let textItems = [];
-
     // 2. Prepare Media Items
-    if (post.media) {
-        post.media.forEach(mediaPath => {
+    let mediaHtml = '';
+    if (post.media && post.media.length > 0) {
+        mediaHtml = '<div class="blog-article-media">';
+        post.media.forEach((mediaPath, index) => {
             const ext = mediaPath.split('.').pop().toLowerCase();
             const absolutePath = mediaPath;
             
             if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-                mediaItems.push(`
-                    <div class="grid-item grid-item-image expandable-image-container">
+                mediaHtml += `
+                    <div class="blog-article-media-item expandable-image-container">
                         <img src="${absolutePath}" alt="${post.title}">
-                    </div>`);
+                    </div>`;
             } else if (['mp4', 'webm', 'ogg'].includes(ext)) {
-                mediaItems.push(`
-                    <div class="grid-item grid-item-video">
+                mediaHtml += `
+                    <div class="blog-article-media-item">
                         <video controls controlsList="nodownload">
                             <source src="${absolutePath}" type="video/${ext}">
                         </video>
-                    </div>`);
+                    </div>`;
             } else if (['mp3', 'wav', 'ogg'].includes(ext)) {
                 const audioTitle = mediaPath.split('/').pop().split('.')[0].replace(/[-_]/g, ' ');
-                mediaItems.push(`
-                    <div class="grid-item grid-item-audio">
+                mediaHtml += `
+                    <div class="blog-article-media-item">
                         <div class="audio-wrapper">
-                            <div class="audio-title">${audioTitle}</div>
-                            <audio controls controlsList="nodownload">
+                            <div class="audio-title" style="text-align: left;">${audioTitle}</div>
+                            <audio controls controlsList="nodownload" style="width: 100%;">
                                 <source src="${absolutePath}" type="audio/${ext}">
                             </audio>
                         </div>
-                    </div>`);
+                    </div>`;
             }
         });
+        mediaHtml += '</div>';
     }
 
-    // 3. Prepare Text Items
+    // 3. Prepare Text Content
     let rawDescription = post.description || "";
-    
-    // Split by double newlines to treat chunks as separate markdown blocks
-    rawDescription.split(/\n\n+/).filter(p => p.trim()).forEach(p => {
-        // Parse the chunk with marked if available, otherwise fallback
-        let htmlContent = p;
-        if (typeof marked !== 'undefined') {
-            htmlContent = marked.parse(p);
-        } else {
-            // Fallback
-            htmlContent = p.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
-                           .replace(/\n/g, '<br>');
-            htmlContent = `<p>${htmlContent}</p>`;
-        }
-        textItems.push(`<div class="grid-item grid-item-text">${htmlContent}</div>`);
-    });
-
-    // 4. Interleave text and media - for blog, prefer text then media, or just append media at end or beginning
-    // For simplicity, let's just dump text then media
-    textItems.forEach(item => contentGrid += item);
-    mediaItems.forEach(item => contentGrid += item);
-
-    contentGrid += '</div>';
+    let htmlContent = "";
+    if (typeof marked !== 'undefined') {
+        htmlContent = marked.parse(rawDescription);
+    } else {
+        // Fallback simple parsing
+        htmlContent = rawDescription
+            .replace(/\n\n+/g, '</p><p>')
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+        htmlContent = `<p>${htmlContent}</p>`;
+    }
 
     // 4. Inject into Modal
-    let tagsHtml = (post.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
+    let tagsHtml = (post.tags || []).map(tag => `<span class="blog-tag">${tag}</span>`).join('');
 
     modalBody.innerHTML = `
-        <div class="project-overview-header" style="flex-direction: column; gap: 0.5rem;">
-            <div class="project-overview-info" style="width: 100%;">
-                <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">${post.title}</h2>
-                <div class="modal-meta">
-                    <span class="blog-modal-date">${formatDate(post.date)}</span>
+        <article class="blog-article">
+            <header class="blog-article-header">
+                <div class="blog-post-meta" style="justify-content: center; margin-bottom: 1rem;">
+                    <span class="blog-post-date">${formatDate(post.date)}</span>
                 </div>
+                <h2>${post.title}</h2>
+                <div class="blog-tags" style="justify-content: center;">${tagsHtml}</div>
+            </header>
+            
+            <div class="blog-article-content">
+                ${htmlContent}
             </div>
-        </div>
-        ${contentGrid}
-        <div class="project-tags" style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">${tagsHtml}</div>
+
+            ${mediaHtml}
+        </article>
     `;
 
-    // 5. ATTACH TRIGGERS
+    // 5. ATTACH LIGHTBOX TRIGGERS
     const imagesInModal = modalBody.querySelectorAll('.expandable-image-container img');
     imagesInModal.forEach((img, index) => {
         img.onclick = () => openLightbox(index);
