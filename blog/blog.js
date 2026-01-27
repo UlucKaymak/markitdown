@@ -219,9 +219,21 @@ function openPostModal(post, fromRouting = false) {
     }
 
     // 3. Prepare Text Items
-    let description = (post.description || "").replace(/[\[\]\( \)]/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-    description.split(/\n\n+/).filter(p => p.trim()).forEach(p => {
-        textItems.push(`<div class="grid-item grid-item-text"><p>${p.replace(/\n/g, '<br>')}</p></div>`);
+    let rawDescription = post.description || "";
+    
+    // Split by double newlines to treat chunks as separate markdown blocks
+    rawDescription.split(/\n\n+/).filter(p => p.trim()).forEach(p => {
+        // Parse the chunk with marked if available, otherwise fallback
+        let htmlContent = p;
+        if (typeof marked !== 'undefined') {
+            htmlContent = marked.parse(p);
+        } else {
+            // Fallback
+            htmlContent = p.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+                           .replace(/\n/g, '<br>');
+            htmlContent = `<p>${htmlContent}</p>`;
+        }
+        textItems.push(`<div class="grid-item grid-item-text">${htmlContent}</div>`);
     });
 
     // 4. Interleave text and media - for blog, prefer text then media, or just append media at end or beginning
