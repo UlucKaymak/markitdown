@@ -35,19 +35,26 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function handleUrlRouting(fromPopState = false) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const projectId = urlParams.get('id');
+    const pathSegments = window.location.pathname.split('/').filter(Boolean); // Remove empty strings
+    let projectId = null;
+
+    // Find the 'projects' segment and check if there's an ID after it
+    const projectsIndex = pathSegments.indexOf('projects');
+    if (projectsIndex > -1 && pathSegments.length > projectsIndex + 1) {
+        projectId = pathSegments[projectsIndex + 1];
+    }
     
+    // Check if we are on the base /projects/ page without an ID
+    const isOnProjectsBasePage = window.location.pathname === '/projects/' || window.location.pathname === '/projects/index.html';
+
     if (projectId) {
         const project = allProjects.find(p => p.id === projectId);
         if (project) {
             openProjectModal(project, true);
         }
-    } else {
-        // If we are on projects page but no project ID, close modal
-        if (document.body.classList.contains('projects-page')) {
-            closeProjectModal(true);
-        }
+    } else if (!projectId) {
+        // If no projectId, ensure modal is closed
+        closeProjectModal(true);
     }
 }
 
@@ -120,7 +127,7 @@ function closeLightbox() {
 // --- PROJECT LOADING LOGIC ---
 async function loadProjectThumbnails(filter = 'all') {
     try {
-        const response = await fetch('projects/projects.json');
+        const response = await fetch('./projects.json');
         if (!response.ok) throw new Error('Failed to load projects.json');
 
         const projectsData = await response.json();
@@ -151,7 +158,7 @@ async function loadProjectThumbnails(filter = 'all') {
             card.className = 'project-card';
             // Use absolute path for thumbnails if they start with _projects
             const thumbnailUrl = (project.thumbnail && project.thumbnail.startsWith('_projects')) 
-                ? 'projects/' + project.thumbnail 
+                ? '/projects/' + project.thumbnail 
                 : (project.thumbnail || 'placeholder.jpg');
             
             const typeRoleText = project.role ? `${project.type} | ${project.role}` : project.type;
@@ -182,7 +189,7 @@ function openProjectModal(project, fromRouting = false) {
 
     // Update URL if not called from routing/popstate
     if (!fromRouting) {
-        const newUrl = window.location.pathname + "?id=" + project.id;
+        const newUrl = "/projects/" + project.id;
         history.pushState({ projectId: project.id }, "", newUrl);
     }
 
@@ -192,7 +199,7 @@ function openProjectModal(project, fromRouting = false) {
         currentLightboxImages = project.media.filter(path => {
             const ext = path.split('.').pop().toLowerCase();
             return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
-        }).map(path => path.startsWith('_projects') ? 'projects/' + path : path);
+        }).map(path => path.startsWith('_projects') ? '/projects/' + path : path);
     }
 
     let contentGrid = '<div class="modal-content-grid">';
@@ -206,7 +213,7 @@ function openProjectModal(project, fromRouting = false) {
             const ext = mediaPath.split('.').pop().toLowerCase();
             let absolutePath = mediaPath;
             if (mediaPath.startsWith('_projects')) {
-                absolutePath = 'projects/' + mediaPath;
+                absolutePath = '/projects/' + mediaPath;
             }
             
             if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
@@ -283,7 +290,7 @@ function openProjectModal(project, fromRouting = false) {
 
     // Determine thumbnail URL
     const thumbnailUrl = (project.thumbnail && project.thumbnail.startsWith('_projects')) 
-        ? 'projects/' + project.thumbnail 
+        ? '/projects/' + project.thumbnail 
         : (project.thumbnail || 'placeholder.jpg');
 
     modalBody.innerHTML = `
@@ -330,7 +337,7 @@ function closeProjectModal(fromRouting = false) {
 
     // Update URL if not called from routing/popstate
     if (!fromRouting) {
-        history.pushState(null, "", window.location.pathname);
+        history.pushState(null, "", "/projects/");
     }
 }
 
@@ -349,14 +356,14 @@ async function loadProjectsSidebar() {
     const sidebarList = document.querySelector('.sidebar-projects');
     if (!sidebarList) return;
     try {
-        const response = await fetch('projects/projects.json');
+        const response = await fetch('./projects.json');
         const projects = await response.json();
         allProjects = projects; // Populate global state
         sidebarList.innerHTML = '';
         projects.filter(p => p.enabled).forEach(p => {
             const li = document.createElement('li');
             // Change: Use query param for link with .html extension
-            li.innerHTML = `<a href="/projects.html?id=${p.id}" class="project-nav-link">${p.title}</a>`;
+            li.innerHTML = `<a href="/projects/${p.id}" class="project-nav-link">${p.title}</a>`;
             sidebarList.appendChild(li);
         });
     } catch (e) { console.error("Sidebar error", e); }
