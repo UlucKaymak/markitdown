@@ -1,5 +1,6 @@
 import { checkAuth, attemptLogin, logout } from './auth.js';
-import { setupMarkdownEditor, insertFormat, insertTable, insertList } from './editor.js';
+import { setupMarkdownEditor, insertFormat, insertTable, insertList, insertMedia } from './editor.js';
+import { openMediaLibrary } from './media-library.js';
 import { 
     loadProjectsFromJson, 
     handleProjectSubmit, 
@@ -8,7 +9,8 @@ import {
     renderProjects,
     getProjects,
     handleProjectMarkdownUpload,
-    handleProjectThumbnailSelect
+    handleProjectThumbnailSelect,
+    addProjectMedia
 } from './projects.js';
 import { 
     loadBlogPostsFromJson, 
@@ -19,7 +21,8 @@ import {
     addBlogMediaManually,
     addBlogMediaFromUrl,
     handleBlogMarkdownUpload,
-    handleBlogThumbnailSelect
+    handleBlogThumbnailSelect,
+    addBlogMedia
 } from './blog.js';
 import { toggleList } from './utils.js';
 
@@ -75,31 +78,29 @@ function setupEventListeners() {
     document.getElementById('project-thumbnail-input').addEventListener('change', handleProjectThumbnailSelect);
     document.getElementById('project-upload-md-btn').addEventListener('click', () => document.getElementById('project-md-input').click());
     document.getElementById('project-md-input').addEventListener('change', handleProjectMarkdownUpload);
+    document.getElementById('project-md-media-lib-btn').addEventListener('click', () => {
+        openMediaLibrary((path) => {
+            // Remove 'projects/' prefix if present, as the file is relative to projects/index.html
+            const relativePath = path.startsWith('projects/') ? path.substring(9) : path;
+            insertMedia('project-description', relativePath);
+        });
+    });
     
-    // Media management (manual/URL for projects - currently missing in project.js refactor but added here)
+    // Media management
+    document.getElementById('add-media-library-btn').addEventListener('click', () => {
+        openMediaLibrary((path) => {
+            addProjectMedia(path);
+        });
+    });
+    
     document.getElementById('add-media-manual-btn').addEventListener('click', () => {
         const path = prompt('Enter media file path:');
-        if (path && path.trim()) {
-            import('./projects.js').then(m => {
-                const files = m.getCurrentMediaFiles();
-                if (!files.includes(path.trim())) {
-                    files.push(path.trim());
-                    m.renderMediaList();
-                }
-            });
-        }
+        if (path) addProjectMedia(path);
     });
+    
     document.getElementById('add-media-url-btn').addEventListener('click', () => {
         const url = prompt('Enter media URL:');
-        if (url && url.trim()) {
-            import('./projects.js').then(m => {
-                const files = m.getCurrentMediaFiles();
-                if (!files.includes(url.trim())) {
-                    files.push(url.trim());
-                    m.renderMediaList();
-                }
-            });
-        }
+        if (url) addProjectMedia(url);
     });
 
     // Import/Export Projects
@@ -134,6 +135,21 @@ function setupEventListeners() {
     // Blog
     document.getElementById('blog-form').addEventListener('submit', handleBlogSubmit);
     document.getElementById('blog-cancel-btn').addEventListener('click', resetBlogForm);
+
+    document.getElementById('blog-md-media-lib-btn').addEventListener('click', () => {
+        openMediaLibrary((path) => {
+            // Remove 'blog/' prefix if present
+            const relativePath = path.startsWith('blog/') ? path.substring(5) : path;
+            insertMedia('blog-description', relativePath);
+        });
+    });
+    
+    document.getElementById('blog-add-media-library-btn').addEventListener('click', () => {
+        openMediaLibrary((path) => {
+            addBlogMedia(path);
+        });
+    });
+    
     document.getElementById('blog-add-media-manual-btn').addEventListener('click', addBlogMediaManually);
     document.getElementById('blog-add-media-url-btn').addEventListener('click', addBlogMediaFromUrl);
     document.getElementById('blog-select-thumbnail-btn').addEventListener('click', () => document.getElementById('blog-thumbnail-input').click());
@@ -178,5 +194,6 @@ function setupEventListeners() {
     window.insertFormat = insertFormat;
     window.insertTable = insertTable;
     window.insertList = insertList;
+    window.insertMedia = insertMedia;
     window.toggleList = toggleList;
 }

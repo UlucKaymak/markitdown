@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600&display=swap"
         rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
     <link rel="stylesheet" href="../../design/css/variables.css">
     <link rel="stylesheet" href="../../design/css/base.css">
     <link rel="stylesheet" href="../../design/css/components.css">
@@ -350,6 +350,7 @@
                                         onclick="insertFormat('project-description', '[', '](url)')">Link</button>
                                     <button type="button"
                                         onclick="insertFormat('project-description', '![', '](image-url)')">Img</button>
+                                    <button type="button" id="project-md-media-lib-btn" title="Insert Image from Library">Img Lib</button>
                                     <button type="button" onclick="insertList('project-description', 'bullet')">List</button>
                                     <button type="button" onclick="insertList('project-description', 'number')">Num</button>
                                     <button type="button" onclick="insertTable('project-description')">Table</button>
@@ -386,6 +387,7 @@
                             <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
                                 <button type="button" id="select-folder-btn" class="btn-secondary">Select
                                     Folder</button>
+                                <button type="button" id="add-media-library-btn" class="btn-secondary">From Library</button>
                                 <button type="button" id="add-media-manual-btn" class="btn-secondary">Add Path
                                     Manually</button>
                                 <button type="button" id="add-media-url-btn" class="btn-secondary">Add from URL</button>
@@ -490,6 +492,7 @@
                                         onclick="insertFormat('blog-description', '[', '](url)')">Link</button>
                                     <button type="button"
                                         onclick="insertFormat('blog-description', '![', '](image-url)')">Img</button>
+                                    <button type="button" id="blog-md-media-lib-btn" title="Insert Image from Library">Img Lib</button>
                                     <button type="button" onclick="insertList('blog-description', 'bullet')">List</button>
                                     <button type="button" onclick="insertList('blog-description', 'number')">Num</button>
                                     <button type="button" onclick="insertTable('blog-description')">Table</button>
@@ -509,6 +512,7 @@
                         <div class="form-group">
                             <label>Media Files (Optional)</label>
                             <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <button type="button" id="blog-add-media-library-btn" class="btn-secondary">From Library</button>
                                 <button type="button" id="blog-add-media-manual-btn" class="btn-secondary">Add Path
                                     Manually</button>
                                 <button type="button" id="blog-add-media-url-btn" class="btn-secondary">Add from

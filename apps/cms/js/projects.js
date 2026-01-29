@@ -14,7 +14,7 @@ export function setCurrentMediaFiles(files) { currentMediaFiles = files; }
 
 export async function loadProjectsFromJson() {
     try {
-        const response = await fetch('../../projects.json');
+        const response = await fetch('../../projects/projects.json');
         if (response.ok) {
             projects = await response.json();
             saveProjects();
@@ -66,7 +66,11 @@ export function renderProjects() {
         
         let thumbSrc = '';
         if (project.thumbnail) {
-            thumbSrc = project.thumbnail.startsWith('http') ? project.thumbnail : '../../' + project.thumbnail;
+            thumbSrc = project.thumbnail.startsWith('http') 
+                ? project.thumbnail 
+                : (project.thumbnail.trim().startsWith('_projects') 
+                    ? '../../projects/' + project.thumbnail.trim() 
+                    : '../../' + project.thumbnail);
         }
 
         const thumbnailHTML = thumbSrc
@@ -245,4 +249,13 @@ export function renderMediaList() {
             renderMediaList();
         });
     });
+}
+
+export function addProjectMedia(path) {
+    if (path && path.trim()) {
+        if (!currentMediaFiles.includes(path.trim())) {
+            currentMediaFiles.push(path.trim());
+            renderMediaList();
+        }
+    }
 }

@@ -12,7 +12,7 @@ export function setBlogEditingId(id) { blogEditingId = id; }
 
 export async function loadBlogPostsFromJson() {
     try {
-        const response = await fetch('../../posts.json');
+        const response = await fetch('../../blog/posts.json');
         if (response.ok) {
             blogPosts = await response.json();
             saveBlogPosts();
@@ -60,7 +60,15 @@ export function renderBlogPosts() {
 
         let thumbSrc = '';
         if (post.thumbnail) {
-            thumbSrc = post.thumbnail.startsWith('http') ? post.thumbnail : '../../' + post.thumbnail;
+            if (post.thumbnail.startsWith('http')) {
+                thumbSrc = post.thumbnail;
+            } else {
+                // Assuming local blog images are relative to root or blog folder
+                // If it starts with blog/, we prepend ../../
+                // If it starts with _content/, we assume it's inside blog/ and prepend ../../blog/
+                // But for now, let's just make it relative to root
+                 thumbSrc = '../../' + post.thumbnail;
+            }
         }
 
         const thumbnailHTML = thumbSrc
@@ -232,6 +240,15 @@ export function addBlogMediaFromUrl() {
     if (url && url.trim()) {
         if (!blogCurrentMediaFiles.includes(url.trim())) {
             blogCurrentMediaFiles.push(url.trim());
+            renderBlogMediaList();
+        }
+    }
+}
+
+export function addBlogMedia(path) {
+    if (path && path.trim()) {
+        if (!blogCurrentMediaFiles.includes(path.trim())) {
+            blogCurrentMediaFiles.push(path.trim());
             renderBlogMediaList();
         }
     }
