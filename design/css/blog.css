@@ -8,6 +8,12 @@
     padding: 3rem 5%;
 }
 
+.blog-content {
+    flex: 1;
+    margin-left: 120px;
+    margin-right: 120px;
+}
+
 /* ==========================================================================
    Shared Components & Helpers
    ========================================================================== */
@@ -169,7 +175,7 @@
 .blog-article-content {
     font-size: 0.8rem;
     line-height: 1.4;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     text-align: justify;
 }
 
