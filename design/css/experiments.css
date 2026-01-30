@@ -1,5 +1,10 @@
 /* Experiments Page Layout */
 
+.experiments-main {
+    margin-left: 7rem;
+    margin-right: 7rem;
+}
+
 /* Container for the masonry grid */
 .experiments-grid {
     column-count: 3;

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiments - Uluç Kaymak</title>
+    <link rel="icon" type="image/png" href="/design/favicon-main.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/design/style.css">
+    <link rel="stylesheet" href="/design/css/experiments.css">
+</head>
+<body class="text-based-page experiments-page">
+
+    <!-- Left Sidebar -->
+    <aside id="sidebar-container" class="left-sidebar"></aside>
+
+    <div class="page-content">
+        <main class="experiments-main">
+            <header style="margin-bottom: 2rem; margin-top: 5rem;">
+                <h1>/experiments</h1>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Raw output. Sketches, glitches, sounds, and others.
+                </p>
+            </header>
+
+            <div id="experiments-grid" class="experiments-grid">
+                <!-- Content will be injected here by JS -->
+                <div class="loading-state" style="text-align:center; padding: 2rem; color: var(--text-secondary);">
+                    Loading experiments...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/design/sidebar.js?v=2"></script>
+    <script src="experiments.js?v=2"></script>
+</body>
+</html>
