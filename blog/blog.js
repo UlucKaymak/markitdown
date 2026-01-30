@@ -23,15 +23,16 @@ document.addEventListener('DOMContentLoaded', function() {
 function handleUrlRouting() {
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('id');
-    const isPostPage = window.location.pathname.includes('post.html');
+    // Check for the existence of the container instead of relying on URL matching
+    const postContentContainer = document.getElementById('blog-post-content');
     
-    if (isPostPage && postId) {
+    if (postContentContainer && postId) {
         const post = allPosts.find(p => p.id === postId);
         if (post) {
             showBlogPost(post);
         } else {
-            // Post not found, redirect to blog index or show error
-            window.location.href = 'index.html';
+            // Post not found
+            postContentContainer.innerHTML = '<div class="error-message"><p>Post not found.</p></div>';
         }
     }
 }
