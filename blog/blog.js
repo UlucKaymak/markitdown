@@ -105,7 +105,7 @@ function closeLightbox() {
 // --- BLOG POST LOADING LOGIC ---
 async function loadBlogPosts() {
     try {
-        const response = await fetch('posts.json');
+        const response = await fetch('/blog/posts.json');
         if (!response.ok) throw new Error('Failed to load posts.json');
 
         const postsData = await response.json();
