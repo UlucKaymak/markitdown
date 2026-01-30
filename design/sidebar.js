@@ -11,9 +11,10 @@ document.addEventListener('DOMContentLoaded', function () {
     initLayout(); 
     loadSidebar();
     initPageTransitions();
-    loadAnalyticsTracker();
+    // loadAnalyticsTracker(); // Tracker file missing
 });
 
+/*
 function loadAnalyticsTracker() {
     // Inject the analytics tracker script
     const script = document.createElement('script');
@@ -21,6 +22,7 @@ function loadAnalyticsTracker() {
     script.async = true;
     document.head.appendChild(script);
 }
+*/
 
 function loadSidebar() {
     // Determine path to sidebar.html based on sidebar.js script tag

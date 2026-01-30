@@ -1,0 +1,100 @@
+/* Experiments Page Layout */
+
+/* Container for the masonry grid */
+.experiments-grid {
+    column-count: 3;
+    column-gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+/* Individual items within the grid */
+.experiment-item {
+    break-inside: avoid; /* Prevent items from being split across columns */
+    margin-bottom: 1.5rem;
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.experiment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Content styling inside items */
+.experiment-content {
+    width: 100%;
+    display: block;
+}
+
+/* Images and Videos */
+.experiment-content img,
+.experiment-content video {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Audio Player */
+.experiment-audio-container {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--bg-color);
+}
+
+.experiment-audio-container audio {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* Text Content */
+.experiment-text {
+    padding: 1rem;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    max-height: 300px; /* Limit height for long text files */
+    overflow-y: auto;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+}
+
+/* Filename label (optional, displayed on hover or always) */
+.experiment-meta {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+    background-color: var(--secondary-bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.experiment-download {
+    text-decoration: none;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.experiment-download:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .experiments-grid {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 600px) {
+    .experiments-grid {
+        column-count: 1;
+    }
+}
