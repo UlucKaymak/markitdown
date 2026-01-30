@@ -26,13 +26,19 @@ function handleUrlRouting() {
     // Check for the existence of the container instead of relying on URL matching
     const postContentContainer = document.getElementById('blog-post-content');
     
-    if (postContentContainer && postId) {
-        const post = allPosts.find(p => p.id === postId);
-        if (post) {
-            showBlogPost(post);
+    if (postContentContainer) {
+        if (postId) {
+            const post = allPosts.find(p => p.id === postId);
+            if (post) {
+                showBlogPost(post);
+            } else {
+                // Post not found
+                postContentContainer.innerHTML = '<div class="error-message"><p>Post not found.</p><p><a href="index.html">Return to Blog</a></p></div>';
+            }
         } else {
-            // Post not found
-            postContentContainer.innerHTML = '<div class="error-message"><p>Post not found.</p></div>';
+             // No ID provided on post page - redirect or show message
+             // Ideally redirect to index, but for now show message
+             postContentContainer.innerHTML = '<div class="error-message"><p>No post specified.</p><p><a href="index.html">Return to Blog</a></p></div>';
         }
     }
 }
@@ -106,65 +112,67 @@ function closeLightbox() {
 // --- BLOG POST LOADING LOGIC ---
 async function loadBlogPosts() {
     try {
-        const response = await fetch('/blog/posts.json');
-        if (!response.ok) throw new Error('Failed to load posts.json');
+        // Add timestamp to prevent caching issues
+        const response = await fetch('/blog/posts.json?t=' + Date.now());
+        if (!response.ok) throw new Error(`Failed to load posts.json: ${response.status}`);
 
         const postsData = await response.json();
         allPosts = postsData.filter(post => post.enabled === true);
 
         const blogList = document.querySelector('.blog-list');
-        if (!blogList) return; // Not on index page
-        
-        blogList.innerHTML = '';
+        if (blogList) {
+             // Only populate list if we are on the index page
+            blogList.innerHTML = '';
 
-        if (allPosts.length === 0) {
-            displayNoPosts();
-            return;
-        }
+            if (allPosts.length === 0) {
+                displayNoPosts();
+                return;
+            }
 
-        allPosts.forEach((post) => {
-            const card = document.createElement('div');
-            card.className = 'blog-post-card';
-            
-            // Format description for excerpt (remove links, take first paragraph)
-            const cleanDesc = (post.description || "")
-                .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // [text](url) -> text
-                .replace(/[#*`_~]/g, '')                // Remove common MD symbols
-                .replace(/\s+/g, ' ')                   // Normalize whitespace
-                .trim();
+            allPosts.forEach((post) => {
+                const card = document.createElement('div');
+                card.className = 'blog-post-card';
+                
+                // Format description for excerpt (remove links, take first paragraph)
+                const cleanDesc = (post.description || "")
+                    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // [text](url) -> text
+                    .replace(/[#*`_~]/g, '')                // Remove common MD symbols
+                    .replace(/\s+/g, ' ')                   // Normalize whitespace
+                    .trim();
 
-            const excerpt = cleanDesc.length > 150 ? cleanDesc.substring(0, 150) + '...' : cleanDesc;
-            
-            const tagsHtml = (post.tags || []).map(tag => `<span class="blog-tag">${tag}</span>`).join('');
+                const excerpt = cleanDesc.length > 150 ? cleanDesc.substring(0, 150) + '...' : cleanDesc;
+                
+                const tagsHtml = (post.tags || []).map(tag => `<span class="blog-tag">${tag}</span>`).join('');
 
-            const thumbnailHtml = post.thumbnail 
-                ? `<div class="blog-post-thumbnail"><img src="${post.thumbnail}" alt="${post.title}"></div>` 
-                : '';
+                const thumbnailHtml = post.thumbnail 
+                    ? `<div class="blog-post-thumbnail"><img src="${post.thumbnail}" alt="${post.title}"></div>` 
+                    : '';
 
-            card.innerHTML = `
-                ${thumbnailHtml}
-                <div class="blog-post-card-content">
-                    <div class="blog-post-header">
-                        <h1 class="blog-post-title">${post.title}</h1>
-                        <div class="blog-post-meta">
-                            <span class="blog-post-date">${formatDate(post.date)}</span>
+                card.innerHTML = `
+                    ${thumbnailHtml}
+                    <div class="blog-post-card-content">
+                        <div class="blog-post-header">
+                            <h1 class="blog-post-title">${post.title}</h1>
+                            <div class="blog-post-meta">
+                                <span class="blog-post-date">${formatDate(post.date)}</span>
+                            </div>
+                        </div>
+                        <p class="blog-post-excerpt">${excerpt}</p>
+                        <div class="blog-tags">${tagsHtml}</div>
+                        <div style="margin-top: 1rem;">
+                            <span class="blog-read-more">Read Article</span>
                         </div>
                     </div>
-                    <p class="blog-post-excerpt">${excerpt}</p>
-                    <div class="blog-tags">${tagsHtml}</div>
-                    <div style="margin-top: 1rem;">
-                        <span class="blog-read-more">Read Article</span>
-                    </div>
-                </div>
-            `;
-            card.onclick = () => {
-                window.location.href = `post.html?id=${post.id}`;
-            };
-            blogList.appendChild(card);
-        });
+                `;
+                card.onclick = () => {
+                    window.location.href = `post.html?id=${post.id}`;
+                };
+                blogList.appendChild(card);
+            });
+        }
     } catch (error) {
         console.error('Error loading posts:', error);
-        displayError();
+        displayError(error.message);
     }
 }
 
@@ -300,7 +308,17 @@ function displayNoPosts() {
     if (list) list.innerHTML = '<div class="no-projects"><p>No posts available yet.</p></div>';
 }
 
-function displayError() {
+function displayError(msg = 'Error loading posts. Try again later.') {
+    // Try to find the list container (index page)
     const list = document.querySelector('.blog-list');
-    if (list) list.innerHTML = '<div class="error-message"><p>Error loading posts. Try again later.</p></div>';
+    if (list) {
+        list.innerHTML = `<div class="error-message"><p>${msg}</p></div>`;
+        return;
+    }
+
+    // Try to find the post content container (post page)
+    const postContainer = document.getElementById('blog-post-content');
+    if (postContainer) {
+        postContainer.innerHTML = `<div class="error-message"><p>${msg}</p><p><a href="index.html">Return to Blog</a></p></div>`;
+    }
 }
