@@ -216,6 +216,25 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.small-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+.remove-file {
+    background: var(--accent-color);
+}
+
+.remove-file:hover {
+    background: #c0392b;
+}
+
+#display-share-url {
+    font-family: monospace;
+    font-size: 0.75rem !important;
 }
 
 .placeholder-text {

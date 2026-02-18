@@ -3,7 +3,7 @@
     var peer = null;
     var conn = null;
     var myAliasID = "";
-    var selectedFile = null;
+    var queuedFiles = [];
 
     // --- Alias Generators ---
     var adjectives = [
@@ -52,11 +52,15 @@
         els.panel = document.getElementById('main-transfer-panel');
         els.dropZone = document.getElementById('file-drop-zone');
         els.fileInput = document.getElementById('main-file-input');
-        els.fileInfo = document.getElementById('selected-file-info');
+        els.filesList = document.getElementById('selected-files-list');
         els.sendBtn = document.getElementById('execute-send-btn');
         els.progress = document.getElementById('transfer-progress-bar');
         els.incomingList = document.getElementById('files-list-container');
         els.copyBtn = document.getElementById('copy-id-btn');
+        els.shareCard = document.getElementById('share-url-card');
+        els.shareUrl = document.getElementById('display-share-url');
+        els.copyShareBtn = document.getElementById('copy-share-url-btn');
+        els.downloadCard = document.getElementById('main-download-card');
     }
 
     // --- Core Functions ---
@@ -81,6 +85,20 @@
         return (adj + "-" + noun).toLowerCase();
     }
 
+    function updateShareLink() {
+        if (!myAliasID) return;
+        var url = new URL(window.location.href);
+        url.searchParams.set('id', myAliasID);
+        var shareUrl = url.toString();
+        els.shareUrl.textContent = shareUrl;
+        
+        if (queuedFiles.length > 0) {
+            els.shareCard.style.display = "block";
+        } else {
+            els.shareCard.style.display = "none";
+        }
+    }
+
     function startPeerNetwork() {
         if (peer) peer.destroy();
 
@@ -98,11 +116,11 @@
                     els.status.textContent = "Online & Ready.";
                     els.status.style.color = "#27ae60"; // Green
                 }
+                updateShareLink();
+                checkAutoConnect();
             });
 
             peer.on('connection', function (c) {
-                // If we already have a connection, close the new one? 
-                // Or allow reconnection. Let's allow and switch.
                 if (conn) { conn.close(); }
                 setupConnection(c);
             });
@@ -110,7 +128,6 @@
             peer.on('error', function (err) {
                 console.error("Peer Error:", err);
                 if (err.type === 'unavailable-id') {
-                    // Retry with new ID
                     myAliasID = generateSafeId();
                     startPeerNetwork();
                 } else if (err.type === 'network') {
@@ -137,6 +154,16 @@
         }
     }
 
+    function checkAutoConnect() {
+        var params = new URLSearchParams(window.location.search);
+        var targetId = params.get('id');
+        if (targetId && targetId !== myAliasID) {
+            els.status.textContent = "Auto-connecting to " + targetId + "...";
+            var c = peer.connect(targetId, { metadata: { name: myAliasID } });
+            setupConnection(c);
+        }
+    }
+
     function bindEvents() {
         if (els.connectBtn) {
             els.connectBtn.onclick = function () {
@@ -159,6 +186,16 @@
             };
         }
 
+        if (els.copyShareBtn) {
+            els.copyShareBtn.onclick = function () {
+                navigator.clipboard.writeText(els.shareUrl.textContent).then(function () {
+                    var icon = els.copyShareBtn.querySelector('i');
+                    icon.className = "fas fa-check";
+                    setTimeout(function () { icon.className = "fas fa-link"; }, 2000);
+                });
+            };
+        }
+
         // File Handling
         if (els.dropZone) {
             els.dropZone.onclick = function () { els.fileInput.click(); };
@@ -172,43 +209,91 @@
 
             els.dropZone.addEventListener('drop', function (e) {
                 e.preventDefault();
-                if (e.dataTransfer.files.length > 0) onFileReady(e.dataTransfer.files[0]);
+                if (e.dataTransfer.files.length > 0) onFilesAdded(e.dataTransfer.files);
             });
         }
 
         if (els.fileInput) {
             els.fileInput.onchange = function (e) {
-                if (e.target.files.length > 0) onFileReady(e.target.files[0]);
+                if (e.target.files.length > 0) onFilesAdded(e.target.files);
             };
         }
 
         if (els.sendBtn) {
             els.sendBtn.onclick = function () {
-                if (selectedFile && conn && conn.open) {
-                    conn.send({ type: 'meta', name: selectedFile.name, size: selectedFile.size, fileType: selectedFile.type, sender: myAliasID });
-                    conn.send({ type: 'file', content: selectedFile });
-
-                    els.sendBtn.disabled = true;
-                    els.sendBtn.textContent = "Sending...";
-                    els.progress.style.width = "100%";
-
-                    setTimeout(function () {
-                        els.sendBtn.textContent = "Sent!";
-                        setTimeout(function () {
-                            els.sendBtn.textContent = "Send File";
-                            els.sendBtn.disabled = false;
-                            els.progress.style.width = "0%";
-                        }, 2000);
-                    }, 1000);
-                }
+                sendQueuedFiles();
             };
         }
     }
 
-    function onFileReady(file) {
-        selectedFile = file;
-        els.fileInfo.innerHTML = `<strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-        els.sendBtn.disabled = false;
+    function onFilesAdded(files) {
+        for (var i = 0; i < files.length; i++) {
+            queuedFiles.push(files[i]);
+        }
+        renderQueuedFiles();
+        updateShareLink();
+        
+        if (conn && conn.open) {
+            els.sendBtn.disabled = false;
+        } else {
+            els.sendBtn.disabled = true;
+            els.sendBtn.textContent = "Waiting for Connection...";
+        }
+    }
+
+    function renderQueuedFiles() {
+        els.filesList.innerHTML = "";
+        queuedFiles.forEach((file, index) => {
+            var div = document.createElement('div');
+            div.className = 'file-item';
+            div.innerHTML = `<div><strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)</div>
+                             <button class="small-btn remove-file" data-index="${index}"><i class="fas fa-times"></i></button>`;
+            els.filesList.appendChild(div);
+        });
+
+        document.querySelectorAll('.remove-file').forEach(btn => {
+            btn.onclick = function(e) {
+                var idx = parseInt(this.getAttribute('data-index'));
+                queuedFiles.splice(idx, 1);
+                renderQueuedFiles();
+                updateShareLink();
+            };
+        });
+
+        if (queuedFiles.length > 0) {
+            els.sendBtn.style.display = "block";
+        } else {
+            els.sendBtn.style.display = "none";
+        }
+    }
+
+    async function sendQueuedFiles() {
+        if (queuedFiles.length === 0 || !conn || !conn.open) return;
+
+        els.sendBtn.disabled = true;
+        els.sendBtn.textContent = "Sending...";
+        
+        for (var i = 0; i < queuedFiles.length; i++) {
+            var file = queuedFiles[i];
+            els.status.textContent = `Sending: ${file.name}...`;
+            els.progress.style.width = `${((i + 1) / queuedFiles.length) * 100}%`;
+            
+            conn.send({ type: 'meta', name: file.name, size: file.size, fileType: file.type, sender: myAliasID });
+            conn.send({ type: 'file', content: file });
+            
+            // Wait a bit between files to avoid overwhelming the buffer if needed
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        els.sendBtn.textContent = "Sent!";
+        els.status.textContent = "All files sent.";
+        setTimeout(function () {
+            els.sendBtn.textContent = "Send Files";
+            els.sendBtn.disabled = false;
+            els.progress.style.width = "0%";
+            // Optionally clear queue? The user said "share link to download", 
+            // usually implies the queue stays if they want to share with multiple people.
+        }, 2000);
     }
 
     function setupConnection(c) {
@@ -218,10 +303,30 @@
             var rName = (conn.metadata && conn.metadata.name) ? conn.metadata.name : "Remote";
             els.status.textContent = "Connected: " + rName;
             els.status.style.color = "#3498db";
-            els.panel.style.display = "block"; // Show transfer panel
+            els.downloadCard.style.display = "block";
 
             // Send Handshake
             conn.send({ type: 'handshake', name: myAliasID });
+            
+            // If we have queued files, enable send button
+            if (queuedFiles.length > 0) {
+                els.sendBtn.disabled = false;
+                els.sendBtn.textContent = "Send Prepared Files";
+                
+                // Auto-send if we are the "sharer" (someone connected to our ID via link)
+                // Actually, let's just enable the button for now, or auto-send if there's a param?
+                // Better: if someone connects to US, and we have files, we can just send.
+                // But let's check if the connection was initiated by them.
+                // PeerJS doesn't easily say who initiated in the 'connection' event callback 
+                // unless we check metadata or similar.
+                
+                // Auto-send logic:
+                setTimeout(() => {
+                    if (confirm(`Connected to ${rName}. Send prepared files?`)) {
+                        sendQueuedFiles();
+                    }
+                }, 500);
+            }
         });
 
         conn.on('data', function (data) {
@@ -234,7 +339,6 @@
                 var blob = new Blob([data.content], { type: m.fileType });
                 var url = URL.createObjectURL(blob);
 
-                // Clear placeholder
                 var ph = els.incomingList.querySelector('.placeholder-text');
                 if (ph) ph.remove();
 
@@ -242,6 +346,8 @@
                 div.className = 'file-item';
                 div.innerHTML = `<div><strong>${m.name}</strong></div><a href="${url}" download="${m.name}"><button class="small-btn"><i class="fas fa-download"></i></button></a>`;
                 els.incomingList.appendChild(div);
+                
+                els.downloadCard.style.display = "block";
             }
         });
 

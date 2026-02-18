@@ -44,22 +44,31 @@
                 </div>
             </div>
 
-            <div class="transfer-panel" id="main-transfer-panel" style="display: none;">
+            <div class="card share-url-card" id="share-url-card" style="display: none;">
+                <h3>Share Link</h3>
+                <div class="id-display">
+                    <span id="display-share-url" style="font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">...</span>
+                    <button id="copy-share-url-btn" title="Copy Link"><i class="fas fa-link"></i></button>
+                </div>
+                <p style="font-size: 0.8rem; opacity: 0.7;">Keep this tab open. The transfer will start when someone opens this link.</p>
+            </div>
+
+            <div class="transfer-panel" id="main-transfer-panel">
                 <div class="card upload-card">
-                    <h3>Send File</h3>
+                    <h3>Send Files</h3>
                     <div class="drop-zone" id="file-drop-zone">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Drag & Drop or Click</p>
-                        <input type="file" id="main-file-input" hidden>
+                        <p>Drag & Drop or Click to Add Files</p>
+                        <input type="file" id="main-file-input" hidden multiple>
                     </div>
-                    <div id="selected-file-info"></div>
-                    <button id="execute-send-btn" disabled>Send File</button>
+                    <div id="selected-files-list"></div>
+                    <button id="execute-send-btn" disabled>Send Files</button>
                     <div class="progress-bar-container">
                         <div class="progress-bar" id="transfer-progress-bar"></div>
                     </div>
                 </div>
 
-                <div class="card download-card">
+                <div class="card download-card" id="main-download-card" style="display: none;">
                     <h3>Incoming Files</h3>
                     <div id="files-list-container">
                         <p class="placeholder-text">Waiting for files...</p>
