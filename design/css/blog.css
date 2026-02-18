@@ -81,7 +81,9 @@
 }
 
 /* Card Content */
-.blog-post-card-content { flex: 1; }
+.blog-post-card-content {
+    flex: 1;
+}
 
 .blog-post-title {
     font-size: 1.1rem;
@@ -123,7 +125,9 @@
     transition: transform 0.2s ease;
 }
 
-.blog-post-card:hover .blog-read-more::after { transform: translateX(4px); }
+.blog-post-card:hover .blog-read-more::after {
+    transform: translateX(4px);
+}
 
 
 
@@ -144,8 +148,8 @@
     text-align: justify;
 }
 
-.blog-article-header {     
-    margin-bottom: 2rem; 
+.blog-article-header {
+    margin-bottom: 2rem;
 }
 
 /* Navigation */
@@ -162,7 +166,9 @@
     transition: opacity 0.3s ease;
 }
 
-.back-to-blog:hover { opacity: 0.7; }
+.back-to-blog:hover {
+    opacity: 0.7;
+}
 
 /* ==========================================================================
    Markdown Content Styling
@@ -173,18 +179,35 @@
 }
 
 /* Headings Hierarchy */
-.blog-article-header h1, .blog-article-content h1,
-.blog-article-header h2, .blog-article-content h2,
-.blog-article-header h3, .blog-article-content h3 {
+.blog-article-header h1,
+.blog-article-content h1,
+.blog-article-header h2,
+.blog-article-content h2,
+.blog-article-header h3,
+.blog-article-content h3 {
     color: var(--text-primary);
     font-weight: 500;
     text-align: left;
     margin-bottom: 1rem;
 }
 
-.blog-article-header h1, .blog-article-content h1 { font-size: 1.8rem; margin-top: 3.5rem; }
-.blog-article-header h2, .blog-article-content h2 { font-size: 1.4rem; margin-top: 2.5rem; }
-.blog-article-header h3, .blog-article-content h3 { font-size: 1.1rem; margin-top: 2.0rem; }
+.blog-article-header h1,
+.blog-article-content h1 {
+    font-size: 1.8rem;
+    margin-top: 3.5rem;
+}
+
+.blog-article-header h2,
+.blog-article-content h2 {
+    font-size: 1.4rem;
+    margin-top: 2.5rem;
+}
+
+.blog-article-header h3,
+.blog-article-content h3 {
+    font-size: 1.1rem;
+    margin-top: 2.0rem;
+}
 
 /* Special case: The first heading in the header shouldn't have such a large margin-top */
 .blog-article-header h1:first-of-type,
@@ -207,8 +230,14 @@
 }
 
 /* Unordered List (Dashes) */
-.blog-article-content ul { list-style: none; }
-.blog-article-content ul li { padding-left: 1.5rem; }
+.blog-article-content ul {
+    list-style: none;
+}
+
+.blog-article-content ul li {
+    padding-left: 1.5rem;
+}
+
 .blog-article-content ul li::before {
     content: "—";
     position: absolute;
@@ -237,14 +266,16 @@
 }
 
 /* Nested Lists */
-.blog-article-content ul ul, 
-.blog-article-content ol ol, 
-.blog-article-content ul ol, 
+.blog-article-content ul ul,
+.blog-article-content ol ol,
+.blog-article-content ul ol,
 .blog-article-content ol ul {
     margin: 0.5rem 0 0.5rem 1.5rem;
 }
 
-.blog-article-content ul ul li::before { content: "◦"; }
+.blog-article-content ul ul li::before {
+    content: "◦";
+}
 
 /* Media & Images */
 .blog-article-content img {
@@ -268,7 +299,9 @@
     border: 1px solid var(--border);
 }
 
-.blog-article-media audio { width: 100%; }
+.blog-article-media audio {
+    width: 100%;
+}
 
 .blog-media-caption {
     font-size: 0.75rem;
@@ -315,14 +348,18 @@
     text-align: left;
 }
 
-.blog-article-content th { background-color: rgba(255, 255, 255, 0.05); }
+.blog-article-content th {
+    background-color: rgba(255, 255, 255, 0.05);
+}
 
 /* ==========================================================================
    Responsive Adjustments
    ========================================================================== */
 @media (max-width: 768px) {
-    .blog-header h2 { font-size: 1.3rem; }
-    
+    .blog-header h2 {
+        font-size: 1.3rem;
+    }
+
     .blog-post-card {
         flex-direction: column;
         padding: 1rem;
@@ -334,8 +371,25 @@
         height: 180px;
     }
 
-    .blog-post-title { font-size: 1.1rem; }
+    .blog-post-title {
+        font-size: 1.1rem;
+    }
 
-    .blog-article-header h1, .blog-article-content h1 { font-size: 1.5rem; }
-    .blog-article-header h2, .blog-article-content h2 { font-size: 1.2rem; }
+    .blog-article-header h1,
+    .blog-article-content h1 {
+        font-size: 1.5rem;
+    }
+
+    .blog-article-header h2,
+    .blog-article-content h2 {
+        font-size: 1.2rem;
+    }
+
+    .blog-main, .blog-post-view {
+        padding: 1.5rem 1rem;
+    }
+
+    .blog-content {
+        margin: 0.5rem;
+    }
 }
