@@ -142,7 +142,7 @@ async function loadBlogPosts() {
 
                 const excerpt = cleanDesc.length > 150 ? cleanDesc.substring(0, 150) + '...' : cleanDesc;
                 
-                const tagsHtml = (post.tags || []).map(tag => `<span class="blog-tag">${tag}</span>`).join('');
+                const tagsHtml = (post.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
 
                 const thumbnailHtml = post.thumbnail 
                     ? `<div class="blog-post-thumbnail"><img src="${post.thumbnail}" alt="${post.title}"></div>` 
@@ -158,7 +158,7 @@ async function loadBlogPosts() {
                             </div>
                         </div>
                         <p class="blog-post-excerpt">${excerpt}</p>
-                        <div class="blog-tags">${tagsHtml}</div>
+                        <div class="blog-tags project-tags">${tagsHtml}</div>
                         <div style="margin-top: 1rem;">
                             <span class="blog-read-more">Read Article</span>
                         </div>
@@ -246,14 +246,14 @@ function showBlogPost(post) {
     }
 
     // 4. Inject Content
-    let tagsHtml = (post.tags || []).map(tag => `<span class="blog-tag">${tag}</span>`).join('');
+    let tagsHtml = (post.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
 
     contentContainer.innerHTML = `
         <article class="blog-article">
             <header class="blog-article-header">
                 <span class="eyebrow">${formatDate(post.date)}</span>
                 <h1>${post.title}</h1>
-                <div class="blog-tags">${tagsHtml}</div>
+                <div class="blog-tags project-tags">${tagsHtml}</div>
             </header>
             
             <div class="blog-article-content">

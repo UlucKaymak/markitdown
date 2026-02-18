@@ -125,22 +125,7 @@
 
 .blog-post-card:hover .blog-read-more::after { transform: translateX(4px); }
 
-/* Tags */
-.blog-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.5rem;
-}
 
-.blog-tag {
-    font-size: 0.7rem;
-    padding: 0.1rem 0.4rem;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-    color: var(--text-secondary);
-    border: 1px;
-}
 
 /* ==========================================================================
    Blog Post Detail View (post.html)
