@@ -246,13 +246,7 @@ function toggleDropdown(navItem) {
     }
 }
 
-function filterProjects(filter) {
-    // This function will be called from script.js
-    // Store the filter for use when loading projects
-    if (window.loadProjectThumbnails) {
-        window.loadProjectThumbnails(filter);
-    }
-}
+
 
 // Page Transitions
 function initPageTransitions() {

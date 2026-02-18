@@ -2,6 +2,7 @@
 let currentLightboxImages = []; 
 let currentImageIndex = 0;
 let allProjects = []; // Store all projects globally
+let isLoaded = false;
 
 const lightboxElements = {
     overlay: null,
@@ -127,11 +128,15 @@ function closeLightbox() {
 // --- PROJECT LOADING LOGIC ---
 async function loadProjectThumbnails(filter = 'all') {
     try {
-        const response = await fetch('./projects.json');
-        if (!response.ok) throw new Error('Failed to load projects.json');
+        if(!isLoaded){
+            const response = await fetch('./projects.json');
+            if (!response.ok) throw new Error('Failed to load projects.json');
 
-        const projectsData = await response.json();
-        allProjects = projectsData; // Update global allProjects
+            const projectsData = await response.json();
+            allProjects = projectsData; // Update global allProjects
+            isLoaded = true;
+        }
+
         let projects = allProjects.filter(project => project.enabled === true);
 
         if (filter !== 'all') {
@@ -180,6 +185,14 @@ async function loadProjectThumbnails(filter = 'all') {
     } catch (error) {
         console.error('Error loading projects:', error);
         displayError();
+    }
+}
+
+function filterProjects(filter) {
+    // This function will be called from script.js
+    // Store the filter for use when loading projects
+    if (window.loadProjectThumbnails) {
+        window.loadProjectThumbnails(filter);
     }
 }
 
