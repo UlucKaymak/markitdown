@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="../design/style.css">
     <link rel="stylesheet" href="../design/css/blog.css">
+    <link rel="stylesheet" href="../design/css/header.css">
 </head>
 
 <body class="text-based-page">
@@ -21,11 +22,7 @@
 
     <div class="page-content">
         <main class="blog-main">
-            <div class="blog-header">
-                <span class="eyebrow">Writing</span>
-                <h2>Blog</h2>
-                <p>Mostly my research and UX reports.</p>
-            </div>
+            <div id="header-container"></div>
             <div class="blog-list"></div>
         </main>
     </div>
@@ -39,6 +36,10 @@
     </div>
 
     <script src="../design/sidebar.js"></script>
+    <script src="../design/header.js"></script>
+    <script>
+        loadHeader("Writing", "#Blogs", "Mostly my research and UX reports.");
+    </script>
     <script src="/blog/blog.js"></script>
 </body>
 

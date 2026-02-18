@@ -1,8 +1,9 @@
 /* Experiments Page Layout */
 
 .experiments-main {
-    margin-left: 7rem;
-    margin-right: 7rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 3rem 5%;
 }
 
 /* Container for the masonry grid */
