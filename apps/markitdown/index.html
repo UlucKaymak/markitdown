@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark It Down</title>
+    <meta name="description" content="Minimalist & Offline Markdown Editor">
+    <link rel="icon" href="MarkdownFavicon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" href="MarkdownFavicon.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Cantata+One&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div id="app" class="light">
+        <header id="toolbar" class="hidden">
+            <div class="toolbar-content">
+                <button data-action="bold" title="Bold"><i data-lucide="bold"></i></button>
+                <button data-action="italic" title="Italic"><i data-lucide="italic"></i></button>
+                <div class="divider"></div>
+                <button data-action="h1" title="Heading 1">H1</button>
+                <button data-action="h2" title="Heading 2">H2</button>
+                <div class="divider"></div>
+                <button data-action="list" title="List"><i data-lucide="list"></i></button>
+                <button data-action="code" title="Code"><i data-lucide="code"></i></button>
+                <button data-action="quote" title="Quote"><i data-lucide="quote"></i></button>
+                <button data-action="link" title="Link"><i data-lucide="link"></i></button>
+                <button data-action="image" title="Image"><i data-lucide="image"></i></button>
+                <div class="divider"></div>
+                <div class="view-modes">
+                    <button data-mode="edit" title="Write"><i data-lucide="edit-3"></i></button>
+                    <button data-mode="split" title="Split"><i data-lucide="columns-2"></i></button>
+                    <button data-mode="sync" class="active" title="Sync"><i data-lucide="link-2"></i></button>
+                    <button data-mode="preview" title="Preview"><i data-lucide="eye"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <main id="editor-container">
+            <div id="edit-pane" class="pane">
+                <textarea id="markdown-input" spellcheck="false" placeholder="Start writing..."></textarea>
+            </div>
+            <div id="preview-pane" class="pane markdown-body"></div>
+        </main>
+
+        <div id="settings-panel" class="settings-overlay hidden">
+            <div class="settings-content">
+                <div class="settings-header">
+                    <h3>Settings</h3>
+                    <button id="close-settings">CLOSE</button>
+                </div>
+                <div class="settings-groups">
+                    <div class="setting-item">
+                        <span>Appearance</span>
+                        <button id="theme-toggle">LIGHT MODE</button>
+                    </div>
+                    <div class="setting-item">
+                        <span>Accent</span>
+                        <div class="accent-picker">
+                            <button class="accent-btn blue active" data-accent="blue"></button>
+                            <button class="accent-btn green" data-accent="green"></button>
+                            <button class="accent-btn purple" data-accent="purple"></button>
+                            <button class="accent-btn rose" data-accent="rose"></button>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <span>Typography</span>
+                        <div class="font-picker">
+                            <button class="font-btn active" data-font="sans">sans</button>
+                            <button class="font-btn" data-font="serif">serif</button>
+                            <button class="font-btn" data-font="mono">mono</button>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <span>Font Size</span>
+                        <div class="size-picker">
+                            <button id="size-down">-</button>
+                            <span id="font-size-val">18</span>
+                            <button id="size-up">+</button>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <span>Statistics</span>
+                        <button id="stats-toggle">OFF</button>
+                    </div>
+                    <div class="divider-full"></div>
+                    <div class="setting-item">
+                        <span>Content</span>
+                        <button id="load-guide">Load Markdown Guide</button>
+                    </div>
+                    <div class="divider-full"></div>
+                    <div class="credits">
+                        <a href="https://www.uluckaymak.com" target="_blank">Made with 🎲 by UluçKaymak</a>
+                        <div class="links">
+                            <a href="https://github.com/UlucKaymak/Markitdown" target="_blank">GitHub Repo ↗</a>
+                            <a href="https://buymeacoffee.com/uluckaymak" target="_blank">Buy Me a Coffee ☕</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-left">
+                <span id="mode-status">READING</span>
+                <button id="open-btn">OPEN</button>
+                <div id="stats-display" class="hidden">
+                    <span>CHARS: <span id="char-count">0</span></span>
+                    <span>LINES: <span id="line-count">1</span></span>
+                </div>
+            </div>
+            <div class="footer-center">
+                <span id="filename-display">[Mark It Down]</span>
+            </div>
+            <div class="footer-right">
+                <button id="settings-btn">SETTINGS</button>
+                <button id="edit-toggle-btn">EDIT</button>
+                <div id="edit-actions" class="hidden">
+                    <button id="save-btn">SAVE</button>
+                    <button id="save-as-btn">SAVE AS</button>
+                    <button id="cancel-btn">DON'T SAVE</button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- PWA Script -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
