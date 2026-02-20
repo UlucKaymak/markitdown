@@ -3,14 +3,14 @@ import ReactMarkdown from 'react-markdown';
 import "./index.css";
 import { 
   Bold, Italic, List, Code, Link as LinkIcon, 
-  Indent, Edit3, Columns2, Eye, Github, Coffee,
-  Minus, Plus, ExternalLink
+  Indent, Edit3, Columns2, Eye,
+  Minus, Plus
 } from 'lucide-react';
 // Tauri Plugins
 import { open as openDialog, save as saveDialog } from '@tauri-apps/plugin-dialog';
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { listen } from '@tauri-apps/api/event';
-import { WebviewWindow, getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { openUrl } from '@tauri-apps/plugin-opener';
 
