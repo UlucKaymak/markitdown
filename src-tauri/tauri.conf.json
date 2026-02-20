@@ -39,22 +39,12 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "macos": {
-      "fileAssociations": [
-        {
-          "ext": ["md", "markdown", "txt"],
-          "name": "Markdown File",
-          "role": "Editor"
-        }
-      ]
-    },
-    "windows": {
-      "fileAssociations": [
-        {
-          "ext": ["md", "markdown", "txt"],
-          "name": "Markdown File"
-        }
-      ]
-    }
+    "fileAssociations": [
+      {
+        "ext": ["md", "markdown", "txt"],
+        "name": "Markdown File",
+        "role": "Editor"
+      }
+    ]
   }
 }

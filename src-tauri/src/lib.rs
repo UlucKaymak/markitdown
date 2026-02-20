@@ -1,10 +1,10 @@
 use tauri::menu::{Menu, MenuItem, Submenu, PredefinedMenuItem};
-use tauri::{Emitter, WebviewUrl, WebviewWindowBuilder, Manager};
+use tauri::{Emitter, WebviewUrl, WebviewWindowBuilder, Manager, App, AppHandle};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 static WINDOW_COUNT: AtomicUsize = AtomicUsize::new(0);
 
-fn open_file_window(handle: &tauri::AppHandle, path: String) {
+fn open_file_window(handle: &AppHandle, path: String) {
     let id = WINDOW_COUNT.fetch_add(1, Ordering::Relaxed);
     let label = format!("win-{}", id);
     let url = format!("index.html?file={}", urlencoding::encode(&path));
@@ -22,16 +22,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
-        .on_open_url(|app, urls| {
-            for url in urls {
-                if url.scheme() == "file" {
-                    if let Ok(path) = url.to_file_path() {
-                        open_file_window(app, path.to_string_lossy().to_string());
-                    }
-                }
-            }
-        })
-        .setup(|app| {
+        .setup(|app: &mut App| {
             let handle = app.handle();
 
             // Handle CLI arguments (Windows/Linux)
@@ -43,8 +34,10 @@ pub fn run() {
                         if first {
                             // Try to pass to the already creating main window
                             if let Some(main_win) = app.get_webview_window("main") {
-                                let url = format!("index.html?file={}", urlencoding::encode(arg));
-                                let _ = main_win.navigate(tauri::Url::parse(&format!("tauri://localhost/{}", url)).unwrap());
+                                let url_path = format!("index.html?file={}", urlencoding::encode(arg));
+                                if let Ok(url) = tauri::Url::parse(&format!("tauri://localhost/{}", url_path)) {
+                                    let _ = main_win.navigate(url);
+                                }
                             } else {
                                 open_file_window(handle, arg.clone());
                             }
@@ -123,7 +116,7 @@ pub fn run() {
             let menu = Menu::with_items(handle, &[&app_menu, &file_menu, &edit_menu, &window_menu])?;
             app.set_menu(menu)?;
 
-            app.on_menu_event(move |app, event| {
+            app.on_menu_event(move |app: &AppHandle, event: tauri::menu::MenuEvent| {
                 match event.id().as_ref() {
                     "new" => { let _ = app.emit("menu-new", ()); }
                     "open" => { let _ = app.emit("menu-open", ()); }

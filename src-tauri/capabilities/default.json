@@ -5,6 +5,9 @@
   "windows": ["*"],
   "permissions": [
     "core:default",
+    "core:event:default",
+    "core:event:allow-listen",
+    "core:window:default",
     "core:window:allow-set-title",
     "opener:default",
     "dialog:default",
