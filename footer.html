@@ -1,0 +1,32 @@
+  <footer className={`border-t px-4 py-1 flex items-center justify-between z-50 transition-colors ${theme === 'dark' ? 'bg-[#11111b] border-[#313244] text-[#bac2de]' : 'bg-[#dce0e8] border-[#bac2de] text-[#6c6f85]'}`}>
+        <div className="flex-1 flex items-center gap-4 text-[9px] font-bold tracking-widest uppercase">
+          <div className="flex items-center gap-2">
+            <span className={theme === 'dark' ? currentColors.text : currentColors.lightText}>{isEditing ? 'EDITING' : 'READING'}</span>
+          </div>
+          <button onClick={handleOpenFile} className="text-[9px] font-bold tracking-widest uppercase transition-all hover:opacity-100 opacity-60">OPEN</button>
+          {showStats && (
+            <div className="flex gap-3 opacity-40 text-[9px]">
+              <span>C:{stats.chars}</span><span>W:{stats.words}</span><span>L:{stats.lines}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex-1 flex justify-center overflow-hidden">
+          <span className="text-[9px] font-bold tracking-widest uppercase opacity-40 truncate px-4">
+            [{fileName}{isDirty ? ' *' : ''}]
+          </span>
+        </div>
+        <div className="flex-1 flex items-center justify-end gap-3">
+          <button onClick={toggleSettings} className={`text-[9px] font-bold tracking-widest uppercase transition-all hover:opacity-100 ${showSettings ? (theme === 'dark' ? currentColors.text : currentColors.lightText) : 'opacity-60'}`}>SETTINGS</button>
+          <div className="flex items-center gap-3 ml-2">
+            {!isEditing ? (
+              <button onClick={() => setIsEditing(true)} className={`text-[9px] font-bold tracking-widest uppercase transition-all ${theme === 'dark' ? currentColors.text : currentColors.lightText} hover:opacity-70`}>EDIT</button>
+            ) : (
+              <>
+                <button onClick={handleSaveFile} className={`text-[9px] font-bold tracking-widest uppercase hover:opacity-70 ${theme === 'dark' ? currentColors.text : currentColors.lightText}`}>SAVE</button>
+                <button onClick={handleSaveAs} className="text-[9px] font-bold tracking-widest uppercase opacity-60 hover:opacity-100">SAVE AS</button>
+                <button onClick={toggleEditing} className="text-[9px] font-bold tracking-widest uppercase opacity-60 hover:text-red-500 hover:opacity-100 transition-colors">DON'T SAVE</button>
+              </>
+            )}
+          </div>
+        </div>
+      </footer>
