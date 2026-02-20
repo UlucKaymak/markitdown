@@ -173,6 +173,7 @@ function App() {
   };
 
   const handleSaveFile = async () => {
+    if (!isTauri()) return;
     if (!currentPath) {
       return handleSaveAs();
     }
@@ -187,6 +188,7 @@ function App() {
   };
 
   const handleSaveAs = async () => {
+    if (!isTauri()) return;
     try {
       const path = await saveDialog({
         defaultPath: fileName,
@@ -207,6 +209,10 @@ function App() {
   };
 
   const handleOpenFile = async () => {
+    if (!isTauri()) {
+      alert("Open file is only available in the desktop application.");
+      return;
+    }
     try {
       const selected = await openDialog({
         multiple: false,
@@ -222,7 +228,11 @@ function App() {
     try {
       let content = "";
       try {
-        content = await readTextFile(path);
+        if (isTauri()) {
+          content = await readTextFile(path);
+        } else {
+          throw new Error("Not in Tauri");
+        }
       } catch (err) {
         if (path.startsWith('/')) {
           const response = await fetch(path);
@@ -240,11 +250,13 @@ function App() {
       setFileName(path.split(/[/\\]/).pop() || 'Untitled.md');
       // Sadece gerçek disk yolları için currentPath set et. 
       // / ile başlayan ama diskte olmayanları (asset) null tut.
-      if (path.startsWith('/') && !path.includes(':')) {
-        try { await readTextFile(path); setCurrentPath(path); }
-        catch { setCurrentPath(null); }
-      } else {
-        setCurrentPath(path);
+      if (isTauri()) {
+        if (path.startsWith('/') && !path.includes(':')) {
+          try { await readTextFile(path); setCurrentPath(path); }
+          catch { setCurrentPath(null); }
+        } else {
+          setCurrentPath(path);
+        }
       }
 
       setIsDirty(false);
@@ -274,7 +286,11 @@ function App() {
     }
 
     if (href.startsWith('http')) {
-      await openUrl(href);
+      if (isTauri()) {
+        await openUrl(href);
+      } else {
+        window.open(href, '_blank');
+      }
       return;
     }
 
