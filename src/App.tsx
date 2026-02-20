@@ -295,23 +295,27 @@ function App() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isCmd = e.metaKey || e.ctrlKey;
-      if (isCmd && e.key === 'n') { e.preventDefault(); handleNewFile(); }
-      if (isCmd && !e.shiftKey && e.key === 's') { e.preventDefault(); handleSaveFile(); }
-      if (isCmd && e.shiftKey && e.key === 's') { e.preventDefault(); handleSaveAs(); }
-      if (isCmd && e.key === 'o') { e.preventDefault(); handleOpenFile(); }
-      if (isCmd && e.key === 'r') { window.location.reload(); }
+      const key = e.key.toLowerCase();
+
+      if (isCmd && key === 'n') { e.preventDefault(); handleNewFile(); }
+      if (isCmd && !e.shiftKey && key === 's') { e.preventDefault(); handleSaveFile(); }
+      if (isCmd && e.shiftKey && key === 's') { e.preventDefault(); handleSaveAs(); }
+      if (isCmd && key === 'o') { e.preventDefault(); handleOpenFile(); }
+      if (isCmd && key === 'r') { window.location.reload(); }
+      
       if (isEditing && isCmd) {
-        if (e.key === 'b') { e.preventDefault(); insertText('**', '**'); }
-        if (e.key === 'i') { e.preventDefault(); insertText('_', '_'); }
-        if (e.key === '1') { e.preventDefault(); insertText('# '); }
-        if (e.key === '2') { e.preventDefault(); insertText('## '); }
-        if (e.key === '3') { e.preventDefault(); insertText('### '); }
+        if (key === 'b') { e.preventDefault(); insertText('**', '**'); }
+        if (key === 'i') { e.preventDefault(); insertText('_', '_'); }
+        if (key === '1') { e.preventDefault(); insertText('# '); }
+        if (key === '2') { e.preventDefault(); insertText('## '); }
+        if (key === '3') { e.preventDefault(); insertText('### '); }
       }
+      
       if (isCmd && e.key === 'Enter') { e.preventDefault(); setViewMode(isEditing ? 'preview' : 'edit'); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [markdown, currentPath, viewMode, isDirty]); // Added dependencies for stability
+  }, [markdown, currentPath, viewMode, isDirty, fileName]); // Added dependencies for stability
 
   // Menu Event Listeners
   useEffect(() => {

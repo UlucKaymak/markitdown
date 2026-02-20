@@ -24,8 +24,8 @@
   },
   "plugins": {
     "opener": {},
-    "dialog": null,
-    "fs": null
+    "dialog": {},
+    "fs": {}
   },
   "bundle": {
     "active": true,
