@@ -32,23 +32,29 @@ pub fn run() {
                 for arg in args.iter().skip(1) {
                     if std::path::Path::new(arg).exists() && (arg.ends_with(".md") || arg.ends_with(".markdown") || arg.ends_with(".txt")) {
                         if !opened_any {
-                            // Use the main window for the first file
+                            // First file: Update the main window's URL
                             if let Some(main_win) = app.get_webview_window("main") {
                                 let url_path = format!("index.html?file={}", urlencoding::encode(arg));
-                                if let Ok(url) = tauri::Url::parse(&format!("tauri://localhost/{}", url_path)) {
-                                    let _ = main_win.navigate(url);
-                                }
+                                let _ = main_win.navigate(tauri::Url::parse(&format!("tauri://localhost/{}", url_path)).unwrap());
+                                let _ = main_win.show();
                                 opened_any = true;
                             }
                         } else {
-                            // Open subsequent files in new windows
+                            // Subsequent files: New windows
                             open_file_window(&handle, arg.clone());
                         }
                     }
                 }
             }
+            
+            // If no file was opened, show the main window with default content
+            if !opened_any {
+                if let Some(main_win) = app.get_webview_window("main") {
+                    let _ = main_win.show();
+                }
+            }
 
-            // For macOS, we listen to the system event for opening URLs while running
+            // For macOS: Double-click or "Open With" when app is already running
             let handle_for_url = handle.clone();
             app.listen("tauri://open-url", move |event: tauri::Event| {
                 if let Ok(payload) = serde_json::from_str::<Vec<String>>(event.payload()) {
@@ -56,7 +62,13 @@ pub fn run() {
                         if let Ok(url) = tauri::Url::parse(&url_str) {
                             if url.scheme() == "file" {
                                 if let Ok(path) = url.to_file_path() {
-                                    open_file_window(&handle_for_url, path.to_string_lossy().to_string());
+                                    // Small delay ensures the app is fully ready before creating a new window
+                                    let h = handle_for_url.clone();
+                                    let p = path.to_string_lossy().to_string();
+                                    std::thread::spawn(move || {
+                                        std::thread::sleep(std::time::Duration::from_millis(200));
+                                        open_file_window(&h, p);
+                                    });
                                 }
                             }
                         }

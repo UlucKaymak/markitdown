@@ -15,7 +15,8 @@
         "label": "main",
         "title": "markitdown",
         "width": 960,
-        "height": 540
+        "height": 540,
+        "visible": false
       }
     ],
     "security": {

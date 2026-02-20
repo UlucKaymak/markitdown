@@ -271,7 +271,10 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     const fileToLoad = params.get('file');
     if (fileToLoad) {
-      loadFile(fileToLoad);
+      // Small delay to ensure bridge is ready
+      setTimeout(() => {
+        loadFile(fileToLoad);
+      }, 100);
     }
   }, []);
 
