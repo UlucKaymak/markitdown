@@ -25,7 +25,9 @@
   "plugins": {
     "opener": {},
     "dialog": null,
-    "fs": null
+    "fs": {
+      "scope": ["**"]
+    }
   },
   "bundle": {
     "active": true,
@@ -36,6 +38,23 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "macos": {
+      "fileAssociations": [
+        {
+          "ext": ["md", "markdown", "txt"],
+          "name": "Markdown File",
+          "role": "Editor"
+        }
+      ]
+    },
+    "windows": {
+      "fileAssociations": [
+        {
+          "ext": ["md", "markdown", "txt"],
+          "name": "Markdown File"
+        }
+      ]
+    }
   }
 }

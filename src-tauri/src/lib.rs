@@ -1,5 +1,20 @@
 use tauri::menu::{Menu, MenuItem, Submenu, PredefinedMenuItem};
-use tauri::Emitter;
+use tauri::{Emitter, WebviewUrl, WebviewWindowBuilder, Manager};
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+static WINDOW_COUNT: AtomicUsize = AtomicUsize::new(0);
+
+fn open_file_window(handle: &tauri::AppHandle, path: String) {
+    let id = WINDOW_COUNT.fetch_add(1, Ordering::Relaxed);
+    let label = format!("win-{}", id);
+    let url = format!("index.html?file={}", urlencoding::encode(&path));
+    
+    let builder = WebviewWindowBuilder::new(handle, label, WebviewUrl::App(url.into()))
+        .title("mark it down")
+        .inner_size(800.0, 600.0);
+        
+    let _ = builder.build();
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -7,8 +22,39 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .on_open_url(|app, urls| {
+            for url in urls {
+                if url.scheme() == "file" {
+                    if let Ok(path) = url.to_file_path() {
+                        open_file_window(app, path.to_string_lossy().to_string());
+                    }
+                }
+            }
+        })
         .setup(|app| {
             let handle = app.handle();
+
+            // Handle CLI arguments (Windows/Linux)
+            let args: Vec<String> = std::env::args().collect();
+            if args.len() > 1 {
+                let mut first = true;
+                for arg in args.iter().skip(1) {
+                    if std::path::Path::new(arg).exists() {
+                        if first {
+                            // Try to pass to the already creating main window
+                            if let Some(main_win) = app.get_webview_window("main") {
+                                let url = format!("index.html?file={}", urlencoding::encode(arg));
+                                let _ = main_win.navigate(tauri::Url::parse(&format!("tauri://localhost/{}", url)).unwrap());
+                            } else {
+                                open_file_window(handle, arg.clone());
+                            }
+                            first = false;
+                        } else {
+                            open_file_window(handle, arg.clone());
+                        }
+                    }
+                }
+            }
             
             let new_i = MenuItem::with_id(handle, "new", "New", true, Some("CmdOrCtrl+N"))?;
             let open_i = MenuItem::with_id(handle, "open", "Open...", true, Some("CmdOrCtrl+O"))?;
