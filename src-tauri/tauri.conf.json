@@ -5,7 +5,7 @@
   "identifier": "com.uluckaymak.tauri-app",
   "build": {
     "beforeDevCommand": "npm run dev",
-    "devUrl": "http://192.168.1.145:1420",
+    "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
@@ -24,8 +24,8 @@
   },
   "plugins": {
     "opener": {},
-    "dialog": {},
-    "fs": {}
+    "dialog": null,
+    "fs": null
   },
   "bundle": {
     "active": true,

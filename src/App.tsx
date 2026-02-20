@@ -12,7 +12,6 @@ import { open as openDialog, save as saveDialog } from '@tauri-apps/plugin-dialo
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 import { openUrl } from '@tauri-apps/plugin-opener';
 
 type Theme = "dark" | "light";
@@ -24,6 +23,8 @@ const colors: Record<string, any> = {
   purple: { text: 'text-[#cba6f7]', lightText: 'text-[#8839ef]', hex: '#cba6f7', lightHex: '#8839ef' },
   red: { text: 'text-[#f2cdcd]', lightText: 'text-[#dd7878]', hex: '#f2cdcd', lightHex: '#dd7878' }
 };
+
+const isTauri = () => !!(window as any).__TAURI_INTERNALS__;
 
 function App() {
   const [markdown, setMarkdown] = useState("# Mark It Down\n\n**Mark It Down** is a Markdown reader and editor designed to keep you focused on your text and thoughts.\n\n[Markdown Writing Guide](/MarkdownGuide.md) - Learn the basic syntax here.");
@@ -74,21 +75,18 @@ function App() {
   useEffect(() => {
     const title = `mark it down - [${fileName}${isDirty ? ' *' : ''}]`;
     document.title = title;
-    const updateTauriTitle = async () => {
-      try {
-        // Try both window and webviewWindow APIs for maximum compatibility in v2
-        const appWindow = getCurrentWindow();
-        await appWindow.setTitle(title);
-        
-        const webviewWin = getCurrentWebviewWindow();
-        if (webviewWin.label !== appWindow.label) {
-           await webviewWin.setTitle(title);
+    
+    if (isTauri()) {
+      const updateTauriTitle = async () => {
+        try {
+          const webviewWin = getCurrentWebviewWindow();
+          await webviewWin.setTitle(title);
+        } catch (err) {
+          console.error("Failed to set Tauri title:", err);
         }
-      } catch (err) {
-        console.error("Failed to set Tauri title:", err);
-      }
-    };
-    updateTauriTitle();
+      };
+      updateTauriTitle();
+    }
   }, [fileName, isDirty]);
 
   // Save settings to localStorage whenever they change
@@ -256,6 +254,8 @@ function App() {
 
   // Start-up: URL'den dosya yükle
   useEffect(() => {
+    if (!isTauri()) return;
+    
     const params = new URLSearchParams(window.location.search);
     const fileToLoad = params.get('file');
     if (fileToLoad) {
@@ -319,6 +319,8 @@ function App() {
 
   // Menu Event Listeners
   useEffect(() => {
+    if (!isTauri()) return;
+
     const unlistenNew = listen('menu-new', () => handleNewFile());
     const unlistenOpen = listen('menu-open', () => handleOpenFile());
     const unlistenSave = listen('menu-save', () => handleSaveFile());
