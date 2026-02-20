@@ -474,7 +474,7 @@ function App() {
             ${theme === 'dark' ? 'bg-[#1e1e2e]/95 border-[#313244] text-[#cdd6f4]' : 'bg-[#eff1f5]/95 border-[#dce0e8] text-[#4c4f69]'}`}
         >
           <div className="space-y-1">
-            {toc.length > 0 ? (
+            {toc.length > 0 ? ( 
               toc.map((item, idx) => (
                 <button
                   key={idx}

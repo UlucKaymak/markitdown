@@ -1,5 +1,5 @@
 use tauri::menu::{Menu, MenuItem, Submenu, PredefinedMenuItem};
-use tauri::{Emitter, Manager, App, AppHandle, WebviewUrl, WebviewWindowBuilder};
+use tauri::{Emitter, Manager, App, AppHandle, WebviewUrl, WebviewWindowBuilder, Listener};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 static WINDOW_COUNT: AtomicUsize = AtomicUsize::new(0);
@@ -11,41 +11,65 @@ fn open_file_window(handle: &AppHandle, path: String) {
     
     let _ = WebviewWindowBuilder::new(handle, label, WebviewUrl::App(url_path.into()))
         .title("markitdown")
-        .inner_size(800.0, 600.0)
+        .inner_size(960.0, 540.0)
         .build();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    println!("Starting run()...");
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .setup(|app: &mut App| {
-            println!("Setup started...");
             let handle = app.handle().clone();
 
             // Handle CLI arguments (Windows/Linux/macOS startup)
             let args: Vec<String> = std::env::args().collect();
-            println!("Args found: {:?}", args);
+            let mut opened_any = false;
+
             if args.len() > 1 {
                 for arg in args.iter().skip(1) {
-                    if std::path::Path::new(arg).exists() {
-                        println!("Attempting to open: {}", arg);
-                        open_file_window(&handle, arg.clone());
+                    if std::path::Path::new(arg).exists() && (arg.ends_with(".md") || arg.ends_with(".markdown") || arg.ends_with(".txt")) {
+                        if !opened_any {
+                            // Use the main window for the first file
+                            if let Some(main_win) = app.get_webview_window("main") {
+                                let url_path = format!("index.html?file={}", urlencoding::encode(arg));
+                                if let Ok(url) = tauri::Url::parse(&format!("tauri://localhost/{}", url_path)) {
+                                    let _ = main_win.navigate(url);
+                                }
+                                opened_any = true;
+                            }
+                        } else {
+                            // Open subsequent files in new windows
+                            open_file_window(&handle, arg.clone());
+                        }
                     }
                 }
             }
 
-            println!("Creating menu items...");
+            // For macOS, we listen to the system event for opening URLs while running
+            let handle_for_url = handle.clone();
+            app.listen("tauri://open-url", move |event: tauri::Event| {
+                if let Ok(payload) = serde_json::from_str::<Vec<String>>(event.payload()) {
+                    for url_str in payload {
+                        if let Ok(url) = tauri::Url::parse(&url_str) {
+                            if url.scheme() == "file" {
+                                if let Ok(path) = url.to_file_path() {
+                                    open_file_window(&handle_for_url, path.to_string_lossy().to_string());
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
             let new_i = MenuItem::with_id(&handle, "new", "New", true, Some("CmdOrCtrl+N"))?;
             let open_i = MenuItem::with_id(&handle, "open", "Open...", true, Some("CmdOrCtrl+O"))?;
             let save_i = MenuItem::with_id(&handle, "save", "Save", true, Some("CmdOrCtrl+S"))?;
             let save_as_i = MenuItem::with_id(&handle, "save_as", "Save As...", true, Some("CmdOrCtrl+Shift+S"))?;
             let quit_i = MenuItem::with_id(&handle, "quit", "Quit", true, Some("CmdOrCtrl+Q"))?;
 
-            // On macOS, the first menu is the "App Menu" (labeled with the App Name)
             let app_menu = Submenu::with_items(
                 &handle,
                 "App",
@@ -117,7 +141,6 @@ pub fn run() {
                 }
             });
 
-            println!("Setup complete.");
             Ok(())
         })
         .run(tauri::generate_context!())

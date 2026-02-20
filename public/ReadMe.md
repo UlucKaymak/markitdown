@@ -15,14 +15,14 @@
 
 ## Future plans
 * Find in page (CMD+F)
-* Table of Contents (TAB in reading view)
+* Table of Contents
 * Icons for app and files
 
 ## Known bugs
 * It has some visual bugs in windows. But nothing works broken systematically.
 * Open With function has problems with MacOS.
 
-## I have one big problem
+# I have one big problem
 There is no noterisation option for current position of this app. So your OS can say "This is broken" or "This can be harmful".
 _But it's not._
 
