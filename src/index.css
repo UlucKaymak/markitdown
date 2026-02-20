@@ -110,6 +110,28 @@
   @apply bg-slate-500/10 px-1.5 py-0.5 rounded-md text-[0.9em] font-mono;
 }
 
+/* Table Styling */
+.markdown-body table {
+  @apply w-full mb-6 border-collapse overflow-hidden rounded-lg;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.markdown-body th, .markdown-body td {
+  @apply p-3 text-left border-b border-slate-500/10;
+}
+
+.markdown-body th {
+  @apply font-bold bg-slate-500/5;
+}
+
+.dark .markdown-body table {
+  border-color: #313244;
+}
+
+.dark .markdown-body th {
+  @apply bg-white/5;
+}
+
 /* Animations */
 @keyframes slideUp {
   from { transform: translateY(10px); opacity: 0; }

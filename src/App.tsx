@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import "./index.css";
 import { 
   Bold, Italic, List, Code, Link as LinkIcon, 
   Indent, Edit3, Columns2, Eye,
-  Minus, Plus
+  Minus, Plus, Table
 } from 'lucide-react';
 // Tauri Plugins
 import { open as openDialog, save as saveDialog } from '@tauri-apps/plugin-dialog';
@@ -33,7 +34,7 @@ function App() {
   const [theme, setTheme] = useState<Theme>(savedSettings.theme || "light");
   const [accentColor, setAccentColor] = useState(savedSettings.accentColor || "blue");
   const [showSettings, setShowSettings] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>(savedSettings.viewMode || "preview");
+  const [viewMode, setViewMode] = useState<ViewMode>("preview");
   const [fontSize, setFontSize] = useState(savedSettings.fontSize || 16);
   const [fontFamily, setFontFamily] = useState(savedSettings.fontFamily || "sans");
   const [fileName, setFileName] = useState("Opening.md");
@@ -92,9 +93,9 @@ function App() {
 
   // Save settings to localStorage whenever they change
   useEffect(() => {
-    const settings = { theme, accentColor, fontSize, fontFamily, showStats, viewMode };
+    const settings = { theme, accentColor, fontSize, fontFamily, showStats };
     localStorage.setItem('markitdown-settings', JSON.stringify(settings));
-  }, [theme, accentColor, fontSize, fontFamily, showStats, viewMode]);
+  }, [theme, accentColor, fontSize, fontFamily, showStats]);
 
   // Extract headers for TOC
   const getToc = () => {
@@ -342,6 +343,7 @@ function App() {
           <button onClick={() => insertText('- ')} className="p-2 hover:bg-slate-500/10 rounded text-slate-500"><List size={18} /></button>
           <button onClick={() => insertText('`', '`')} className="p-2 hover:bg-slate-500/10 rounded text-slate-500"><Code size={18} /></button>
           <button onClick={() => insertText('[', '](url)')} className="p-2 hover:bg-slate-500/10 rounded text-slate-500"><LinkIcon size={18} /></button>
+          <button onClick={() => insertText('\n| Column 1 | Column 2 |\n| -------- | -------- |\n| Item 1 | Item 2 |\n')} className="p-2 hover:bg-slate-500/10 rounded text-slate-500"><Table size={18} /></button>
           <button onClick={() => insertText('    ')} className="p-2 hover:bg-slate-500/10 rounded text-slate-500"><Indent size={18} /></button>
           <div className="w-px h-5 bg-slate-500/10 mx-2"></div>
           <div className={`flex p-1 rounded-lg ${theme === 'dark' ? 'bg-[#313244]' : 'bg-[#dce0e8]'}`}>
@@ -387,6 +389,7 @@ function App() {
           >
             <div className={`max-w-[720px] mx-auto markdown-body font-${fontFamily}`} style={{ fontSize: `${fontSize}px` }}>
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 components={{
                   a: ({ node, ...props }) => (
                     <a {...props} onClick={(e) => handleLinkClick(e, props.href || '')} />

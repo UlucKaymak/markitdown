@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-app",
+  "productName": "markitdown",
   "version": "0.1.0",
   "identifier": "com.uluckaymak.tauri-app",
   "build": {
@@ -13,9 +13,9 @@
     "windows": [
       {
         "label": "main",
-        "title": "tauri-app",
-        "width": 800,
-        "height": 600
+        "title": "markitdown",
+        "width": 960,
+        "height": 540
       }
     ],
     "security": {
@@ -25,9 +25,7 @@
   "plugins": {
     "opener": {},
     "dialog": null,
-    "fs": {
-      "scope": ["**"]
-    }
+    "fs": null
   },
   "bundle": {
     "active": true,
