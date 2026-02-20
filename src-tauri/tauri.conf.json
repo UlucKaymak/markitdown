@@ -10,15 +10,7 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [
-      {
-        "label": "main",
-        "title": "markitdown",
-        "width": 960,
-        "height": 540,
-        "visible": false
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": null
     }

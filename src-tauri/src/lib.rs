@@ -1,5 +1,5 @@
 use tauri::menu::{Menu, MenuItem, Submenu, PredefinedMenuItem};
-use tauri::{Emitter, Manager, App, AppHandle, WebviewUrl, WebviewWindowBuilder, Listener};
+use tauri::{Emitter, Listener, App, AppHandle, WebviewUrl, WebviewWindowBuilder};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 static WINDOW_COUNT: AtomicUsize = AtomicUsize::new(0);
@@ -21,61 +21,77 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            // When a second instance is started (Windows "Open With" while app is running)
+            for arg in args.iter().skip(1) {
+                if std::path::Path::new(arg).exists() {
+                    open_file_window(app, arg.clone());
+                }
+            }
+        }))
         .setup(|app: &mut App| {
             let handle = app.handle().clone();
 
-            // Handle CLI arguments (Windows/Linux/macOS startup)
+            // Handle CLI arguments for the first instance
             let args: Vec<String> = std::env::args().collect();
-            let mut opened_any = false;
+            let mut initial_file = None;
+            let mut other_files = Vec::new();
 
-            if args.len() > 1 {
-                for arg in args.iter().skip(1) {
-                    if std::path::Path::new(arg).exists() && (arg.ends_with(".md") || arg.ends_with(".markdown") || arg.ends_with(".txt")) {
-                        if !opened_any {
-                            // First file: Update the main window's URL
-                            if let Some(main_win) = app.get_webview_window("main") {
-                                let url_path = format!("index.html?file={}", urlencoding::encode(arg));
-                                let _ = main_win.navigate(tauri::Url::parse(&format!("tauri://localhost/{}", url_path)).unwrap());
-                                let _ = main_win.show();
-                                opened_any = true;
-                            }
-                        } else {
-                            // Subsequent files: New windows
-                            open_file_window(&handle, arg.clone());
-                        }
+            for arg in args.iter().skip(1) {
+                if std::path::Path::new(arg).exists() && (arg.ends_with(".md") || arg.ends_with(".markdown") || arg.ends_with(".txt")) {
+                    if initial_file.is_none() {
+                        initial_file = Some(arg.clone());
+                    } else {
+                        other_files.push(arg.clone());
                     }
                 }
             }
-            
-            // If no file was opened, show the main window with default content
-            if !opened_any {
-                if let Some(main_win) = app.get_webview_window("main") {
-                    let _ = main_win.show();
-                }
+
+            // Create the main window manually to control the initial URL
+            let main_url = if let Some(ref path) = initial_file {
+                format!("index.html?file={}", urlencoding::encode(path))
+            } else {
+                "index.html".to_string()
+            };
+
+            let _main_win = WebviewWindowBuilder::new(app, "main", WebviewUrl::App(main_url.into()))
+                .title("markitdown")
+                .inner_size(960.0, 540.0)
+                .build()?;
+
+            // Open any additional files in separate windows
+            for path in other_files {
+                open_file_window(&handle, path);
             }
 
-            // For macOS: Double-click or "Open With" when app is already running
-            let handle_for_url = handle.clone();
+            // macOS: Handle "Open With" or double-click when app is already running
+            let h1 = handle.clone();
+            app.listen("tauri://open-file", move |event: tauri::Event| {
+                // Try to parse as String (single file) or Vec<String> (multiple files)
+                if let Ok(path) = serde_json::from_str::<String>(event.payload()) {
+                    open_file_window(&h1, path);
+                } else if let Ok(paths) = serde_json::from_str::<Vec<String>>(event.payload()) {
+                    for path in paths {
+                        open_file_window(&h1, path);
+                    }
+                }
+            });
+
+            // Deep link handling (file:// urls)
+            let h2 = handle.clone();
             app.listen("tauri://open-url", move |event: tauri::Event| {
-                if let Ok(payload) = serde_json::from_str::<Vec<String>>(event.payload()) {
-                    for url_str in payload {
-                        if let Ok(url) = tauri::Url::parse(&url_str) {
-                            if url.scheme() == "file" {
-                                if let Ok(path) = url.to_file_path() {
-                                    // Small delay ensures the app is fully ready before creating a new window
-                                    let h = handle_for_url.clone();
-                                    let p = path.to_string_lossy().to_string();
-                                    std::thread::spawn(move || {
-                                        std::thread::sleep(std::time::Duration::from_millis(200));
-                                        open_file_window(&h, p);
-                                    });
-                                }
+                if let Ok(url_str) = serde_json::from_str::<String>(event.payload()) {
+                    if let Ok(url) = tauri::Url::parse(&url_str) {
+                        if url.scheme() == "file" {
+                            if let Ok(path) = url.to_file_path() {
+                                open_file_window(&h2, path.to_string_lossy().to_string());
                             }
                         }
                     }
                 }
             });
 
+            // Menu items
             let new_i = MenuItem::with_id(&handle, "new", "New", true, Some("CmdOrCtrl+N"))?;
             let open_i = MenuItem::with_id(&handle, "open", "Open...", true, Some("CmdOrCtrl+O"))?;
             let save_i = MenuItem::with_id(&handle, "save", "Save", true, Some("CmdOrCtrl+S"))?;
