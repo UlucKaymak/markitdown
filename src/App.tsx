@@ -225,57 +225,79 @@ function App() {
   };
 
   const loadFile = async (path: string) => {
+    if (!path || path === '/' || path.includes('index.html')) {
+      console.warn("Invalid path ignored:", path);
+      return;
+    }
+    
     try {
+      const normalizedPath = path.replace(/\\/g, '/');
+      console.log("Attempting to load:", normalizedPath);
       let content = "";
-      try {
-        if (isTauri()) {
-          content = await readTextFile(path);
-        } else {
-          throw new Error("Not in Tauri");
-        }
-      } catch (err) {
-        if (path.startsWith('/')) {
-          const response = await fetch(path);
-          if (response.ok) {
-            content = await response.text();
-          } else {
-            throw err;
+      
+      // Eğer yol tam bir dosya yolu ise (Tauri tarafında diskten oku)
+      if (isTauri() && (normalizedPath.startsWith('/') || normalizedPath.includes(':'))) {
+        try {
+          content = await readTextFile(normalizedPath);
+          console.log("File read success from disk.");
+          setCurrentPath(normalizedPath);
+        } catch (err) {
+          console.error("CRITICAL: Tauri disk read error:", err);
+          alert(`Could not read file: ${normalizedPath}\nError: ${JSON.stringify(err)}`);
+          // Eğer diskte bulunamadıysa ve / ile başlıyorsa public asset olabilir
+          if (normalizedPath.startsWith('/')) {
+            const response = await fetch(normalizedPath);
+            if (response.ok) content = await response.text();
           }
-        } else {
-          throw err;
         }
+      } else if (normalizedPath.startsWith('/')) {
+        // Web/Asset yüklemesi
+        const response = await fetch(normalizedPath);
+        if (response.ok) content = await response.text();
       }
 
-      setMarkdown(content);
-      setFileName(path.split(/[/\\]/).pop() || 'Untitled.md');
-      // Sadece gerçek disk yolları için currentPath set et. 
-      // / ile başlayan ama diskte olmayanları (asset) null tut.
-      if (isTauri()) {
-        if (path.startsWith('/') && !path.includes(':')) {
-          try { await readTextFile(path); setCurrentPath(path); }
-          catch { setCurrentPath(null); }
-        } else {
-          setCurrentPath(path);
-        }
+      if (content) {
+        setMarkdown(content);
+        setFileName(normalizedPath.split('/').pop() || 'Untitled.md');
+        setIsDirty(false);
+        setViewMode('preview');
+      } else {
+        console.warn("No content found for path:", normalizedPath);
       }
-
-      setIsDirty(false);
-      setViewMode('preview');
-    } catch (err) { console.error("Failed to load file:", err); }
+    } catch (err) { 
+      console.error("General load error:", err); 
+    }
   };
 
   // Start-up: URL'den dosya yükle
   useEffect(() => {
-    if (!isTauri()) return;
+    console.log("App mounted. URL Search:", window.location.search);
     
+    // 1. URL parametresini kontrol et
     const params = new URLSearchParams(window.location.search);
     const fileToLoad = params.get('file');
+    
     if (fileToLoad) {
-      // Small delay to ensure bridge is ready
-      setTimeout(() => {
-        loadFile(fileToLoad);
-      }, 100);
+      console.log("Found file in URL:", fileToLoad);
+      loadFile(fileToLoad);
     }
+
+    // 2. Rust'tan gelen olayları dinle (Open With)
+    const unlistenOpenFile = listen<string>('open-file-path', (event) => {
+      console.log("Received open-file-path event:", event.payload);
+      loadFile(event.payload);
+    });
+
+    // 3. Rust'a hazır olduğumuzu bildir (Özellikle macOS başlangıcı için)
+    if (isTauri()) {
+      import('@tauri-apps/api/core').then(core => {
+        core.invoke('frontend_ready').catch(console.error);
+      });
+    }
+
+    return () => {
+      unlistenOpenFile.then(f => f());
+    };
   }, []);
 
   const handleLinkClick = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) => {

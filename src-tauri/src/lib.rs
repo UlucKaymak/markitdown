@@ -1,159 +1,94 @@
 use tauri::menu::{Menu, MenuItem, Submenu, PredefinedMenuItem};
-use tauri::{Emitter, Listener, App, AppHandle, WebviewUrl, WebviewWindowBuilder};
-use std::sync::atomic::{AtomicUsize, Ordering};
+use tauri::{Emitter, Manager, AppHandle, WebviewUrl, WebviewWindowBuilder, State, RunEvent};
+use std::sync::Mutex;
 
-static WINDOW_COUNT: AtomicUsize = AtomicUsize::new(0);
+struct PendingFile(Mutex<Option<String>>);
 
-fn open_file_window(handle: &AppHandle, path: String) {
-    let id = WINDOW_COUNT.fetch_add(1, Ordering::Relaxed);
-    let label = format!("win-{}", id);
-    let url_path = format!("index.html?file={}", urlencoding::encode(&path));
-    
-    let _ = WebviewWindowBuilder::new(handle, label, WebviewUrl::App(url_path.into()))
-        .title("markitdown")
-        .inner_size(960.0, 540.0)
-        .build();
+#[tauri::command]
+fn frontend_ready(handle: AppHandle, state: State<'_, PendingFile>) {
+    let mut pending = state.0.lock().unwrap();
+    if let Some(path) = pending.take() {
+        println!("[Rust] Hazır sinyali. Bekleyen dosya iletiliyor: {}", path);
+        let _ = handle.emit("open-file-path", path);
+    }
+}
+
+fn handle_file_path(app: &AppHandle, path: String) {
+    println!("[CRITICAL] Dosya Yakalandı: {}", path);
+    if let Some(main_win) = app.get_webview_window("main") {
+        let _ = main_win.emit("open-file-path", &path);
+        let _ = main_win.set_focus();
+    } else {
+        let state = app.state::<PendingFile>();
+        *state.0.lock().unwrap() = Some(path);
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
+        .manage(PendingFile(Mutex::new(None)))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
-            // When a second instance is started (Windows "Open With" while app is running)
+            println!("[SingleInstance] Olay tetiklendi! Argümanlar: {:?}", args);
+            // Windows/Linux'ta uygulama açıkken yeni bir dosya açıldığında
             for arg in args.iter().skip(1) {
-                if std::path::Path::new(arg).exists() {
-                    open_file_window(app, arg.clone());
+                if std::path::Path::new(arg).exists() && (arg.ends_with(".md") || arg.ends_with(".markdown") || arg.ends_with(".txt")) {
+                    handle_file_path(app, arg.clone());
                 }
             }
         }))
-        .setup(|app: &mut App| {
+        .invoke_handler(tauri::generate_handler![frontend_ready])
+        .setup(|app| {
             let handle = app.handle().clone();
-
-            // Handle CLI arguments for the first instance
-            let args: Vec<String> = std::env::args().collect();
-            let mut initial_file = None;
-            let mut other_files = Vec::new();
-
-            for arg in args.iter().skip(1) {
-                if std::path::Path::new(arg).exists() && (arg.ends_with(".md") || arg.ends_with(".markdown") || arg.ends_with(".txt")) {
-                    if initial_file.is_none() {
-                        initial_file = Some(arg.clone());
-                    } else {
-                        other_files.push(arg.clone());
-                    }
-                }
-            }
-
-            // Create the main window manually to control the initial URL
-            let main_url = if let Some(ref path) = initial_file {
-                format!("index.html?file={}", urlencoding::encode(path))
-            } else {
-                "index.html".to_string()
-            };
-
-            let _main_win = WebviewWindowBuilder::new(app, "main", WebviewUrl::App(main_url.into()))
+            
+            // Ana pencereyi oluştur
+            let _main_win = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
                 .title("markitdown")
                 .inner_size(960.0, 540.0)
                 .build()?;
 
-            // Open any additional files in separate windows
-            for path in other_files {
-                open_file_window(&handle, path);
+            // İlk açılış argümanlarını kontrol et (Windows/Linux için)
+            let args: Vec<String> = std::env::args().collect();
+            for arg in args.iter().skip(1) {
+                if std::path::Path::new(arg).exists() && (arg.ends_with(".md") || arg.ends_with(".markdown") || arg.ends_with(".txt")) {
+                    handle_file_path(&handle, arg.clone());
+                    break;
+                }
             }
 
-            // macOS: Handle "Open With" or double-click when app is already running
-            let h1 = handle.clone();
-            app.listen("tauri://open-file", move |event: tauri::Event| {
-                // Try to parse as String (single file) or Vec<String> (multiple files)
-                if let Ok(path) = serde_json::from_str::<String>(event.payload()) {
-                    open_file_window(&h1, path);
-                } else if let Ok(paths) = serde_json::from_str::<Vec<String>>(event.payload()) {
-                    for path in paths {
-                        open_file_window(&h1, path);
-                    }
-                }
-            });
-
-            // Deep link handling (file:// urls)
-            let h2 = handle.clone();
-            app.listen("tauri://open-url", move |event: tauri::Event| {
-                if let Ok(url_str) = serde_json::from_str::<String>(event.payload()) {
-                    if let Ok(url) = tauri::Url::parse(&url_str) {
-                        if url.scheme() == "file" {
-                            if let Ok(path) = url.to_file_path() {
-                                open_file_window(&h2, path.to_string_lossy().to_string());
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Menu items
+            // Menü Item'lar...
             let new_i = MenuItem::with_id(&handle, "new", "New", true, Some("CmdOrCtrl+N"))?;
             let open_i = MenuItem::with_id(&handle, "open", "Open...", true, Some("CmdOrCtrl+O"))?;
             let save_i = MenuItem::with_id(&handle, "save", "Save", true, Some("CmdOrCtrl+S"))?;
             let save_as_i = MenuItem::with_id(&handle, "save_as", "Save As...", true, Some("CmdOrCtrl+Shift+S"))?;
             let quit_i = MenuItem::with_id(&handle, "quit", "Quit", true, Some("CmdOrCtrl+Q"))?;
+            let devtools_i = MenuItem::with_id(&handle, "devtools", "Toggle Developer Tools", true, Some("CmdOrCtrl+Option+I"))?;
 
-            let app_menu = Submenu::with_items(
-                &handle,
-                "App",
-                true,
-                &[
-                    &PredefinedMenuItem::about(&handle, None, None)?,
-                    &PredefinedMenuItem::separator(&handle)?,
-                    &PredefinedMenuItem::services(&handle, None)?,
-                    &PredefinedMenuItem::separator(&handle)?,
-                    &PredefinedMenuItem::hide(&handle, None)?,
-                    &PredefinedMenuItem::hide_others(&handle, None)?,
-                    &PredefinedMenuItem::show_all(&handle, None)?,
-                    &PredefinedMenuItem::separator(&handle)?,
-                    &quit_i,
-                ],
-            )?;
+            let app_menu = Submenu::with_items(&handle, "App", true, &[
+                &PredefinedMenuItem::about(&handle, None, None)?,
+                &PredefinedMenuItem::separator(&handle)?,
+                &PredefinedMenuItem::services(&handle, None)?,
+                &PredefinedMenuItem::separator(&handle)?,
+                &PredefinedMenuItem::hide(&handle, None)?,
+                &PredefinedMenuItem::hide_others(&handle, None)?,
+                &PredefinedMenuItem::show_all(&handle, None)?,
+                &PredefinedMenuItem::separator(&handle)?,
+                &quit_i,
+            ])?;
 
-            let file_menu = Submenu::with_items(
-                &handle,
-                "File",
-                true,
-                &[
-                    &new_i,
-                    &open_i,
-                    &PredefinedMenuItem::separator(&handle)?,
-                    &save_i,
-                    &save_as_i,
-                ],
-            )?;
-
-            let edit_menu = Submenu::with_items(
-                &handle,
-                "Edit",
-                true,
-                &[
-                    &PredefinedMenuItem::undo(&handle, None)?,
-                    &PredefinedMenuItem::redo(&handle, None)?,
-                    &PredefinedMenuItem::separator(&handle)?,
-                    &PredefinedMenuItem::cut(&handle, None)?,
-                    &PredefinedMenuItem::copy(&handle, None)?,
-                    &PredefinedMenuItem::paste(&handle, None)?,
-                    &PredefinedMenuItem::select_all(&handle, None)?,
-                ],
-            )?;
-
-            let window_menu = Submenu::with_items(
-                &handle,
-                "Window",
-                true,
-                &[
-                    &PredefinedMenuItem::minimize(&handle, None)?,
-                    &PredefinedMenuItem::maximize(&handle, None)?,
-                    &PredefinedMenuItem::separator(&handle)?,
-                    &PredefinedMenuItem::close_window(&handle, None)?,
-                ],
-            )?;
+            let file_menu = Submenu::with_items(&handle, "File", true, &[&new_i, &open_i, &PredefinedMenuItem::separator(&handle)?, &save_i, &save_as_i])?;
+            let edit_menu = Submenu::with_items(&handle, "Edit", true, &[&PredefinedMenuItem::undo(&handle, None)?, &PredefinedMenuItem::redo(&handle, None)?, &PredefinedMenuItem::separator(&handle)?, &PredefinedMenuItem::cut(&handle, None)?, &PredefinedMenuItem::copy(&handle, None)?, &PredefinedMenuItem::paste(&handle, None)?, &PredefinedMenuItem::select_all(&handle, None)?])?;
+            let window_menu = Submenu::with_items(&handle, "Window", true, &[
+                &PredefinedMenuItem::minimize(&handle, None)?,
+                &PredefinedMenuItem::maximize(&handle, None)?,
+                &PredefinedMenuItem::separator(&handle)?,
+                &devtools_i,
+                &PredefinedMenuItem::separator(&handle)?,
+                &PredefinedMenuItem::close_window(&handle, None)?,
+            ])?;
 
             let menu = Menu::with_items(&handle, &[&app_menu, &file_menu, &edit_menu, &window_menu])?;
             app.set_menu(menu)?;
@@ -165,12 +100,32 @@ pub fn run() {
                     "save" => { let _ = app.emit("menu-save", ()); }
                     "save_as" => { let _ = app.emit("menu-save-as", ()); }
                     "quit" => { app.exit(0); }
+                    "devtools" => {
+                        for window in app.webview_windows().values() {
+                            if window.is_focused().unwrap_or(false) {
+                                let _ = window.open_devtools();
+                            }
+                        }
+                    }
                     _ => {}
                 }
             });
 
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+
+    app.run(|handle, event| {
+        // macOS Apple Olayları
+        if let RunEvent::Opened { urls } = event {
+            for url in urls {
+                if url.scheme() == "file" {
+                    if let Ok(path) = url.to_file_path() {
+                        handle_file_path(handle, path.to_string_lossy().to_string());
+                    }
+                }
+            }
+        }
+    });
 }

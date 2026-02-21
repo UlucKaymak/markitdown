@@ -12,15 +12,19 @@
     "core:window:allow-set-title",
     "core:window:allow-create",
     "core:webview:default",
+    "core:webview:allow-internal-toggle-devtools",
     "core:menu:default",
     "opener:default",
     "dialog:default",
+    "dialog:allow-open",
+    "dialog:allow-save",
     "fs:default",
     "fs:allow-read-text-file",
     "fs:allow-write-text-file",
-    "fs:read-all",
-    "fs:write-all",
-    "dialog:allow-open",
-    "dialog:allow-save"
+    "fs:allow-exists",
+    {
+      "identifier": "fs:scope",
+      "allow": [{ "path": "**" }]
+    }
   ]
 }
