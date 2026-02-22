@@ -1,38 +1,33 @@
-# Mark It Down
+# Mark it down
 
-**Mark It Down** is a minimalist, ultra-lightweight Markdown reader and editor built with React and **Tauri**.
+**Mark It Down** is a Markdown reader and editor designed to keep you away from clutter, allowing you to focus solely on your text and thoughts.
 
-It is designed to keep you away from clutter, allowing you to focus solely on your text and thoughts. It's ideal for blogging, reading and writing GDDs, or generating reports.
+**Personal Note:** I searched for a good markdown editors, they want  much effort to use. This is the best for my use case. (Note taking, blogging, reading and writing GDDs and Reports.)
 
-## Features
-- ✨ Minimalist and distraction-free design
-- 🚀 Extremely lightweight (~12MB app size)
-- 🌓 Dark/Light modes with accent color customization
-- 📖 Optimized Reading mode
-- 📝 Powerful Writing mode with sync scrolling
-- 🔗 File associations (open .md files directly from your OS)
 
-## Tech Stack
-- **Frontend:** React + Vite + TailwindCSS
-- **Desktop Framework:** Tauri (Rust backend)
-- **Icons:** Lucide React
-- **Markdown Engine:** Marked
+# Features 
+## Current Features
+* Markdown Reader
+* Markdown Editor 
+* Temporary Colors 
+* "Open With" function
+* Multiple Windows or Tabs (CMD+Shift+N)
 
----
+## Future plans
+* Find in page (CMD+F)
+* Table of Contents
+* Icons for app and files
 
-## Build it yourself
+## Known bugs
+* It has some visual bugs in windows. But nothing works broken systematically.
+* Open With function has problems with MacOS.
 
-This project requires **Node.js** and **Rust** to be installed on your system.
+# I have one big problem
+There is no noterisation option for current position of this app. So your OS can say "This is broken" or "This can be harmful".
+_But it's not._
 
-```bash
-# Install dependencies
-npm install
+### For MacOS
+`xattr -cr /Applications/Markitdown.app`
 
-# Run in development mode
-npm run tauri dev
-
-# Build for your current platform (macOS/Windows/Linux)
-./build.sh
-```
-
-*Note: The application size has been reduced by over 90% by switching from Electron to Tauri.*
+### For Windows
+`You can just press Run button.`

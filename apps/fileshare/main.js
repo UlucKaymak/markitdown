@@ -99,18 +99,31 @@
         }
     }
 
+    var isConnecting = false;
+
     function startPeerNetwork() {
-        if (peer) peer.destroy();
+        if (isConnecting) return;
+        isConnecting = true;
+
+        if (peer) {
+            console.log("Cleaning up old peer...");
+            peer.off(); 
+            peer.destroy();
+            peer = null;
+        }
 
         els.status.textContent = "Connecting to cloud...";
+        els.status.style.color = "inherit";
 
         try {
             peer = new Peer(myAliasID, {
                 debug: 1,
-                config: { 'iceServers': [{ url: 'stun:stun.l.google.com:19302' }] }
+                secure: true,
+                config: { 'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }] }
             });
 
             peer.on('open', function (id) {
+                isConnecting = false;
                 if (els.myId) els.myId.textContent = id;
                 if (els.status) {
                     els.status.textContent = "Online & Ready.";
@@ -126,14 +139,17 @@
             });
 
             peer.on('error', function (err) {
+                isConnecting = false;
                 console.error("Peer Error:", err);
+                
                 if (err.type === 'unavailable-id') {
                     myAliasID = generateSafeId();
-                    startPeerNetwork();
-                } else if (err.type === 'network') {
+                    setTimeout(startPeerNetwork, 500);
+                } else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') {
                     if (els.status) {
-                        els.status.textContent = "Network Error. Retrying...";
-                        setTimeout(startPeerNetwork, 3000);
+                        els.status.textContent = "Server Issue. Retrying in 5s...";
+                        els.status.style.color = "#f39c12";
+                        setTimeout(startPeerNetwork, 5000);
                     }
                 } else {
                     if (els.status) {
@@ -144,11 +160,20 @@
             });
 
             peer.on('disconnected', function () {
-                if (els.status) els.status.textContent = "Disconnected. Reconnecting...";
-                peer.reconnect();
+                isConnecting = false;
+                if (els.status) {
+                    els.status.textContent = "Cloud connection lost. Reconnecting...";
+                    els.status.style.color = "#f39c12";
+                }
+                
+                // Only attempt reconnect if we didn't deliberately destroy it
+                if (peer && !peer.destroyed) {
+                    peer.reconnect();
+                }
             });
 
         } catch (e) {
+            isConnecting = false;
             console.error("Peer Init Error:", e);
             els.status.textContent = "Critical Error: " + e.message;
         }
