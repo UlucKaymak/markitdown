@@ -1,12 +1,12 @@
 [submodule "apps/fileshare"]
 	path = apps/fileshare
-	url = https://github.com/UlucKaymak/_fileshare.git
+	url = ../_fileshare.git
 [submodule "apps/markitdown"]
 	path = apps/markitdown
-	url = https://github.com/UlucKaymak/markitdown.git
+	url = ../markitdown.git
 [submodule "apps/veloread"]
 	path = apps/veloread
-	url = https://github.com/UlucKaymak/veloread.git
+	url = ../veloread.git
 [submodule "apps/fate-sheet"]
 	path = apps/fate-sheet
-	url = https://github.com/UlucKaymak/fatesheet.git
+	url = ../fatesheet.git
