@@ -7,3 +7,6 @@
 [submodule "apps/veloread"]
 	path = apps/veloread
 	url = https://github.com/UlucKaymak/veloread.git
+[submodule "apps/fate-sheet"]
+	path = apps/fate-sheet
+	url = https://github.com/UlucKaymak/fatesheet.git
