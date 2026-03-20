@@ -1,0 +1,191 @@
+    <script>
+        const ACCENTS = {
+            blue: { dark: '#89b4fa', light: '#1e66f5' },
+            green: { dark: '#a6e3a1', light: '#40a02b' },
+            mauve: { dark: '#cba6f7', light: '#8839ef' },
+            pink: { dark: '#f2cdcd', light: '#d20f39' },
+            red: { dark: '#f38ba8', light: '#d20f39' },
+            peach: { dark: '#fab387', light: '#fe640b' }
+        };
+
+        const state = {
+            md: localStorage.getItem('autosave-content') || '',
+            fileName: localStorage.getItem('lastFileName') || 'Opening.md',
+            fileHandle: null,
+            mode: 'reading',
+            isDirty: false,
+            theme: localStorage.getItem('theme') || 'dim',
+            accentKey: localStorage.getItem('accentKey') || 'pink',
+            fontSize: parseInt(localStorage.getItem('size')) || 16,
+            fontFamily: localStorage.getItem('font') || 'serif',
+            showSettings: false,
+            showTOC: false
+        };
+
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+
+        function autosave() {
+            localStorage.setItem('autosave-content', state.md);
+            localStorage.setItem('lastFileName', state.fileName);
+        }
+
+        function updateUI() {
+            const { mode, isDirty, theme, accentKey, fontSize, fontFamily, showSettings, showTOC, fileName } = state;
+            const accentHex = theme === 'light' ? ACCENTS[accentKey].light : ACCENTS[accentKey].dark;
+            
+            const body = document.body;
+            const toolbar = document.getElementById('toolbar');
+            const footer = document.getElementById('footer');
+            const settings = document.getElementById('settings-panel');
+            const toc = document.getElementById('toc-sidebar');
+
+            // 1. Font Class Logic
+            const fontClass = fontFamily === 'mono' ? 'font-mono' : fontFamily === 'serif' ? 'font-serif' : 'font-sans';
+            const allFonts = ['font-sans', 'font-serif', 'font-mono'];
+            const applyFont = (el) => {
+                if(!el) return;
+                allFonts.forEach(f => el.classList.remove(f));
+                el.classList.add(fontClass);
+            };
+
+            // 2. Theme Colors
+            if (theme === 'light') {
+                body.className = "bg-[#eff1f5] text-[#4c4f69]";
+                toolbar.className = "border-b px-4 py-2 flex items-center justify-center gap-1 z-30 transition-colors bg-[#e6e9ef] border-[#bac2de] text-[#4c4f69]";
+                footer.className = "border-t px-4 h-[30px] flex items-center justify-between z-50 transition-colors bg-[#e6e9ef] border-[#bac2de] text-[#4c4f69] text-[9px] font-bold tracking-widest uppercase overflow-hidden";
+                settings.className = "hidden fixed bottom-12 right-4 w-72 border p-5 z-50 shadow-xl rounded-xl bg-[#eff1f5] border-[#dce0e8] text-[#4c4f69]";
+                toc.style.backgroundColor = "rgba(239, 241, 245, 0.98)";
+                toc.style.borderColor = "#dce0e8";
+            } else if (theme === 'dim') {
+                body.className = "bg-[#3a3a3a] text-[#f2f2f2]";
+                toolbar.className = "border-b px-4 py-2 flex items-center justify-center gap-1 z-30 transition-colors bg-[#2a2a2a] border-[#4a4a4a] text-[#f2f2f2]";
+                footer.className = "border-t px-4 h-[30px] flex items-center justify-between z-50 transition-colors bg-[#2a2a2a] border-[#4a4a4a] text-[#cccccc] text-[9px] font-bold tracking-widest uppercase overflow-hidden";
+                settings.className = "hidden fixed bottom-12 right-4 w-72 border p-5 z-50 shadow-xl rounded-xl bg-[#4a4a4a] border-[#5a5a5a] text-[#f2f2f2]";
+                toc.style.backgroundColor = "rgba(58, 58, 58, 0.98)";
+                toc.style.borderColor = "#5a5a5a";
+            } else {
+                body.className = "bg-[#1e1e2e] text-[#cdd6f4]";
+                toolbar.className = "border-b px-4 py-2 flex items-center justify-center gap-1 z-30 transition-colors bg-[#181825] border-[#313244] text-[#cdd6f4]";
+                footer.className = "border-t px-4 h-[30px] flex items-center justify-between z-50 transition-colors bg-[#181825] border-[#313244] text-[#9399b2] text-[9px] font-bold tracking-widest uppercase overflow-hidden";
+                settings.className = "hidden fixed bottom-12 right-4 w-72 border p-5 z-50 shadow-xl rounded-xl bg-[#181825] border-[#313244] text-[#cdd6f4]";
+                toc.style.backgroundColor = "rgba(30, 30, 46, 0.98)";
+                toc.style.borderColor = "#313244";
+            }
+
+            applyFont(body);
+            applyFont(footer);
+            applyFont(editor);
+            applyFont(preview);
+            applyFont(settings);
+            applyFont(toc);
+
+            document.documentElement.style.setProperty('--accent-color', accentHex);
+            
+            // 3. Mode Logic
+            const isEditing = mode !== 'reading';
+            toolbar.classList.toggle('hidden', !isEditing);
+            document.getElementById('reading-view').classList.toggle('hidden', mode === 'editing');
+            document.getElementById('editing-view').classList.toggle('hidden', mode === 'reading');
+            document.getElementById('mode-text').innerText = isDirty ? 'EDITING' : mode.toUpperCase();
+
+            const footerActions = document.getElementById('footer-actions');
+            footerActions.innerHTML = mode === 'reading' 
+                ? `<button onclick="setMode('editing')" class="text-[var(--accent-color)] leading-none">EDIT</button>`
+                : (isDirty ? `<button onclick="saveFile()" class="text-[var(--accent-color)] leading-none">SAVE</button>
+                             <button onclick="discardChanges()" class="opacity-60 hover:text-red-500 leading-none">Don't Save</button>` 
+                           : `<button onclick="setMode('reading')" class="text-[var(--accent-color)] leading-none">READ</button>`);
+
+            // 4. Typography Size
+            document.getElementById('font-val').innerText = fontSize + 'px';
+            editor.style.fontSize = fontSize + 'px';
+            preview.style.fontSize = fontSize + 'px';
+            document.getElementById('file-info').innerText = `[${fileName}${isDirty ? ' *' : ''}]`;
+            document.title = `mark it down - [${fileName}${isDirty ? ' *' : ''}]`;
+            preview.innerHTML = marked.parse(state.md);
+
+            // 5. Grids
+            document.getElementById('accent-grid').innerHTML = Object.keys(ACCENTS).map(k => `
+                <button onclick="setAccent('${k}')" class="w-4 h-4 rounded-full transition-transform active:scale-75 ${accentKey===k?'ring-2 ring-offset-2 ring-slate-400 scale-110':'opacity-40'}" style="background-color: ${theme==='light'?ACCENTS[k].light:ACCENTS[k].dark}"></button>
+            `).join('');
+
+            document.getElementById('font-family-grid').innerHTML = ['sans', 'serif', 'mono'].map(f => `
+                <button onclick="setFont('${f}')" class="flex-1 text-[9px] font-bold tracking-widest uppercase py-2 rounded-lg border transition-all ${fontFamily===f ? 'bg-black/10 dark:bg-white/10 border-transparent text-[var(--accent-color)]' : 'border-transparent opacity-40 hover:opacity-100'}">${f}</button>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Action Handlers
+        window.setMode = (m) => { state.mode = m; updateUI(); };
+        window.toggleSettings = () => { state.showSettings = !state.showSettings; updateUI(); };
+        window.toggleTOC = () => { state.showTOC = !state.showTOC; updateUI(); };
+        window.setAccent = (k) => { state.accentKey = k; localStorage.setItem('accentKey', k); updateUI(); };
+        window.setFont = (f) => { state.fontFamily = f; localStorage.setItem('font', f); updateUI(); };
+        window.changeFontSize = (d) => { state.fontSize = Math.max(12, Math.min(32, state.fontSize + d)); localStorage.setItem('size', state.fontSize); updateUI(); };
+        window.cycleTheme = () => {
+            const themes = ['light', 'dim', 'dark'];
+            state.theme = themes[(themes.indexOf(state.theme) + 1) % 3];
+            localStorage.setItem('theme', state.theme);
+            updateUI();
+        };
+        window.insertText = (b, a = '') => {
+            const s = editor.selectionStart, e = editor.selectionEnd;
+            state.md = state.md.substring(0, s) + b + state.md.substring(s, e) + a + state.md.substring(e);
+            editor.value = state.md; state.isDirty = true; autosave(); updateUI();
+        };
+        window.insertTable = () => insertText('\n| Col 1 | Col 2 |\n| --- | --- |\n| Item 1 | Item 2 |');
+        window.saveFile = async () => {
+            if (window.showSaveFilePicker) {
+                try {
+                    const handle = await window.showSaveFilePicker({ suggestedName: state.fileName, types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] } }] });
+                    const writable = await handle.createWritable();
+                    await writable.write(state.md);
+                    await writable.close();
+                    state.fileName = handle.name;
+                } catch (e) {}
+            } else {
+                const b = new Blob([state.md], {type: 'text/markdown'});
+                const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = state.fileName; a.click();
+            }
+            state.isDirty = false; autosave(); updateUI();
+        };
+        window.discardChanges = () => { state.isDirty = false; state.mode = 'reading'; updateUI(); };
+        window.newFile = () => { state.md = '# New File\n'; state.fileName = 'Untitled.md'; editor.value = state.md; state.isDirty = false; state.mode = 'editing'; autosave(); updateUI(); };
+        window.openFile = async () => {
+            if (window.showOpenFilePicker) {
+                try {
+                    const [h] = await window.showOpenFilePicker();
+                    const f = await h.getFile();
+                    state.md = await f.text(); state.fileName = f.name; state.isDirty = false; editor.value = state.md; autosave(); updateUI();
+                } catch (e) {}
+            } else {
+                const i = document.createElement('input'); i.type = 'file';
+                i.onchange = async e => {
+                    const f = e.target.files[0];
+                    if(f) { state.md = await f.text(); state.fileName = f.name; state.isDirty = false; editor.value = state.md; autosave(); updateUI(); }
+                };
+                i.click();
+            }
+        };
+
+        editor.oninput = () => { state.md = editor.value; state.isDirty = true; autosave(); updateUI(); };
+
+        window.addEventListener('keydown', (e) => {
+            const isCmd = e.metaKey || e.ctrlKey;
+            if (isCmd && e.key === 'Enter') { e.preventDefault(); if(state.mode==='editing'&&state.isDirty) saveFile(); else setMode(state.mode==='reading'?'editing':'reading'); }
+            if (isCmd && e.key === 's') { e.preventDefault(); saveFile(); }
+            if (isCmd && e.key === 'o') { e.preventDefault(); openFile(); }
+        });
+
+        window.onload = async () => {
+            if (!state.md) {
+                try {
+                    const res = await fetch('Opening.md');
+                    if(res.ok) state.md = await res.text();
+                } catch (e) {}
+            }
+            editor.value = state.md;
+            updateUI();
+        };
+    </script>

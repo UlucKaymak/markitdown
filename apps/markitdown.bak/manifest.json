@@ -1,0 +1,21 @@
+{
+  "name": "markitdown",
+  "short_name": "markitdown",
+  "description": "Markdown reader and editor",
+  "start_url": "/apps/markitdown/",
+  "display": "standalone",
+  "background_color": "#1e1e2e",
+  "theme_color": "#1e1e2e",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
