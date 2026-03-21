@@ -13,84 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-    <style>
-        :root { --accent-color: #f2cdcd; --bg: #3a3a3a; --text: #f2f2f2; --border: #5a5a5a; --toolbar: #2a2a2a; --panel-bg: #4a4a4a; }
-        .theme-light { --bg: #eff1f5; --text: #4c4f69; --border: #bac2de; --toolbar: #e6e9ef; --panel-bg: #eff1f5; }
-        .theme-dark { --bg: #1e1e2e; --text: #cdd6f4; --border: #313244; --toolbar: #181825; --panel-bg: #181825; }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; transition: 0.3s; -webkit-font-smoothing: antialiased; }
-        
-        .font-sans { font-family: 'Roboto', sans-serif; }
-        .font-serif { font-family: 'Libre Baskerville', serif; }
-        .font-other { font-family: 'Caveat', cursive; }
-        .font-mono { font-family: 'Fira Code', monospace; }
-
-        #root { height: 100%; display: flex; flex-direction: column; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        header, footer { border-color: var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; z-index: 50; }
-        #toolbar { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--border); background: #e6e9ef; border-color: #bac2de; transition: 0.3s; }
-        .theme-dim #toolbar { background: #2a2a2a; border-color: #4a4a4a; }
-        .theme-dark #toolbar { background: #181825; border-color: #313244; }
-        footer { height: 30px; border-top: 1px solid var(--border); background: var(--toolbar); font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; padding: 0 16px; }
-        
-        main { flex: 1; display: flex; overflow: hidden; position: relative; }
-        #editor-container, #preview-container { height: 100%; overflow-y: auto; background: transparent; }
-        #editor { width: 100%; height: 100%; padding: 40px; border: none; resize: none; color: inherit; line-height: 1.6; background: transparent; outline: none; }
-        #preview { margin: 0 auto; padding: 40px; }
-        #resizer { width: 4px; cursor: col-resize; background: transparent; z-index: 60; flex-shrink: 0; transition: background 0.2s; }
-        #resizer:hover, #resizer.resizing { background: var(--accent-color); }
-
-        /* Updated Markdown Styles */
-        .markdown-body { line-height: 1.625; }
-        .markdown-body h1 { margin-top: 3rem; margin-bottom: 2rem; font-weight: 800; letter-spacing: -.025em; font-size: 2.25em; color: var(--accent-color); border-bottom: none; padding-bottom: 0; }
-        .markdown-body h2 { margin-top: 3rem; margin-bottom: 1rem; border-style: none; font-weight: 700; opacity: .9; font-size: 1.5em; border-bottom: none; padding-bottom: 0; }
-        .markdown-body h3 { margin-top: 2.5rem; margin-bottom: .75rem; font-weight: 700; opacity: .8; font-size: 1.25em; }
-        .markdown-body p { margin-bottom: 1.5rem; opacity: .8; }
-        .markdown-body a { border-bottom: 1px solid color-mix(in srgb, var(--accent-color), transparent 70%); font-weight: 500; color: var(--accent-color); text-decoration: none; transition: all 0.2s; padding: 0; border-radius: 0; }
-        .markdown-body a:hover { border-bottom-width: 2px; opacity: 1; border-bottom-color: var(--accent-color); background: none; }
-        .markdown-body blockquote { margin-top: 2rem; margin-bottom: 2rem; border-left: 4px solid var(--accent-color); padding: 1rem 0 1rem 1.5rem; font-style: italic; opacity: .6; }
-        .markdown-body blockquote p { margin-bottom: 0; }
-        .markdown-body pre { margin-top: 2rem; margin-bottom: 2rem; border-radius: 1rem; border: 1px solid rgba(100, 116, 139, 0.1); padding: 1.5rem; background: rgba(100, 116, 139, 0.05); overflow-x: auto; }
-        .markdown-body ul { margin-bottom: 1.5rem; list-style-type: disc; padding-left: 1.5rem; }
-        .markdown-body ol { margin-bottom: 1.5rem; list-style-type: decimal; padding-left: 1.5rem; }
-        .markdown-body li { line-height: 1.625; opacity: .9; }
-        .markdown-body li > ul, .markdown-body li > ol { margin-top: 0; margin-bottom: 0; }
-        .markdown-body li::marker { color: rgba(100, 116, 139, 0.5); }
-        .markdown-body li p { margin-bottom: 0; }
-        .markdown-body code:not(pre code) { border-radius: .375rem; background-color: rgba(100, 116, 139, 0.1); padding: .125rem .375rem; font-family: monospace; font-size: .9em; }
-        .markdown-body table { margin-bottom: 1.5rem; width: 100%; border-collapse: collapse; overflow: hidden; border-radius: .5rem; border: 1px solid var(--border); }
-        .markdown-body th, .markdown-body td { border-bottom: 1px solid rgba(100, 116, 139, 0.1); padding: .75rem; text-align: left; }
-        .markdown-body th { background-color: rgba(100, 116, 139, 0.05); font-weight: 700; }
-        .markdown-body img { max-width: 100%; height: auto; border-radius: 12px; margin: 2rem auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-
-        .t-btn { background: transparent; border: none; color: #64748b; padding: 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; transition: 0.2s; }
-        .t-btn:hover { background: rgba(100, 116, 139, 0.1); }
-        .t-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
-        
-        .pill { background: rgba(0,0,0,0.1); padding: 2px; border-radius: 8px; display: flex; gap: 2px; }
-        .pill-btn { padding: 4px 8px; border-radius: 4px; border: none; background: transparent; cursor: pointer; color: #94a3b8; display: flex; align-items: center; }
-        .pill-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
-        .pill-btn.active { background: white; color: #1e1e2e; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-
-        .panel { position: absolute; background: var(--panel-bg); border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 100; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        #settings-panel { bottom: 40px; right: 12px; width: 280px; border-radius: 16px; padding: 20px; }
-        #toc-sidebar { top: 0; right: 0; bottom: 0; width: 260px; padding: 80px 32px 40px; border-left: 1px solid var(--border); }
-        .hidden-panel { transform: translateX(100%); opacity: 0; pointer-events: none; }
-        
-        .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-        .dot.active { border-color: var(--text); transform: scale(1.2); }
-        
-        .toc-btn { display: block; width: 100%; text-align: left; background: none; border: none; padding: 6px 0; color: inherit; cursor: pointer; font-size: 11px; font-weight: 700; opacity: 0.6; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .toc-btn:hover { opacity: 1; transform: translateX(4px); }
-
-        .hidden { display: none !important; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background-color: transparent; }
-        ::-webkit-scrollbar-thumb { border-radius: 9999px; background-color: rgba(100, 116, 139, 0.2); transition: background-color 0.15s; }
-        ::-webkit-scrollbar-thumb:hover { background-color: rgba(100, 116, 139, 0.4); }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="theme-dim font-serif">
     <div id="root">
@@ -127,41 +50,43 @@
 
             <!-- Settings Panel -->
             <div id="settings-panel" class="hidden panel">
-                <div class="row" style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:20px;">
-                    <span style="opacity:0.4;">Settings</span>
-                    <button onclick="toggleSettings()" style="color:var(--accent-color); background:none; border:none; cursor:pointer; font-weight:900;">CLOSE</button>
+                <div class="row" style="margin-bottom:24px; opacity:1;">
+                    <span id="version-display" style="font-weight:900; letter-spacing:2px; font-size:10px; opacity:0.3;"></span>
+                    <button onclick="toggleSettings()" style="color:var(--accent-color); background:none; border:none; cursor:pointer; font-weight:900; font-size:9px; letter-spacing:1px;">CLOSE</button>
                 </div>
+                
                 <div class="row">
                     <span>Theme</span>
-                    <button onclick="cycleTheme()" id="theme-display" style="background:rgba(0,0,0,0.1); border:none; padding:6px 12px; border-radius:8px; color:var(--accent-color); font-weight:900; cursor:pointer;"></button>
+                    <button onclick="cycleTheme()" id="theme-display" class="settings-btn"></button>
                 </div>
+                
                 <div class="row">
                     <span>Accent</span>
-                    <div id="accent-grid" style="display:flex; gap:8px;"></div>
+                    <div id="accent-grid" style="display:flex; gap:6px;"></div>
                 </div>
+                
                 <div class="row">
-                    <span>Unique Links</span>
-                    <button onclick="toggleLinkTypes()" id="link-types-btn" style="background:rgba(0,0,0,0.1); border:none; padding:6px 12px; border-radius:8px; color:var(--accent-color); font-weight:900; cursor:pointer;"></button>
+                    <span>Links</span>
+                    <button onclick="toggleLinkTypes()" id="link-types-btn" class="settings-btn"></button>
                 </div>
+                
                 <div class="row">
                     <span>Size</span>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <button onclick="changeFontSize(-1)" style="padding:4px; border:none; background:none; color:inherit; cursor:pointer;">-</button>
-                        <span id="font-val">16px</span>
-                        <button onclick="changeFontSize(1)" style="padding:4px; border:none; background:none; color:inherit; cursor:pointer;">+</button>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button onclick="changeFontSize(-1)" style="border:none; background:none; color:inherit; cursor:pointer; font-size:14px; opacity:0.5;">-</button>
+                        <span id="font-val" style="font-size:9px; font-weight:900;">16px</span>
+                        <button onclick="changeFontSize(1)" style="border:none; background:none; color:inherit; cursor:pointer; font-size:14px; opacity:0.5;">+</button>
                     </div>
                 </div>
-                <div class="row" style="margin-top:20px; border-top:1px solid var(--border); padding-top:10px;">
-                    <span style="opacity:0.5;">Font Family</span>
-                </div>
-                <div id="font-family-grid" style="display:flex; gap:4px; margin-bottom:16px;"></div>
                 
-                <button onclick="resetSettings()" style="width:100%; background:rgba(255,0,0,0.1); color:#ff6b6b; border:none; padding:10px; border-radius:12px; cursor:pointer; font-size:9px; font-weight:900; margin-bottom:16px; transition:0.2s;" onmouseover="this.style.background='rgba(255,0,0,0.2)'" onmouseout="this.style.background='rgba(255,0,0,0.1)'">RESET ALL SETTINGS</button>
-
-                <div style="background:rgba(127,127,127,0.05); padding:12px; border-radius:12px; text-align:center;">
-                    <span style="font-size:9px; font-weight:800; opacity:0.5; display:flex; align-items:center; justify-content:center; gap:4px; margin-bottom:4px;">PWA Ready</span>
-                    <p style="font-size:8px; opacity:0.3; line-height:1.3;">Add to Dock or Home Screen for offline use.</p>
+                <div style="margin:24px 0 12px; border-top:1px solid var(--border); padding-top:20px;">
+                    <div class="row" style="margin-bottom:12px;">
+                        <span style="opacity:0.5;">Font Family</span>
+                    </div>
+                    <div id="font-family-grid" style="display:flex; gap:4px; margin-bottom:20px;"></div>
                 </div>
+                
+                <button onclick="resetSettings()" class="reset-btn">RESET SETTINGS</button>
             </div>
 
             <div id="toc-sidebar" class="panel hidden-panel">
@@ -190,25 +115,34 @@
     <script>
         const ACCENTS = { blue:{dark:'#89b4fa', light:'#1e66f5'}, green:{dark:'#a6e3a1', light:'#40a02b'}, mauve:{dark:'#cba6f7', light:'#8839ef'}, pink:{dark:'#f2cdcd', light:'#d20f39'}, red:{dark:'#f38ba8', light:'#d20f39'}, peach:{dark:'#fab387', light:'#fe640b'} };
         
-        const state = { md:'', fileName:'Opening.md', mode:'reading', theme:localStorage.getItem('theme')||'light', accentKey:localStorage.getItem('accentKey')||'blue', fontSize:parseInt(localStorage.getItem('size'))||16, fontFamily:localStorage.getItem('font')||'sans', showLinkTypes:localStorage.getItem('linkTypes')==='true', isDirty:false, showSettings:false, showTOC:false, splitWidth: 50, assetMap: new Map(), fileHandle: null, mainFileFound: false };
+        const state = { md:'', fileName:'Opening.md', mode:'reading', theme:localStorage.getItem('theme')||'light', accentKey:localStorage.getItem('accentKey')||'blue', fontSize:parseInt(localStorage.getItem('size'))||16, fontFamily:localStorage.getItem('font')||'sans', showLinkTypes:localStorage.getItem('linkTypes')==='true', isDirty:false, showSettings:false, showTOC:false, splitWidth: 50, assetMap: new Map(), fileHandle: null, mainFileFound: false, version: '0.0.26' };
 
-        // Global variables to be initialized after DOM load
         let editor, preview, editorContainer, resizer;
 
         window.loadLocalFile = async (name) => {
-            let blobUrl = state.assetMap.get(name);
-            if (!blobUrl) {
-                const fileNameOnly = name.split('/').pop();
-                blobUrl = state.assetMap.get(fileNameOnly);
+            const lowerName = name.toLowerCase();
+            const fileNameOnly = name.split('/').pop().toLowerCase();
+            let blobUrl = null;
+            for (let [key, val] of state.assetMap) {
+                const lowerKey = key.toLowerCase();
+                if (lowerKey === lowerName || lowerKey === fileNameOnly || lowerKey.endsWith('/' + lowerName)) {
+                    blobUrl = val;
+                    break;
+                }
             }
-            if (blobUrl) {
-                const res = await fetch(blobUrl);
-                state.md = await res.text();
-                state.fileName = name;
-                if(editor) editor.value = state.md;
-                state.isDirty = false;
-                state.mode = 'reading';
-                updateUI();
+            try {
+                const target = blobUrl || name;
+                const res = await fetch(target);
+                if (res.ok) {
+                    state.md = await res.text();
+                    state.fileName = name.split('/').pop();
+                    if(editor) editor.value = state.md;
+                    state.isDirty = false;
+                    state.mode = 'reading';
+                    updateUI();
+                }
+            } catch (e) {
+                console.error('Error loading file:', e);
             }
         };
 
@@ -216,18 +150,12 @@
             if (!path) return '';
             let p = path.replace(/^\.\//, '');
             if (p.startsWith('http') || p.startsWith('blob:')) return p;
-            
             const decodedP = decodeURIComponent(p);
             const fileName = p.split('/').pop();
             const decodedFileName = decodeURIComponent(fileName);
-            
             for (let [key, val] of state.assetMap) {
                 const cleanKey = key.replace(/^\.\//, '');
-                if (cleanKey === p || cleanKey === decodedP || 
-                    key === p || key === decodedP ||
-                    cleanKey.endsWith('/' + p) || key.endsWith('/' + p) ||
-                    cleanKey === fileName || cleanKey === decodedFileName ||
-                    key === fileName || key === decodedFileName) {
+                if (cleanKey === p || cleanKey === decodedP || key === p || key === decodedP || cleanKey.endsWith('/' + p) || key.endsWith('/' + p) || cleanKey === fileName || cleanKey === decodedFileName || key === fileName || key === decodedFileName) {
                     return val;
                 }
             }
@@ -249,11 +177,13 @@
             else if (isSplit) editorContainer.style.width = state.splitWidth + '%';
 
             document.documentElement.style.setProperty('--accent-color', accentHex);
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', accentHex);
             document.getElementById('theme-display').innerText = state.theme + ' mode';
             document.getElementById('font-val').innerText = state.fontSize + 'px';
             document.getElementById('file-info').innerText = `[${state.fileName}${state.isDirty?' *':''}]`;
             document.getElementById('mode-text').innerText = state.isDirty ? 'EDITING' : state.mode.toUpperCase();
             document.getElementById('link-types-btn').innerText = state.showLinkTypes ? 'VISIBLE' : 'OFF';
+            document.getElementById('version-display').innerText = `v${state.version}`;
             
             document.getElementById('settings-panel').classList.toggle('hidden', !state.showSettings);
             document.getElementById('toc-sidebar').classList.toggle('hidden-panel', !state.showTOC);
@@ -262,9 +192,9 @@
             fa.innerHTML = state.mode === 'reading' ? `<button onclick="setMode('editing')" style="color:var(--accent-color); background:none; border:none; cursor:pointer; font:inherit;">EDIT</button>` : `<button onclick="saveFile()" style="color:var(--accent-color); background:none; border:none; cursor:pointer; font:inherit;">SAVE</button>`;
 
             document.getElementById('accent-grid').innerHTML = Object.keys(ACCENTS).map(k => `<div onclick="setAccent('${k}')" class="dot ${state.accentKey===k?'active':''}" style="background:${state.theme==='light'?ACCENTS[k].light:ACCENTS[k].dark}"></div>`).join('');
-            document.getElementById('font-family-grid').innerHTML = ['sans', 'serif', 'other'].map(f => `<button onclick="setFont('${f}')" style="flex:1; background:${state.fontFamily===f?'var(--accent-color)':'rgba(0,0,0,0.1)'}; color:${state.fontFamily===f?'white':'inherit'}; border:none; padding:6px; border-radius:8px; cursor:pointer; font-size:9px; font-weight:900;">${f.toUpperCase()}</button>`).join('');
+            document.getElementById('font-family-grid').innerHTML = ['sans', 'serif', 'other', 'mono'].map(f => `<button onclick="setFont('${f}')" style="flex:1; background:${state.fontFamily===f?'var(--accent-color)':'rgba(0,0,0,0.1)'}; color:${state.fontFamily===f?'white':'inherit'}; border:none; padding:6px; border-radius:8px; cursor:pointer; font-size:9px; font-weight:900;">${f.toUpperCase()}</button>`).join('');
 
-            const scales = { sans: 1.0, serif: 1.05, other: 1.45, mono: 0.95 };
+            const scales = { sans: 1.0, serif: 1.0, other: 1.25, mono: 1.0 };
             const visualSize = state.fontSize * (scales[state.fontFamily] || 1.0);
             editor.style.fontSize = visualSize + 'px';
             preview.style.fontSize = visualSize + 'px';
@@ -286,27 +216,28 @@
             renderer.link = (arg1, arg2, arg3) => {
                 let href = typeof arg1 === 'object' ? arg1.href : arg1;
                 let text = typeof arg1 === 'object' ? arg1.text : arg3;
-                
                 if (href.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
                     let src = getAsset(href);
                     return `<img src="${src}" alt="${text || ''}" style="max-width:100%; height:auto; border-radius:12px; margin:2rem auto; display:block; box-shadow:0 10px 30px rgba(0,0,0,0.1); border:1px solid var(--border);" />`;
                 }
-
-                if (href.startsWith('#')) {
-                    const targetId = href.substring(1).toLowerCase().replace(/[^\w]+/g, '-');
-                    return `<a href="${href}" onclick="event.preventDefault(); document.getElementById('${targetId}')?.scrollIntoView({behavior:'smooth'});" class="link-anchor">${text}</a>`;
-                }
-
-                if (href.match(/\.(md|markdown)$/i)) {
-                    const fileName = href.split('/').pop();
-                    if (state.assetMap.has(fileName) || state.assetMap.has(href)) {
-                        return `<a href="#" onclick="event.preventDefault(); loadLocalFile('${href}');" class="link-file">${text}</a>`;
-                    }
-                }
-
+                const isAnchor = href.startsWith('#');
+                const isMd = href.match(/\.(md|markdown)$/i);
                 const isWeb = href.startsWith('http');
+                let linkClass = '';
+                if (state.showLinkTypes) {
+                    if (isAnchor) linkClass = 'link-anchor';
+                    else if (isMd) linkClass = 'link-file';
+                    else if (isWeb) linkClass = 'link-web';
+                    else linkClass = 'link-file';
+                }
+                if (isAnchor) {
+                    const targetId = href.substring(1).toLowerCase().replace(/[^\w]+/g, '-');
+                    return `<a href="${href}" onclick="event.preventDefault(); document.getElementById('${targetId}')?.scrollIntoView({behavior:'smooth'});" class="${linkClass}">${text}</a>`;
+                }
+                if (isMd) {
+                    return `<a href="${href}" onclick="event.preventDefault(); loadLocalFile('${href}');" class="${linkClass}">${text}</a>`;
+                }
                 const target = isWeb ? ' target="_blank" rel="noopener noreferrer"' : '';
-                const linkClass = state.showLinkTypes ? (isWeb ? 'link-web' : 'link-file') : '';
                 return `<a href="${href}"${target} class="${linkClass}">${text}</a>`;
             };
             marked.setOptions({ renderer });
@@ -325,270 +256,105 @@
         window.toggleSettings = () => { state.showSettings = !state.showSettings; if(state.showSettings) state.showTOC=false; updateUI(); };
         window.toggleTOC = () => { state.showTOC = !state.showTOC; if(state.showTOC) state.showSettings=false; updateUI(); };
         window.toggleLinkTypes = () => { state.showLinkTypes = !state.showLinkTypes; localStorage.setItem('linkTypes', state.showLinkTypes); updateUI(); };
-        
-        window.resetSettings = () => {
-            if(confirm('Reset all settings to default?')) {
-                localStorage.clear();
-                location.reload();
-            }
-        };
-
+        window.resetSettings = () => { if(confirm('Reset all settings to default?')) { localStorage.clear(); location.reload(); } };
         window.insertText = (b,a='') => { if(!editor) return; const s=editor.selectionStart, e=editor.selectionEnd; state.md=state.md.substring(0,s)+b+state.md.substring(s,e)+a+state.md.substring(e); editor.value=state.md; state.isDirty=true; updateUI(); };
         window.insertTable = () => insertText('\n| Col 1 | Col 2 |\n| --- | --- |\n| Item 1 | Item 2 |');
         
         window.openFile = async () => {
             if (window.showOpenFilePicker) {
                 try {
-                    const handles = await window.showOpenFilePicker({
-                        multiple: true,
-                        types: [{
-                            description: 'Markdown Files',
-                            accept: { 
-                                'text/markdown': ['.md', '.markdown'],
-                                'text/plain': ['.md', '.markdown']
-                            }
-                        }]
-                    });
-                    state.assetMap.clear();
-                    state.mainFileFound = false;
+                    const handles = await window.showOpenFilePicker({ multiple: true, types: [{ description: 'Markdown Files', accept: { 'text/markdown': ['.md', '.markdown'], 'text/plain': ['.md', '.markdown'] } }] });
+                    state.assetMap.clear(); state.mainFileFound = false;
                     let mainMd = null;
                     for (const h of handles) {
-                        const f = await h.getFile();
-                        const blobUrl = URL.createObjectURL(f);
-                        state.assetMap.set(f.name, blobUrl);
-                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) {
-                            if (!mainMd || f.name.toLowerCase() === 'readme.md') {
-                                mainMd = f;
-                                state.fileHandle = h;
-                            }
-                        }
+                        const f = await h.getFile(); const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl);
+                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) { if (!mainMd || f.name.toLowerCase() === 'readme.md') { mainMd = f; state.fileHandle = h; } }
                     }
-                    if (mainMd) {
-                        state.md = await mainMd.text();
-                        state.fileName = mainMd.name;
-                        if(editor) editor.value = state.md;
-                        state.isDirty = false;
-                        updateUI();
-                    }
+                    if (mainMd) { state.md = await mainMd.text(); state.fileName = mainMd.name; if(editor) editor.value = state.md; state.isDirty = false; updateUI(); }
                 } catch (e) {}
             } else {
                 const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.accept = '.md,.markdown,text/markdown,text/plain';
                 i.onchange = async e => {
-                    const files = Array.from(e.target.files);
-                    if (files.length === 0) return;
-                    state.assetMap.clear();
-                    state.mainFileFound = false;
+                    const files = Array.from(e.target.files); if (files.length === 0) return;
+                    state.assetMap.clear(); state.mainFileFound = false;
                     let mainMd = null;
                     for (const f of files) {
-                        const blobUrl = URL.createObjectURL(f);
-                        state.assetMap.set(f.name, blobUrl);
-                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) {
-                            if (!mainMd || f.name.toLowerCase() === 'readme.md') mainMd = f;
-                        }
+                        const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl);
+                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) { if (!mainMd || f.name.toLowerCase() === 'readme.md') mainMd = f; }
                     }
-                    if (mainMd) {
-                        state.md = await mainMd.text();
-                        state.fileName = mainMd.name;
-                        if(editor) editor.value = state.md;
-                        state.isDirty = false;
-                        state.fileHandle = null;
-                        updateUI();
-                    }
-                };
-                i.click();
+                    if (mainMd) { state.md = await mainMd.text(); state.fileName = mainMd.name; if(editor) editor.value = state.md; state.isDirty = false; state.fileHandle = null; updateUI(); }
+                }; i.click();
             }
         };
 
-        window.newFile = () => { 
-            state.md = '# New File\n'; 
-            state.fileName = 'Untitled.md'; 
-            state.fileHandle = null;
-            state.isDirty = false; 
-            state.mode = 'editing'; 
-            if(editor) editor.value = state.md; 
-            updateUI(); 
-        };
-
+        window.newFile = () => { state.md = '# New File\n'; state.fileName = 'Untitled.md'; state.fileHandle = null; state.isDirty = false; state.mode = 'editing'; if(editor) editor.value = state.md; updateUI(); };
         window.saveFile = async () => {
             if (state.fileHandle) {
-                try {
-                    const writable = await state.fileHandle.createWritable();
-                    await writable.write(state.md);
-                    await writable.close();
-                    state.isDirty = false; state.mode = 'reading'; updateUI();
-                    return;
-                } catch (e) {
-                    return window.saveFileAs();
-                }
-            } else {
-                return window.saveFileAs();
-            }
+                try { const writable = await state.fileHandle.createWritable(); await writable.write(state.md); await writable.close(); state.isDirty = false; state.mode = 'reading'; updateUI(); return; } catch (e) { return window.saveFileAs(); }
+            } else { return window.saveFileAs(); }
         };
 
         window.saveFileAs = async () => {
             if (window.showSaveFilePicker) {
                 try {
                     let suggestedName = state.fileName.split('/').pop();
-                    if (!suggestedName.toLowerCase().endsWith('.md') && !suggestedName.toLowerCase().endsWith('.markdown')) {
-                        suggestedName += '.md';
-                    }
-                    const h = await window.showSaveFilePicker({ 
-                        suggestedName: suggestedName,
-                        types: [{
-                            description: 'Markdown Files',
-                            accept: { 'text/markdown': ['.md', '.markdown'] }
-                        }]
-                    });
-                    const w = await h.createWritable();
-                    await w.write(state.md); await w.close();
+                    if (!suggestedName.toLowerCase().endsWith('.md') && !suggestedName.toLowerCase().endsWith('.markdown')) suggestedName += '.md';
+                    const h = await window.showSaveFilePicker({ suggestedName: suggestedName, types: [{ description: 'Markdown Files', accept: { 'text/markdown': ['.md', '.markdown'] } }] });
+                    const w = await h.createWritable(); await w.write(state.md); await w.close();
                     state.fileName = h.name; state.fileHandle = h; state.isDirty = false; state.mode = 'reading'; updateUI();
                 } catch (e) {}
             } else {
-                const b = new Blob([state.md], {type: 'text/markdown'});
-                const a = document.createElement('a');
+                const b = new Blob([state.md], {type: 'text/markdown'}); const a = document.createElement('a');
                 let downloadName = state.fileName.split('/').pop();
-                if (!downloadName.toLowerCase().endsWith('.md') && !downloadName.toLowerCase().endsWith('.markdown')) {
-                    downloadName += '.md';
-                }
-                a.href = URL.createObjectURL(b); 
-                a.download = downloadName;
-                a.click(); state.isDirty = false; state.mode = 'reading'; updateUI();
+                if (!downloadName.toLowerCase().endsWith('.md') && !downloadName.toLowerCase().endsWith('.markdown')) downloadName += '.md';
+                a.href = URL.createObjectURL(b); a.download = downloadName; a.click(); state.isDirty = false; state.mode = 'reading'; updateUI();
             }
         };
 
         async function readEntry(entry, path = '') {
             try {
                 if (entry.isFile) {
-                    const file = await new Promise((res, rej) => entry.file(res, rej));
-                    const fullPath = (path + entry.name).replace(/^\//, '');
-                    const blobUrl = URL.createObjectURL(file);
-                    state.assetMap.set(fullPath, blobUrl);
-                    state.assetMap.set(entry.name, blobUrl);
-                    
-                    if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
-                        if (!state.mainFileFound || file.name.toLowerCase() === 'readme.md') {
-                            state.md = await file.text();
-                            state.fileName = fullPath;
-                            if(editor) editor.value = state.md;
-                            state.isDirty = false;
-                            state.mainFileFound = true;
-                        }
-                    }
+                    const file = await new Promise((res, rej) => entry.file(res, rej)); const fullPath = (path + entry.name).replace(/^\//, ''); const blobUrl = URL.createObjectURL(file); state.assetMap.set(fullPath, blobUrl); state.assetMap.set(entry.name, blobUrl);
+                    if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) { if (!state.mainFileFound || file.name.toLowerCase() === 'readme.md') { state.md = await file.text(); state.fileName = fullPath; if(editor) editor.value = state.md; state.isDirty = false; state.mainFileFound = true; } }
                 } else if (entry.isDirectory) {
                     const reader = entry.createReader();
-                    const readAllEntries = async () => {
-                        const entries = await new Promise((res, rej) => reader.readEntries(res, rej));
-                        if (entries.length > 0) {
-                            for (const e of entries) await readEntry(e, path + entry.name + '/');
-                            await readAllEntries(); // Read next batch
-                        }
-                    };
+                    const readAllEntries = async () => { const entries = await new Promise((res, rej) => reader.readEntries(res, rej)); if (entries.length > 0) { for (const e of entries) await readEntry(e, path + entry.name + '/'); await readAllEntries(); } };
                     await readAllEntries();
                 }
             } catch (err) {}
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            editor = document.getElementById('editor');
-            preview = document.getElementById('preview');
-            editorContainer = document.getElementById('editor-container');
-            resizer = document.getElementById('resizer');
-
-            if (editor) {
-                editor.oninput = () => { state.md = editor.value; state.isDirty = true; updateUI(); };
-            }
-
+            editor = document.getElementById('editor'); preview = document.getElementById('preview'); editorContainer = document.getElementById('editor-container'); resizer = document.getElementById('resizer');
+            if (editor) editor.oninput = () => { state.md = editor.value; state.isDirty = true; updateUI(); };
             let isResizing = false;
             resizer.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'col-resize'; resizer.classList.add('resizing'); });
             window.addEventListener('mousemove', e => { if (!isResizing) return; const w = (e.clientX / window.innerWidth) * 100; if (w > 20 && w < 80) { state.splitWidth = w; editorContainer.style.width = w + '%'; }});
             window.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = 'default'; resizer.classList.remove('resizing'); });
-
             window.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); document.getElementById('root').style.boxShadow = "inset 0 -100px 100px -50px var(--accent-color)"; });
             window.addEventListener('dragenter', e => { e.preventDefault(); e.stopPropagation(); });
             window.addEventListener('dragleave', () => document.getElementById('root').style.boxShadow = "none");
             window.addEventListener('drop', async e => {
-                e.preventDefault(); 
-                e.stopPropagation();
-                document.getElementById('root').style.boxShadow = "none"; 
-                state.assetMap.clear();
-                state.mainFileFound = false;
-                state.fileHandle = null;
-
-                const items = e.dataTransfer.items ? Array.from(e.dataTransfer.items) : [];
-                const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
-                
-                for (const item of items) {
-                    if (item.kind === 'file' && item.getAsFileSystemHandle) {
-                        try {
-                            const handle = await item.getAsFileSystemHandle();
-                            if (handle && handle.kind === 'file' && (handle.name.endsWith('.md') || handle.name.endsWith('.markdown'))) {
-                                if (!state.fileHandle || handle.name.toLowerCase() === 'readme.md') {
-                                    state.fileHandle = handle;
-                                }
-                            }
-                        } catch(err) {}
-                    }
-                }
-
-                if (items.length > 0 && items[0].webkitGetAsEntry) {
-                    for (const item of items) {
-                        const entry = item.webkitGetAsEntry();
-                        if (entry) await readEntry(entry);
-                    }
-                }
-
-                if (!state.mainFileFound && files.length > 0) {
-                    for (const f of files) {
-                        const blobUrl = URL.createObjectURL(f);
-                        state.assetMap.set(f.name, blobUrl);
-                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) {
-                            if (!state.mainFileFound || f.name.toLowerCase() === 'readme.md') {
-                                try {
-                                    state.md = await f.text();
-                                    state.fileName = f.name;
-                                    if(editor) editor.value = state.md;
-                                    state.isDirty = false;
-                                    state.mainFileFound = true;
-                                } catch(err) {}
-                            }
-                        }
-                    }
-                }
-
-                if (state.mainFileFound) {
-                    state.mode = 'reading';
-                }
-                updateUI();
+                e.preventDefault(); e.stopPropagation(); document.getElementById('root').style.boxShadow = "none"; state.assetMap.clear(); state.mainFileFound = false; state.fileHandle = null;
+                const items = e.dataTransfer.items ? Array.from(e.dataTransfer.items) : []; const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+                for (const item of items) { if (item.kind === 'file' && item.getAsFileSystemHandle) { try { const handle = await item.getAsFileSystemHandle(); if (handle && handle.kind === 'file' && (handle.name.endsWith('.md') || handle.name.endsWith('.markdown'))) { if (!state.fileHandle || handle.name.toLowerCase() === 'readme.md') state.fileHandle = handle; } } catch(err) {} } }
+                if (items.length > 0 && items[0].webkitGetAsEntry) { for (const item of items) { const entry = item.webkitGetAsEntry(); if (entry) await readEntry(entry); } }
+                if (!state.mainFileFound && files.length > 0) { for (const f of files) { const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl); if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) { if (!state.mainFileFound || f.name.toLowerCase() === 'readme.md') { try { state.md = await f.text(); state.fileName = f.name; if(editor) editor.value = state.md; state.isDirty = false; state.mainFileFound = true; } catch(err) {} } } } }
+                if (state.mainFileFound) state.mode = 'reading'; updateUI();
             });
-
             window.addEventListener('keydown', e => {
                 const isCmd = e.metaKey || e.ctrlKey;
-                if (isCmd && e.key === 'Enter') { 
-                    e.preventDefault(); 
-                    setMode(state.mode === 'reading' ? 'editing' : 'reading'); 
-                }
+                if (isCmd && e.key === 'Enter') { e.preventDefault(); setMode(state.mode === 'reading' ? 'editing' : 'reading'); }
                 if (isCmd && !e.shiftKey && e.key === 's') { e.preventDefault(); saveFile(); }
                 if (isCmd && e.shiftKey && e.key === 's') { e.preventDefault(); saveFileAs(); }
                 if (isCmd && e.key === 'o') { e.preventDefault(); openFile(); }
             });
-// Load Initial Content
-(async () => {
-    try {
-        const r = await fetch('Opening.md');
-        if (r.ok) state.md = await r.text();
-        else state.md = '# mark it down';
-    } catch (e) { state.md = '# mark it down'; }
-    if(editor) editor.value = state.md;
-    updateUI();
-})();
-
-// Register Service Worker for PWA
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
-    });
-}
-});
+            (async () => {
+                try { const r = await fetch('Opening.md'); if (r.ok) state.md = await r.text(); else state.md = '# mark it down'; } catch (e) { state.md = '# mark it down'; }
+                if(editor) editor.value = state.md; updateUI();
+            })();
+            if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err)); }); }
+        });
     </script>
 </body>
 </html>

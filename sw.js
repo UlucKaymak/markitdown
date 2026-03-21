@@ -2,6 +2,7 @@ const CACHE_NAME = 'markitdown-v1';
 const ASSETS = [
   './',
   './index.html',
+  './style.css',
   './manifest.json',
   './favicon.png',
   './Opening.md',
