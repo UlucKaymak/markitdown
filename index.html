@@ -39,12 +39,28 @@
         #resizer { width: 4px; cursor: col-resize; background: transparent; z-index: 60; flex-shrink: 0; transition: background 0.2s; }
         #resizer:hover, #resizer.resizing { background: var(--accent-color); }
 
-        .markdown-body h1 { font-size: 2.25em; font-weight: 900; margin: 1.2em 0 0.6em; border-bottom: 1px solid var(--border); color: var(--accent-color); padding-bottom: 0.3em; }
-        .markdown-body h2 { font-size: 1.65em; font-weight: 800; margin: 1.5em 0 0.5em; opacity: 0.95; border-bottom: 1px solid var(--border); padding-bottom: 0.2em; }
-        .markdown-body p, .markdown-body ul, .markdown-body ol { margin-bottom: 1.2em; opacity: 0.85; }
-        .markdown-body a { color: var(--accent-color); text-decoration: none !important; border-bottom: 1px solid rgba(127,127,127,0.2); padding: 0 2px; border-radius: 2px; transition: 0.2s; }
-        .markdown-body a:hover { background: rgba(127,127,127,0.05); border-bottom-color: var(--accent-color); }
-        .markdown-body img { max-width: 100%; height: auto; border-radius: 12px; margin: 1.5em auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        /* Updated Markdown Styles */
+        .markdown-body { line-height: 1.625; }
+        .markdown-body h1 { margin-top: 3rem; margin-bottom: 2rem; font-weight: 800; letter-spacing: -.025em; font-size: 2.25em; color: var(--accent-color); border-bottom: none; padding-bottom: 0; }
+        .markdown-body h2 { margin-top: 3rem; margin-bottom: 1rem; border-style: none; font-weight: 700; opacity: .9; font-size: 1.5em; border-bottom: none; padding-bottom: 0; }
+        .markdown-body h3 { margin-top: 2.5rem; margin-bottom: .75rem; font-weight: 700; opacity: .8; font-size: 1.25em; }
+        .markdown-body p { margin-bottom: 1.5rem; opacity: .8; }
+        .markdown-body a { border-bottom: 1px solid color-mix(in srgb, var(--accent-color), transparent 70%); font-weight: 500; color: var(--accent-color); text-decoration: none; transition: all 0.2s; padding: 0; border-radius: 0; }
+        .markdown-body a:hover { border-bottom-width: 2px; opacity: 1; border-bottom-color: var(--accent-color); background: none; }
+        .markdown-body blockquote { margin-top: 2rem; margin-bottom: 2rem; border-left: 4px solid var(--accent-color); padding: 1rem 0 1rem 1.5rem; font-style: italic; opacity: .6; }
+        .markdown-body blockquote p { margin-bottom: 0; }
+        .markdown-body pre { margin-top: 2rem; margin-bottom: 2rem; border-radius: 1rem; border: 1px solid rgba(100, 116, 139, 0.1); padding: 1.5rem; background: rgba(100, 116, 139, 0.05); overflow-x: auto; }
+        .markdown-body ul { margin-bottom: 1.5rem; list-style-type: disc; padding-left: 1.5rem; }
+        .markdown-body ol { margin-bottom: 1.5rem; list-style-type: decimal; padding-left: 1.5rem; }
+        .markdown-body li { line-height: 1.625; opacity: .9; }
+        .markdown-body li > ul, .markdown-body li > ol { margin-top: 0; margin-bottom: 0; }
+        .markdown-body li::marker { color: rgba(100, 116, 139, 0.5); }
+        .markdown-body li p { margin-bottom: 0; }
+        .markdown-body code:not(pre code) { border-radius: .375rem; background-color: rgba(100, 116, 139, 0.1); padding: .125rem .375rem; font-family: monospace; font-size: .9em; }
+        .markdown-body table { margin-bottom: 1.5rem; width: 100%; border-collapse: collapse; overflow: hidden; border-radius: .5rem; border: 1px solid var(--border); }
+        .markdown-body th, .markdown-body td { border-bottom: 1px solid rgba(100, 116, 139, 0.1); padding: .75rem; text-align: left; }
+        .markdown-body th { background-color: rgba(100, 116, 139, 0.05); font-weight: 700; }
+        .markdown-body img { max-width: 100%; height: auto; border-radius: 12px; margin: 2rem auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); }
 
         .t-btn { background: transparent; border: none; color: #64748b; padding: 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; transition: 0.2s; }
         .t-btn:hover { background: rgba(100, 116, 139, 0.1); }
@@ -68,8 +84,10 @@
         .toc-btn:hover { opacity: 1; transform: translateX(4px); }
 
         .hidden { display: none !important; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(127,127,127,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background-color: transparent; }
+        ::-webkit-scrollbar-thumb { border-radius: 9999px; background-color: rgba(100, 116, 139, 0.2); transition: background-color 0.15s; }
+        ::-webkit-scrollbar-thumb:hover { background-color: rgba(100, 116, 139, 0.4); }
     </style>
 </head>
 <body class="theme-dim font-serif">
@@ -136,6 +154,8 @@
                 </div>
                 <div id="font-family-grid" style="display:flex; gap:4px; margin-bottom:16px;"></div>
                 
+                <button onclick="resetSettings()" style="width:100%; background:rgba(255,0,0,0.1); color:#ff6b6b; border:none; padding:10px; border-radius:12px; cursor:pointer; font-size:9px; font-weight:900; margin-bottom:16px; transition:0.2s;" onmouseover="this.style.background='rgba(255,0,0,0.2)'" onmouseout="this.style.background='rgba(255,0,0,0.1)'">RESET ALL SETTINGS</button>
+
                 <div style="background:rgba(127,127,127,0.05); padding:12px; border-radius:12px; text-align:center;">
                     <span style="font-size:9px; font-weight:800; opacity:0.5; display:flex; align-items:center; justify-content:center; gap:4px; margin-bottom:4px;">PWA Ready</span>
                     <p style="font-size:8px; opacity:0.3; line-height:1.3;">Add to Dock or Home Screen for offline use.</p>
@@ -167,10 +187,50 @@
 
     <script>
         const ACCENTS = { blue:{dark:'#89b4fa', light:'#1e66f5'}, green:{dark:'#a6e3a1', light:'#40a02b'}, mauve:{dark:'#cba6f7', light:'#8839ef'}, pink:{dark:'#f2cdcd', light:'#d20f39'}, red:{dark:'#f38ba8', light:'#d20f39'}, peach:{dark:'#fab387', light:'#fe640b'} };
-        const state = { md:'', fileName:'Opening.md', mode:'reading', theme:localStorage.getItem('theme')||'dim', accentKey:localStorage.getItem('accentKey')||'pink', fontSize:parseInt(localStorage.getItem('size'))||16, fontFamily:localStorage.getItem('font')||'serif', showLinkTypes:localStorage.getItem('linkTypes')==='true', isDirty:false, showSettings:false, showTOC:false, splitWidth: 50, assetMap: new Map(), fileHandle: null };
+        
+        const state = { md:'', fileName:'Opening.md', mode:'reading', theme:localStorage.getItem('theme')||'light', accentKey:localStorage.getItem('accentKey')||'blue', fontSize:parseInt(localStorage.getItem('size'))||16, fontFamily:localStorage.getItem('font')||'sans', showLinkTypes:localStorage.getItem('linkTypes')==='true', isDirty:false, showSettings:false, showTOC:false, splitWidth: 50, assetMap: new Map(), fileHandle: null, mainFileFound: false };
 
         // Global variables to be initialized after DOM load
         let editor, preview, editorContainer, resizer;
+
+        window.loadLocalFile = async (name) => {
+            let blobUrl = state.assetMap.get(name);
+            if (!blobUrl) {
+                const fileNameOnly = name.split('/').pop();
+                blobUrl = state.assetMap.get(fileNameOnly);
+            }
+            if (blobUrl) {
+                const res = await fetch(blobUrl);
+                state.md = await res.text();
+                state.fileName = name;
+                if(editor) editor.value = state.md;
+                state.isDirty = false;
+                state.mode = 'reading';
+                updateUI();
+            }
+        };
+
+        window.getAsset = (path) => {
+            if (!path) return '';
+            let p = path.replace(/^\.\//, '');
+            if (p.startsWith('http') || p.startsWith('blob:')) return p;
+            
+            const decodedP = decodeURIComponent(p);
+            const fileName = p.split('/').pop();
+            const decodedFileName = decodeURIComponent(fileName);
+            
+            for (let [key, val] of state.assetMap) {
+                const cleanKey = key.replace(/^\.\//, '');
+                if (cleanKey === p || cleanKey === decodedP || 
+                    key === p || key === decodedP ||
+                    cleanKey.endsWith('/' + p) || key.endsWith('/' + p) ||
+                    cleanKey === fileName || cleanKey === decodedFileName ||
+                    key === fileName || key === decodedFileName) {
+                    return val;
+                }
+            }
+            return path;
+        };
 
         function updateUI() {
             if (!editor) return;
@@ -218,16 +278,34 @@
                 let href = typeof arg1 === 'object' ? arg1.href : arg1;
                 let text = typeof arg1 === 'object' ? arg1.text : arg3;
                 if (!href) return '';
-                const fileNameOnly = href.split('/').pop();
-                let src = state.assetMap.get(href) || state.assetMap.get(fileNameOnly) || href;
-                return `<img src="${src}" alt="${text || ''}" onerror="this.onerror=null; this.src='${href}';" />`;
+                let src = getAsset(href);
+                return `<img src="${src}" alt="${text || ''}" style="max-width:100%; height:auto; border-radius:12px; margin:2rem auto; display:block; box-shadow:0 10px 30px rgba(0,0,0,0.1); border:1px solid var(--border);" />`;
             };
             renderer.link = (arg1, arg2, arg3) => {
                 let href = typeof arg1 === 'object' ? arg1.href : arg1;
                 let text = typeof arg1 === 'object' ? arg1.text : arg3;
-                let linkClass = state.showLinkTypes ? (href.startsWith('#')?'link-anchor':(href.match(/\.(md|txt|pdf)$/i)?'link-file':(href.match(/\.(jpg|png|svg)$/i)?'link-image':'link-web'))) : '';
-                let onclick = href.startsWith('#') ? `event.preventDefault(); document.getElementById('${href.substring(1).toLowerCase().replace(/[^\w]+/g, '-')}').scrollIntoView({behavior:'smooth'});` : '';
-                return `<a href="${href}" onclick="${onclick}" class="${linkClass}">${text}</a>`;
+                
+                if (href.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
+                    let src = getAsset(href);
+                    return `<img src="${src}" alt="${text || ''}" style="max-width:100%; height:auto; border-radius:12px; margin:2rem auto; display:block; box-shadow:0 10px 30px rgba(0,0,0,0.1); border:1px solid var(--border);" />`;
+                }
+
+                if (href.startsWith('#')) {
+                    const targetId = href.substring(1).toLowerCase().replace(/[^\w]+/g, '-');
+                    return `<a href="${href}" onclick="event.preventDefault(); document.getElementById('${targetId}')?.scrollIntoView({behavior:'smooth'});" class="link-anchor">${text}</a>`;
+                }
+
+                if (href.match(/\.(md|markdown)$/i)) {
+                    const fileName = href.split('/').pop();
+                    if (state.assetMap.has(fileName) || state.assetMap.has(href)) {
+                        return `<a href="#" onclick="event.preventDefault(); loadLocalFile('${href}');" class="link-file">${text}</a>`;
+                    }
+                }
+
+                const isWeb = href.startsWith('http');
+                const target = isWeb ? ' target="_blank" rel="noopener noreferrer"' : '';
+                const linkClass = state.showLinkTypes ? (isWeb ? 'link-web' : 'link-file') : '';
+                return `<a href="${href}"${target} class="${linkClass}">${text}</a>`;
             };
             marked.setOptions({ renderer });
             preview.innerHTML = marked.parse(state.md);
@@ -245,27 +323,89 @@
         window.toggleSettings = () => { state.showSettings = !state.showSettings; if(state.showSettings) state.showTOC=false; updateUI(); };
         window.toggleTOC = () => { state.showTOC = !state.showTOC; if(state.showTOC) state.showSettings=false; updateUI(); };
         window.toggleLinkTypes = () => { state.showLinkTypes = !state.showLinkTypes; localStorage.setItem('linkTypes', state.showLinkTypes); updateUI(); };
+        
+        window.resetSettings = () => {
+            if(confirm('Reset all settings to default?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        };
+
         window.insertText = (b,a='') => { if(!editor) return; const s=editor.selectionStart, e=editor.selectionEnd; state.md=state.md.substring(0,s)+b+state.md.substring(s,e)+a+state.md.substring(e); editor.value=state.md; state.isDirty=true; updateUI(); };
         window.insertTable = () => insertText('\n| Col 1 | Col 2 |\n| --- | --- |\n| Item 1 | Item 2 |');
         
-        window.openFile = () => {
-            const i = document.createElement('input'); i.type = 'file'; i.webkitdirectory = true;
-            i.onchange = async e => {
-                const files = Array.from(e.target.files);
-                state.assetMap.clear();
-                let mainMd = null;
-                for (const f of files) {
-                    const blobUrl = URL.createObjectURL(f);
-                    state.assetMap.set(f.webkitRelativePath, blobUrl);
-                    state.assetMap.set(f.name, blobUrl);
-                    if (f.name.endsWith('.md')) if (!mainMd || f.name.toLowerCase() === 'readme.md') mainMd = f;
-                }
-                if (mainMd) { state.md = await mainMd.text(); state.fileName = mainMd.webkitRelativePath || mainMd.name; if(editor) editor.value = state.md; state.isDirty = false; updateUI(); }
-            };
-            i.click();
+        window.openFile = async () => {
+            if (window.showOpenFilePicker) {
+                try {
+                    const handles = await window.showOpenFilePicker({
+                        multiple: true,
+                        types: [{
+                            description: 'Markdown Files',
+                            accept: { 
+                                'text/markdown': ['.md', '.markdown'],
+                                'text/plain': ['.md', '.markdown']
+                            }
+                        }]
+                    });
+                    state.assetMap.clear();
+                    state.mainFileFound = false;
+                    let mainMd = null;
+                    for (const h of handles) {
+                        const f = await h.getFile();
+                        const blobUrl = URL.createObjectURL(f);
+                        state.assetMap.set(f.name, blobUrl);
+                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) {
+                            if (!mainMd || f.name.toLowerCase() === 'readme.md') {
+                                mainMd = f;
+                                state.fileHandle = h;
+                            }
+                        }
+                    }
+                    if (mainMd) {
+                        state.md = await mainMd.text();
+                        state.fileName = mainMd.name;
+                        if(editor) editor.value = state.md;
+                        state.isDirty = false;
+                        updateUI();
+                    }
+                } catch (e) {}
+            } else {
+                const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.accept = '.md,.markdown,text/markdown,text/plain';
+                i.onchange = async e => {
+                    const files = Array.from(e.target.files);
+                    if (files.length === 0) return;
+                    state.assetMap.clear();
+                    state.mainFileFound = false;
+                    let mainMd = null;
+                    for (const f of files) {
+                        const blobUrl = URL.createObjectURL(f);
+                        state.assetMap.set(f.name, blobUrl);
+                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) {
+                            if (!mainMd || f.name.toLowerCase() === 'readme.md') mainMd = f;
+                        }
+                    }
+                    if (mainMd) {
+                        state.md = await mainMd.text();
+                        state.fileName = mainMd.name;
+                        if(editor) editor.value = state.md;
+                        state.isDirty = false;
+                        state.fileHandle = null;
+                        updateUI();
+                    }
+                };
+                i.click();
+            }
         };
 
-        window.newFile = () => { state.md = '# New File\n'; state.fileName = 'Untitled.md'; state.isDirty = false; state.mode = 'editing'; if(editor) editor.value = state.md; updateUI(); };
+        window.newFile = () => { 
+            state.md = '# New File\n'; 
+            state.fileName = 'Untitled.md'; 
+            state.fileHandle = null;
+            state.isDirty = false; 
+            state.mode = 'editing'; 
+            if(editor) editor.value = state.md; 
+            updateUI(); 
+        };
 
         window.saveFile = async () => {
             if (state.fileHandle) {
@@ -275,42 +415,77 @@
                     await writable.close();
                     state.isDirty = false; state.mode = 'reading'; updateUI();
                     return;
-                } catch (e) {}
+                } catch (e) {
+                    return window.saveFileAs();
+                }
+            } else {
+                return window.saveFileAs();
             }
-            const b = new Blob([state.md], {type: 'text/markdown'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = state.fileName.split('/').pop();
-            a.click(); state.isDirty = false; state.mode = 'reading'; updateUI();
         };
 
         window.saveFileAs = async () => {
             if (window.showSaveFilePicker) {
                 try {
-                    const h = await window.showSaveFilePicker({ suggestedName: state.fileName.split('/').pop() });
+                    let suggestedName = state.fileName.split('/').pop();
+                    if (!suggestedName.toLowerCase().endsWith('.md') && !suggestedName.toLowerCase().endsWith('.markdown')) {
+                        suggestedName += '.md';
+                    }
+                    const h = await window.showSaveFilePicker({ 
+                        suggestedName: suggestedName,
+                        types: [{
+                            description: 'Markdown Files',
+                            accept: { 'text/markdown': ['.md', '.markdown'] }
+                        }]
+                    });
                     const w = await h.createWritable();
                     await w.write(state.md); await w.close();
-                    state.fileName = h.name; state.fileHandle = h; state.isDirty = false; updateUI();
+                    state.fileName = h.name; state.fileHandle = h; state.isDirty = false; state.mode = 'reading'; updateUI();
                 } catch (e) {}
-            } else { saveFile(); }
+            } else {
+                const b = new Blob([state.md], {type: 'text/markdown'});
+                const a = document.createElement('a');
+                let downloadName = state.fileName.split('/').pop();
+                if (!downloadName.toLowerCase().endsWith('.md') && !downloadName.toLowerCase().endsWith('.markdown')) {
+                    downloadName += '.md';
+                }
+                a.href = URL.createObjectURL(b); 
+                a.download = downloadName;
+                a.click(); state.isDirty = false; state.mode = 'reading'; updateUI();
+            }
         };
 
         async function readEntry(entry, path = '') {
-            if (entry.isFile) {
-                const file = await new Promise(res => entry.file(res));
-                const fullPath = path + entry.name;
-                const blobUrl = URL.createObjectURL(file);
-                state.assetMap.set(fullPath, blobUrl);
-                state.assetMap.set(entry.name, blobUrl);
-                if (file.name.endsWith('.md') && (!state.md || file.name.toLowerCase() === 'readme.md')) {
-                    state.md = await file.text(); state.fileName = fullPath; if(editor) editor.value = state.md;
+            try {
+                if (entry.isFile) {
+                    const file = await new Promise((res, rej) => entry.file(res, rej));
+                    const fullPath = (path + entry.name).replace(/^\//, '');
+                    const blobUrl = URL.createObjectURL(file);
+                    state.assetMap.set(fullPath, blobUrl);
+                    state.assetMap.set(entry.name, blobUrl);
+                    
+                    if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
+                        if (!state.mainFileFound || file.name.toLowerCase() === 'readme.md') {
+                            state.md = await file.text();
+                            state.fileName = fullPath;
+                            if(editor) editor.value = state.md;
+                            state.isDirty = false;
+                            state.mainFileFound = true;
+                        }
+                    }
+                } else if (entry.isDirectory) {
+                    const reader = entry.createReader();
+                    const readAllEntries = async () => {
+                        const entries = await new Promise((res, rej) => reader.readEntries(res, rej));
+                        if (entries.length > 0) {
+                            for (const e of entries) await readEntry(e, path + entry.name + '/');
+                            await readAllEntries(); // Read next batch
+                        }
+                    };
+                    await readAllEntries();
                 }
-            } else if (entry.isDirectory) {
-                const reader = entry.createReader();
-                const entries = await new Promise(res => reader.readEntries(res));
-                for (const e of entries) await readEntry(e, path + entry.name + '/');
-            }
+            } catch (err) {}
         }
 
-        // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
             editor = document.getElementById('editor');
             preview = document.getElementById('preview');
@@ -321,35 +496,80 @@
                 editor.oninput = () => { state.md = editor.value; state.isDirty = true; updateUI(); };
             }
 
-            // Resizing logic
             let isResizing = false;
             resizer.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'col-resize'; resizer.classList.add('resizing'); });
             window.addEventListener('mousemove', e => { if (!isResizing) return; const w = (e.clientX / window.innerWidth) * 100; if (w > 20 && w < 80) { state.splitWidth = w; editorContainer.style.width = w + '%'; }});
             window.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = 'default'; resizer.classList.remove('resizing'); });
 
-            // Drag and Drop
-            window.addEventListener('dragover', e => { e.preventDefault(); document.getElementById('root').style.boxShadow = "inset 0 -100px 100px -50px var(--accent-color)"; });
+            window.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); document.getElementById('root').style.boxShadow = "inset 0 -100px 100px -50px var(--accent-color)"; });
+            window.addEventListener('dragenter', e => { e.preventDefault(); e.stopPropagation(); });
             window.addEventListener('dragleave', () => document.getElementById('root').style.boxShadow = "none");
             window.addEventListener('drop', async e => {
-                e.preventDefault(); document.getElementById('root').style.boxShadow = "none"; state.assetMap.clear();
-                const items = e.dataTransfer.items;
-                for (let i=0; i<items.length; i++) {
-                    const entry = items[i].webkitGetAsEntry();
-                    if (entry) await readEntry(entry);
+                e.preventDefault(); 
+                e.stopPropagation();
+                document.getElementById('root').style.boxShadow = "none"; 
+                state.assetMap.clear();
+                state.mainFileFound = false;
+                state.fileHandle = null;
+
+                const items = e.dataTransfer.items ? Array.from(e.dataTransfer.items) : [];
+                const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+                
+                for (const item of items) {
+                    if (item.kind === 'file' && item.getAsFileSystemHandle) {
+                        try {
+                            const handle = await item.getAsFileSystemHandle();
+                            if (handle && handle.kind === 'file' && (handle.name.endsWith('.md') || handle.name.endsWith('.markdown'))) {
+                                if (!state.fileHandle || handle.name.toLowerCase() === 'readme.md') {
+                                    state.fileHandle = handle;
+                                }
+                            }
+                        } catch(err) {}
+                    }
+                }
+
+                if (items.length > 0 && items[0].webkitGetAsEntry) {
+                    for (const item of items) {
+                        const entry = item.webkitGetAsEntry();
+                        if (entry) await readEntry(entry);
+                    }
+                }
+
+                if (!state.mainFileFound && files.length > 0) {
+                    for (const f of files) {
+                        const blobUrl = URL.createObjectURL(f);
+                        state.assetMap.set(f.name, blobUrl);
+                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) {
+                            if (!state.mainFileFound || f.name.toLowerCase() === 'readme.md') {
+                                try {
+                                    state.md = await f.text();
+                                    state.fileName = f.name;
+                                    if(editor) editor.value = state.md;
+                                    state.isDirty = false;
+                                    state.mainFileFound = true;
+                                } catch(err) {}
+                            }
+                        }
+                    }
+                }
+
+                if (state.mainFileFound) {
+                    state.mode = 'reading';
                 }
                 updateUI();
             });
 
-            // Keyboard Shortcuts
             window.addEventListener('keydown', e => {
                 const isCmd = e.metaKey || e.ctrlKey;
-                if (isCmd && e.key === 'Enter') { e.preventDefault(); if(state.mode==='editing'&&state.isDirty) saveFile(); else setMode(state.mode==='reading'?'editing':'reading'); }
+                if (isCmd && e.key === 'Enter') { 
+                    e.preventDefault(); 
+                    setMode(state.mode === 'reading' ? 'editing' : 'reading'); 
+                }
                 if (isCmd && !e.shiftKey && e.key === 's') { e.preventDefault(); saveFile(); }
                 if (isCmd && e.shiftKey && e.key === 's') { e.preventDefault(); saveFileAs(); }
                 if (isCmd && e.key === 'o') { e.preventDefault(); openFile(); }
             });
 
-            // Load Initial Content
             (async () => {
                 try {
                     const r = await fetch('Opening.md');
