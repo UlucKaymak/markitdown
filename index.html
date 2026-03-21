@@ -115,7 +115,7 @@
     <script>
         const ACCENTS = { blue:{dark:'#89b4fa', light:'#1e66f5'}, green:{dark:'#a6e3a1', light:'#40a02b'}, mauve:{dark:'#cba6f7', light:'#8839ef'}, pink:{dark:'#f2cdcd', light:'#d20f39'}, red:{dark:'#f38ba8', light:'#d20f39'}, peach:{dark:'#fab387', light:'#fe640b'} };
         
-        const state = { md:'', fileName:'Opening.md', mode:'reading', theme:localStorage.getItem('theme')||'light', accentKey:localStorage.getItem('accentKey')||'blue', fontSize:parseInt(localStorage.getItem('size'))||16, fontFamily:localStorage.getItem('font')||'sans', showLinkTypes:localStorage.getItem('linkTypes')==='true', isDirty:false, showSettings:false, showTOC:false, splitWidth: 50, assetMap: new Map(), fileHandle: null, mainFileFound: false, version: '0.0.26' };
+        const state = { md:'', fileName:'Opening.md', mode:'reading', theme:localStorage.getItem('theme')||'light', accentKey:localStorage.getItem('accentKey')||'blue', fontSize:parseInt(localStorage.getItem('size'))||16, fontFamily:localStorage.getItem('font')||'sans', showLinkTypes:localStorage.getItem('linkTypes')==='true', isDirty:false, showSettings:false, showTOC:false, splitWidth: 50, assetMap: new Map(), fileHandle: null, mainFileFound: false, version: '0.0.28', isSync: false };
 
         let editor, preview, editorContainer, resizer;
 
@@ -245,10 +245,25 @@
 
             const headers = Array.from(new DOMParser().parseFromString(marked.parse(state.md), 'text/html').querySelectorAll('h1, h2, h3'));
             document.getElementById('toc-content').innerHTML = headers.length ? headers.map(h => `<button onclick="document.getElementById('${String(h.innerText).toLowerCase().replace(/[^\w]+/g, '-')}').scrollIntoView({behavior:'smooth'});" class="toc-btn" style="padding-left:${h.tagName==='H1'?'0':h.tagName==='H2'?'12px':'24px'}">${h.innerText}</button>`).join('') : '<div style="font-size:10px; opacity:0.3;">No headers found</div>';
-            ['editing', 'split', 'sync', 'reading'].forEach(m => { const b = document.getElementById('btn-'+m); if(b) b.classList.toggle('active', state.mode===m || (m==='reading'&&state.mode==='reading')); });
+            
+            ['editing', 'split', 'reading'].forEach(m => { const b = document.getElementById('btn-'+m); if(b) b.classList.toggle('active', state.mode===m); });
+            const sBtn = document.getElementById('btn-sync');
+            if(sBtn) {
+                sBtn.classList.toggle('active', state.isSync);
+                sBtn.style.opacity = state.mode === 'split' ? '1' : '0.3';
+            }
         }
 
-        window.setMode = m => { state.mode = m; updateUI(); };
+        window.setMode = m => { 
+            if (m === 'sync') {
+                state.isSync = !state.isSync;
+                if (state.isSync) state.mode = 'split';
+            } else {
+                state.mode = m;
+                if (m !== 'split') state.isSync = false;
+            }
+            updateUI(); 
+        };
         window.setAccent = k => { state.accentKey = k; localStorage.setItem('accentKey', k); updateUI(); };
         window.setFont = f => { state.fontFamily = f; localStorage.setItem('font', f); updateUI(); };
         window.changeFontSize = d => { state.fontSize = Math.max(12, Math.min(32, state.fontSize + d)); localStorage.setItem('size', state.fontSize); updateUI(); };
@@ -331,6 +346,26 @@
             resizer.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'col-resize'; resizer.classList.add('resizing'); });
             window.addEventListener('mousemove', e => { if (!isResizing) return; const w = (e.clientX / window.innerWidth) * 100; if (w > 20 && w < 80) { state.splitWidth = w; editorContainer.style.width = w + '%'; }});
             window.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = 'default'; resizer.classList.remove('resizing'); });
+
+            // Sync Scroll logic
+            const previewContainer = document.getElementById('preview-container');
+            let isSyncingEditor = false;
+            let isSyncingPreview = false;
+
+            editor.addEventListener('scroll', () => {
+                if (!state.isSync || isSyncingEditor) { isSyncingEditor = false; return; }
+                isSyncingPreview = true;
+                const percentage = editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
+                previewContainer.scrollTop = percentage * (previewContainer.scrollHeight - previewContainer.clientHeight);
+            });
+
+            previewContainer.addEventListener('scroll', () => {
+                if (!state.isSync || isSyncingPreview) { isSyncingPreview = false; return; }
+                isSyncingEditor = true;
+                const percentage = previewContainer.scrollTop / (previewContainer.scrollHeight - previewContainer.clientHeight);
+                editor.scrollTop = percentage * (editor.scrollHeight - editor.clientHeight);
+            });
+
             window.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); document.getElementById('root').style.boxShadow = "inset 0 -100px 100px -50px var(--accent-color)"; });
             window.addEventListener('dragenter', e => { e.preventDefault(); e.stopPropagation(); });
             window.addEventListener('dragleave', () => document.getElementById('root').style.boxShadow = "none");
