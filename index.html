@@ -5,6 +5,8 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>mark it down</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e1e2e">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -569,17 +571,24 @@
                 if (isCmd && e.shiftKey && e.key === 's') { e.preventDefault(); saveFileAs(); }
                 if (isCmd && e.key === 'o') { e.preventDefault(); openFile(); }
             });
+// Load Initial Content
+(async () => {
+    try {
+        const r = await fetch('Opening.md');
+        if (r.ok) state.md = await r.text();
+        else state.md = '# mark it down';
+    } catch (e) { state.md = '# mark it down'; }
+    if(editor) editor.value = state.md;
+    updateUI();
+})();
 
-            (async () => {
-                try {
-                    const r = await fetch('Opening.md');
-                    if (r.ok) state.md = await r.text();
-                    else state.md = '# mark it down';
-                } catch (e) { state.md = '# mark it down'; }
-                if(editor) editor.value = state.md;
-                updateUI();
-            })();
-        });
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
+    });
+}
+});
     </script>
 </body>
 </html>
