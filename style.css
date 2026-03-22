@@ -1,14 +1,13 @@
 :root { --accent-color: #f2cdcd; --bg: #3a3a3a; --text: #f2f2f2; --border: #5a5a5a; --toolbar: #2a2a2a; --panel-bg: #4a4a4a; }
 .theme-light { --bg: #eff1f5; --text: #4c4f69; --border: #bac2de; --toolbar: #e6e9ef; --panel-bg: #eff1f5; }
-.theme-dark { --bg: #1e1e2e; --text: #cdd6f4; --border: #313244; --toolbar: #181825; --panel-bg: #181825; }
+.theme-dark { --bg: #121212; --text: #b0b0b0; --border: #242424; --toolbar: #0a0a0a; --panel-bg: #181818; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; transition: 0.3s; -webkit-font-smoothing: antialiased; }
 
 .font-sans { font-family: 'Roboto', sans-serif; }
-.font-serif { font-family: 'Libre Baskerville', serif; }
-.font-other { font-family: 'Caveat', cursive; }
-.font-mono { font-family: 'Fira Code', monospace; }
+.font-serif { font-family: 'Libre Baskerville', serif; letter-spacing: -0.02em; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
 
 #root { height: 100%; display: flex; flex-direction: column; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 header, footer { border-color: var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; z-index: 50; }

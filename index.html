@@ -10,7 +10,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -113,7 +113,12 @@
     </div>
 
     <script>
-        const ACCENTS = { blue:{dark:'#89b4fa', light:'#1e66f5'}, green:{dark:'#a6e3a1', light:'#40a02b'}, mauve:{dark:'#cba6f7', light:'#8839ef'}, pink:{dark:'#f2cdcd', light:'#d20f39'}, red:{dark:'#f38ba8', light:'#d20f39'}, peach:{dark:'#fab387', light:'#fe640b'} };
+        const ACCENTS = { 
+            blue:  { dark:'#89b4fa', light:'#1e66f5', bgDark:'#0d0f16', borderDark:'#1b1e28', toolbarDark:'#08090d' },
+            green: { dark:'#a6e3a1', light:'#40a02b', bgDark:'#0d110d', borderDark:'#1b221b', toolbarDark:'#080a08' },
+            mauve: { dark:'#cba6f7', light:'#8839ef', bgDark:'#110d16', borderDark:'#201b2a', toolbarDark:'#0a080d' },
+            red:   { dark:'#f38ba8', light:'#d20f39', bgDark:'#140d0d', borderDark:'#281b1b', toolbarDark:'#0b0808' }
+        };
         
         const state = { md:'', fileName:'Opening.md', mode:'reading', theme:localStorage.getItem('theme')||'light', accentKey:localStorage.getItem('accentKey')||'blue', fontSize:parseInt(localStorage.getItem('size'))||16, fontFamily:localStorage.getItem('font')||'sans', showLinkTypes:localStorage.getItem('linkTypes')==='true', isDirty:false, showSettings:false, showTOC:false, splitWidth: 50, assetMap: new Map(), fileHandle: null, mainFileFound: false, version: '0.0.28', isSync: false };
 
@@ -165,9 +170,23 @@
         function updateUI() {
             if (!editor) return;
             const isSplit = state.mode === 'split' || state.mode === 'sync';
-            const accentHex = state.theme === 'light' ? ACCENTS[state.accentKey].light : ACCENTS[state.accentKey].dark;
+            const accent = ACCENTS[state.accentKey];
+            const accentHex = state.theme === 'light' ? accent.light : accent.dark;
             
             document.body.className = `theme-${state.theme} font-${state.fontFamily}`;
+            const body = document.body;
+            if (state.theme === 'dark') {
+                body.style.setProperty('--bg', accent.bgDark);
+                body.style.setProperty('--border', accent.borderDark);
+                body.style.setProperty('--toolbar', accent.toolbarDark);
+                body.style.setProperty('--panel-bg', accent.bgDark);
+            } else {
+                body.style.removeProperty('--bg');
+                body.style.removeProperty('--border');
+                body.style.removeProperty('--toolbar');
+                body.style.removeProperty('--panel-bg');
+            }
+
             document.getElementById('toolbar').classList.toggle('hidden', state.mode === 'reading');
             editorContainer.classList.toggle('hidden', state.mode === 'reading');
             document.getElementById('preview-container').classList.toggle('hidden', state.mode === 'editing');
@@ -192,9 +211,9 @@
             fa.innerHTML = state.mode === 'reading' ? `<button onclick="setMode('editing')" style="color:var(--accent-color); background:none; border:none; cursor:pointer; font:inherit;">EDIT</button>` : `<button onclick="saveFile()" style="color:var(--accent-color); background:none; border:none; cursor:pointer; font:inherit;">SAVE</button>`;
 
             document.getElementById('accent-grid').innerHTML = Object.keys(ACCENTS).map(k => `<div onclick="setAccent('${k}')" class="dot ${state.accentKey===k?'active':''}" style="background:${state.theme==='light'?ACCENTS[k].light:ACCENTS[k].dark}"></div>`).join('');
-            document.getElementById('font-family-grid').innerHTML = ['sans', 'serif', 'other', 'mono'].map(f => `<button onclick="setFont('${f}')" style="flex:1; background:${state.fontFamily===f?'var(--accent-color)':'rgba(0,0,0,0.1)'}; color:${state.fontFamily===f?'white':'inherit'}; border:none; padding:6px; border-radius:8px; cursor:pointer; font-size:9px; font-weight:900;">${f.toUpperCase()}</button>`).join('');
+            document.getElementById('font-family-grid').innerHTML = ['sans', 'serif', 'mono'].map(f => `<button onclick="setFont('${f}')" style="flex:1; background:${state.fontFamily===f?'var(--accent-color)':'rgba(0,0,0,0.1)'}; color:${state.fontFamily===f?'white':'inherit'}; border:none; padding:6px; border-radius:8px; cursor:pointer; font-size:9px; font-weight:900;">${f.toUpperCase()}</button>`).join('');
 
-            const scales = { sans: 1.0, serif: 1.0, other: 1.25, mono: 1.0 };
+            const scales = { sans: 1.0, serif: 1.0, mono: 1.0 };
             const visualSize = state.fontSize * (scales[state.fontFamily] || 1.0);
             editor.style.fontSize = visualSize + 'px';
             preview.style.fontSize = visualSize + 'px';
@@ -389,6 +408,33 @@
                 if(editor) editor.value = state.md; updateUI();
             })();
             if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err)); }); }
+
+            if ('launchQueue' in window) {
+                window.launchQueue.setConsumer(async (launchParams) => {
+                    if (launchParams.files && launchParams.files.length) {
+                        state.assetMap.clear(); state.mainFileFound = false;
+                        for (const handle of launchParams.files) {
+                            const file = await handle.getFile();
+                            const blobUrl = URL.createObjectURL(file);
+                            state.assetMap.set(file.name, blobUrl);
+                            const isMd = file.name.endsWith('.md') || file.name.endsWith('.markdown');
+                            const isTxt = file.name.endsWith('.txt');
+                            if (isMd || isTxt) {
+                                if (!state.mainFileFound || file.name.toLowerCase() === 'readme.md') {
+                                    state.md = await file.text();
+                                    state.fileName = file.name;
+                                    state.fileHandle = handle;
+                                    if(editor) editor.value = state.md;
+                                    state.isDirty = false;
+                                    state.mainFileFound = true;
+                                }
+                            }
+                        }
+                        if (state.mainFileFound) state.mode = 'reading';
+                        updateUI();
+                    }
+                });
+            }
         });
     </script>
 </body>
