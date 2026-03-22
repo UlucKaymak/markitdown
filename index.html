@@ -294,27 +294,29 @@
         window.insertText = (b,a='') => { if(!editor) return; const s=editor.selectionStart, e=editor.selectionEnd; state.md=state.md.substring(0,s)+b+state.md.substring(s,e)+a+state.md.substring(e); editor.value=state.md; state.isDirty=true; updateUI(); };
         window.insertTable = () => insertText('\n| Col 1 | Col 2 |\n| --- | --- |\n| Item 1 | Item 2 |');
         
+        const isMarkdownFile = (name) => /\.(md|markdown|mdown|mkdn|mdwn|mkd|rmd|text)$/i.test(name);
+
         window.openFile = async () => {
             if (window.showOpenFilePicker) {
                 try {
-                    const handles = await window.showOpenFilePicker({ multiple: true, types: [{ description: 'Markdown Files', accept: { 'text/markdown': ['.md', '.markdown'], 'text/plain': ['.md', '.markdown'] } }] });
+                    const handles = await window.showOpenFilePicker({ multiple: true, types: [{ description: 'Markdown Files', accept: { 'text/markdown': ['.md', '.markdown', '.mdown', '.mkdn', '.mdwn', '.mkd', '.rmd', '.text'], 'text/plain': ['.md', '.markdown', '.txt'] } }] });
                     state.assetMap.clear(); state.mainFileFound = false;
                     let mainMd = null;
                     for (const h of handles) {
                         const f = await h.getFile(); const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl);
-                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) { if (!mainMd || f.name.toLowerCase() === 'readme.md') { mainMd = f; state.fileHandle = h; } }
+                        if (isMarkdownFile(f.name)) { if (!mainMd || f.name.toLowerCase() === 'readme.md') { mainMd = f; state.fileHandle = h; } }
                     }
                     if (mainMd) { state.md = await mainMd.text(); state.fileName = mainMd.name; if(editor) editor.value = state.md; state.isDirty = false; updateUI(); }
                 } catch (e) {}
             } else {
-                const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.accept = '.md,.markdown,text/markdown,text/plain';
+                const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.accept = '.md,.markdown,.mdown,.mkdn,.mdwn,.mkd,.rmd,.text,text/markdown,text/plain';
                 i.onchange = async e => {
                     const files = Array.from(e.target.files); if (files.length === 0) return;
                     state.assetMap.clear(); state.mainFileFound = false;
                     let mainMd = null;
                     for (const f of files) {
                         const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl);
-                        if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) { if (!mainMd || f.name.toLowerCase() === 'readme.md') mainMd = f; }
+                        if (isMarkdownFile(f.name)) { if (!mainMd || f.name.toLowerCase() === 'readme.md') mainMd = f; }
                     }
                     if (mainMd) { state.md = await mainMd.text(); state.fileName = mainMd.name; if(editor) editor.value = state.md; state.isDirty = false; state.fileHandle = null; updateUI(); }
                 }; i.click();
@@ -349,7 +351,7 @@
             try {
                 if (entry.isFile) {
                     const file = await new Promise((res, rej) => entry.file(res, rej)); const fullPath = (path + entry.name).replace(/^\//, ''); const blobUrl = URL.createObjectURL(file); state.assetMap.set(fullPath, blobUrl); state.assetMap.set(entry.name, blobUrl);
-                    if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) { if (!state.mainFileFound || file.name.toLowerCase() === 'readme.md') { state.md = await file.text(); state.fileName = fullPath; if(editor) editor.value = state.md; state.isDirty = false; state.mainFileFound = true; } }
+                    if (isMarkdownFile(file.name)) { if (!state.mainFileFound || file.name.toLowerCase() === 'readme.md') { state.md = await file.text(); state.fileName = fullPath; if(editor) editor.value = state.md; state.isDirty = false; state.mainFileFound = true; } }
                 } else if (entry.isDirectory) {
                     const reader = entry.createReader();
                     const readAllEntries = async () => { const entries = await new Promise((res, rej) => reader.readEntries(res, rej)); if (entries.length > 0) { for (const e of entries) await readEntry(e, path + entry.name + '/'); await readAllEntries(); } };
@@ -391,9 +393,9 @@
             window.addEventListener('drop', async e => {
                 e.preventDefault(); e.stopPropagation(); document.getElementById('root').style.boxShadow = "none"; state.assetMap.clear(); state.mainFileFound = false; state.fileHandle = null;
                 const items = e.dataTransfer.items ? Array.from(e.dataTransfer.items) : []; const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
-                for (const item of items) { if (item.kind === 'file' && item.getAsFileSystemHandle) { try { const handle = await item.getAsFileSystemHandle(); if (handle && handle.kind === 'file' && (handle.name.endsWith('.md') || handle.name.endsWith('.markdown'))) { if (!state.fileHandle || handle.name.toLowerCase() === 'readme.md') state.fileHandle = handle; } } catch(err) {} } }
+                for (const item of items) { if (item.kind === 'file' && item.getAsFileSystemHandle) { try { const handle = await item.getAsFileSystemHandle(); if (handle && handle.kind === 'file' && isMarkdownFile(handle.name)) { if (!state.fileHandle || handle.name.toLowerCase() === 'readme.md') state.fileHandle = handle; } } catch(err) {} } }
                 if (items.length > 0 && items[0].webkitGetAsEntry) { for (const item of items) { const entry = item.webkitGetAsEntry(); if (entry) await readEntry(entry); } }
-                if (!state.mainFileFound && files.length > 0) { for (const f of files) { const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl); if (f.name.endsWith('.md') || f.name.endsWith('.markdown')) { if (!state.mainFileFound || f.name.toLowerCase() === 'readme.md') { try { state.md = await f.text(); state.fileName = f.name; if(editor) editor.value = state.md; state.isDirty = false; state.mainFileFound = true; } catch(err) {} } } } }
+                if (!state.mainFileFound && files.length > 0) { for (const f of files) { const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl); if (isMarkdownFile(f.name)) { if (!state.mainFileFound || f.name.toLowerCase() === 'readme.md') { try { state.md = await f.text(); state.fileName = f.name; if(editor) editor.value = state.md; state.isDirty = false; state.mainFileFound = true; } catch(err) {} } } } }
                 if (state.mainFileFound) state.mode = 'reading'; updateUI();
             });
             window.addEventListener('keydown', e => {
@@ -403,10 +405,7 @@
                 if (isCmd && e.shiftKey && e.key === 's') { e.preventDefault(); saveFileAs(); }
                 if (isCmd && e.key === 'o') { e.preventDefault(); openFile(); }
             });
-            (async () => {
-                try { const r = await fetch('Opening.md'); if (r.ok) state.md = await r.text(); else state.md = '# mark it down'; } catch (e) { state.md = '# mark it down'; }
-                if(editor) editor.value = state.md; updateUI();
-            })();
+
             if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err)); }); }
 
             if ('launchQueue' in window) {
@@ -417,7 +416,7 @@
                             const file = await handle.getFile();
                             const blobUrl = URL.createObjectURL(file);
                             state.assetMap.set(file.name, blobUrl);
-                            const isMd = file.name.endsWith('.md') || file.name.endsWith('.markdown');
+                            const isMd = isMarkdownFile(file.name);
                             const isTxt = file.name.endsWith('.txt');
                             if (isMd || isTxt) {
                                 if (!state.mainFileFound || file.name.toLowerCase() === 'readme.md') {
@@ -435,6 +434,26 @@
                     }
                 });
             }
+
+            // Load default file if none was launched via OS
+            (async () => {
+                await new Promise(r => setTimeout(r, 100)); // Brief wait for launchQueue
+                if (state.mainFileFound) return;
+                try { 
+                    const r = await fetch('Opening.md'); 
+                    if (r.ok && !state.mainFileFound) {
+                        state.md = await r.text();
+                        if(editor) editor.value = state.md; 
+                        updateUI();
+                    }
+                } catch (e) { 
+                    if (!state.mainFileFound) {
+                        state.md = '# mark it down'; 
+                        if(editor) editor.value = state.md; 
+                        updateUI();
+                    }
+                }
+            })();
         });
     </script>
 </body>

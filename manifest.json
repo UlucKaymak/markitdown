@@ -23,10 +23,18 @@
   "file_handlers": [
     {
       "action": "./",
+      "name": "Markdown Document",
       "accept": {
-        "text/markdown": [".md", ".markdown"],
+        "text/markdown": [".md", ".markdown", ".mdown", ".mkdn", ".mdwn", ".mkd", ".rmd", ".text"],
         "text/plain": [".txt"]
-      }
+      },
+      "icons": [
+        {
+          "src": "favicon.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
