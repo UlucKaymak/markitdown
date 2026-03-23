@@ -326,7 +326,7 @@
         window.newFile = () => { state.md = '# New File\n'; state.fileName = 'Untitled.md'; state.fileHandle = null; state.isDirty = false; state.mode = 'editing'; if(editor) editor.value = state.md; updateUI(); };
         window.saveFile = async () => {
             if (state.fileHandle) {
-                try { const writable = await state.fileHandle.createWritable(); await writable.write(state.md); await writable.close(); state.isDirty = false; state.mode = 'reading'; updateUI(); return; } catch (e) { return window.saveFileAs(); }
+                try { const writable = await state.fileHandle.createWritable(); await writable.write(state.md); await writable.close(); state.isDirty = false; updateUI(); return; } catch (e) { return window.saveFileAs(); }
             } else { return window.saveFileAs(); }
         };
 
@@ -337,13 +337,13 @@
                     if (!suggestedName.toLowerCase().endsWith('.md') && !suggestedName.toLowerCase().endsWith('.markdown')) suggestedName += '.md';
                     const h = await window.showSaveFilePicker({ suggestedName: suggestedName, types: [{ description: 'Markdown Files', accept: { 'text/markdown': ['.md', '.markdown'] } }] });
                     const w = await h.createWritable(); await w.write(state.md); await w.close();
-                    state.fileName = h.name; state.fileHandle = h; state.isDirty = false; state.mode = 'reading'; updateUI();
+                    state.fileName = h.name; state.fileHandle = h; state.isDirty = false; updateUI();
                 } catch (e) {}
             } else {
                 const b = new Blob([state.md], {type: 'text/markdown'}); const a = document.createElement('a');
                 let downloadName = state.fileName.split('/').pop();
                 if (!downloadName.toLowerCase().endsWith('.md') && !downloadName.toLowerCase().endsWith('.markdown')) downloadName += '.md';
-                a.href = URL.createObjectURL(b); a.download = downloadName; a.click(); state.isDirty = false; state.mode = 'reading'; updateUI();
+                a.href = URL.createObjectURL(b); a.download = downloadName; a.click(); state.isDirty = false; updateUI();
             }
         };
 
