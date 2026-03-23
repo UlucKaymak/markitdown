@@ -18,6 +18,7 @@
             accentKey: localStorage.getItem('accentKey') || 'pink',
             fontSize: parseInt(localStorage.getItem('size')) || 16,
             fontFamily: localStorage.getItem('font') || 'serif',
+            textAlign: localStorage.getItem('textAlign') || 'left',
             showSettings: false,
             showTOC: false
         };
@@ -98,8 +99,12 @@
 
             // 4. Typography Size
             document.getElementById('font-val').innerText = fontSize + 'px';
+            if (document.getElementById('align-btn')) {
+                document.getElementById('align-btn').innerText = state.textAlign === 'justify' ? 'FULL BLOCK' : 'PLAIN';
+            }
             editor.style.fontSize = fontSize + 'px';
             preview.style.fontSize = fontSize + 'px';
+            preview.style.textAlign = state.textAlign;
             document.getElementById('file-info').innerText = `[${fileName}${isDirty ? ' *' : ''}]`;
             document.title = `mark it down - [${fileName}${isDirty ? ' *' : ''}]`;
             preview.innerHTML = marked.parse(state.md);
@@ -120,6 +125,7 @@
         window.setMode = (m) => { state.mode = m; updateUI(); };
         window.toggleSettings = () => { state.showSettings = !state.showSettings; updateUI(); };
         window.toggleTOC = () => { state.showTOC = !state.showTOC; updateUI(); };
+        window.toggleTextAlign = () => { state.textAlign = state.textAlign === 'left' ? 'justify' : 'left'; localStorage.setItem('textAlign', state.textAlign); updateUI(); };
         window.setAccent = (k) => { state.accentKey = k; localStorage.setItem('accentKey', k); updateUI(); };
         window.setFont = (f) => { state.fontFamily = f; localStorage.setItem('font', f); updateUI(); };
         window.changeFontSize = (d) => { state.fontSize = Math.max(12, Math.min(32, state.fontSize + d)); localStorage.setItem('size', state.fontSize); updateUI(); };

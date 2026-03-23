@@ -71,6 +71,11 @@
                 </div>
                 
                 <div class="row">
+                    <span>Alignment</span>
+                    <button onclick="toggleTextAlign()" id="align-btn" class="settings-btn"></button>
+                </div>
+                
+                <div class="row">
                     <span>Size</span>
                     <div style="display:flex; align-items:center; gap:12px;">
                         <button onclick="changeFontSize(-1)" style="border:none; background:none; color:inherit; cursor:pointer; font-size:14px; opacity:0.5;">-</button>
@@ -120,7 +125,7 @@
             red:   { dark:'#f38ba8', light:'#d20f39', bgDark:'#140d0d', borderDark:'#281b1b', toolbarDark:'#0b0808' }
         };
         
-        const state = { md:'', fileName:'Opening.md', mode:'reading', theme:localStorage.getItem('theme')||'light', accentKey:localStorage.getItem('accentKey')||'blue', fontSize:parseInt(localStorage.getItem('size'))||16, fontFamily:localStorage.getItem('font')||'sans', showLinkTypes:localStorage.getItem('linkTypes')==='true', isDirty:false, showSettings:false, showTOC:false, splitWidth: 50, assetMap: new Map(), fileHandle: null, mainFileFound: false, version: '0.0.28', isSync: false };
+        const state = { md:'', fileName:'Opening.md', mode:'reading', theme:localStorage.getItem('theme')||'light', accentKey:localStorage.getItem('accentKey')||'blue', fontSize:parseInt(localStorage.getItem('size'))||16, fontFamily:localStorage.getItem('font')||'sans', showLinkTypes:localStorage.getItem('linkTypes')==='true', textAlign:localStorage.getItem('textAlign')||'left', isDirty:false, showSettings:false, showTOC:false, splitWidth: 50, assetMap: new Map(), fileHandle: null, mainFileFound: false, version: '0.0.28', isSync: false };
 
         let editor, preview, editorContainer, resizer;
 
@@ -199,6 +204,7 @@
             document.querySelector('meta[name="theme-color"]').setAttribute('content', accentHex);
             document.getElementById('theme-display').innerText = state.theme + ' mode';
             document.getElementById('font-val').innerText = state.fontSize + 'px';
+            document.getElementById('align-btn').innerText = state.textAlign === 'justify' ? 'FULL BLOCK' : 'PLAIN';
             document.getElementById('file-info').innerText = `[${state.fileName}${state.isDirty?' *':''}]`;
             document.getElementById('mode-text').innerText = state.isDirty ? 'EDITING' : state.mode.toUpperCase();
             document.getElementById('link-types-btn').innerText = state.showLinkTypes ? 'VISIBLE' : 'OFF';
@@ -217,6 +223,7 @@
             const visualSize = state.fontSize * (scales[state.fontFamily] || 1.0);
             editor.style.fontSize = visualSize + 'px';
             preview.style.fontSize = visualSize + 'px';
+            preview.style.textAlign = state.textAlign;
             preview.style.maxWidth = (720 + (state.fontSize - 16) * 40) + 'px';
 
             const renderer = new marked.Renderer();
@@ -290,6 +297,7 @@
         window.toggleSettings = () => { state.showSettings = !state.showSettings; if(state.showSettings) state.showTOC=false; updateUI(); };
         window.toggleTOC = () => { state.showTOC = !state.showTOC; if(state.showTOC) state.showSettings=false; updateUI(); };
         window.toggleLinkTypes = () => { state.showLinkTypes = !state.showLinkTypes; localStorage.setItem('linkTypes', state.showLinkTypes); updateUI(); };
+        window.toggleTextAlign = () => { state.textAlign = state.textAlign === 'left' ? 'justify' : 'left'; localStorage.setItem('textAlign', state.textAlign); updateUI(); };
         window.resetSettings = () => { if(confirm('Reset all settings to default?')) { localStorage.clear(); location.reload(); } };
         window.insertText = (b,a='') => { if(!editor) return; const s=editor.selectionStart, e=editor.selectionEnd; state.md=state.md.substring(0,s)+b+state.md.substring(s,e)+a+state.md.substring(e); editor.value=state.md; state.isDirty=true; updateUI(); };
         window.insertTable = () => insertText('\n| Col 1 | Col 2 |\n| --- | --- |\n| Item 1 | Item 2 |');
