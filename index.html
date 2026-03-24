@@ -237,14 +237,14 @@
                 let text = typeof arg1 === 'object' ? arg1.text : arg3;
                 if (!href) return '';
                 let src = getAsset(href);
-                return `<img src="${src}" alt="${text || ''}" style="max-width:100%; height:auto; border-radius:12px; margin:2rem auto; display:block; box-shadow:0 10px 30px rgba(0,0,0,0.1); border:1px solid var(--border);" />`;
+                return `<img src="${src}" alt="${text || ''}" />`;
             };
             renderer.link = (arg1, arg2, arg3) => {
                 let href = typeof arg1 === 'object' ? arg1.href : arg1;
                 let text = typeof arg1 === 'object' ? arg1.text : arg3;
                 if (href.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
                     let src = getAsset(href);
-                    return `<img src="${src}" alt="${text || ''}" style="max-width:100%; height:auto; border-radius:12px; margin:2rem auto; display:block; box-shadow:0 10px 30px rgba(0,0,0,0.1); border:1px solid var(--border);" />`;
+                    return `<img src="${src}" alt="${text || ''}" />`;
                 }
                 const isAnchor = href.startsWith('#');
                 const isMd = href.match(/\.(md|markdown)$/i);
