@@ -188,6 +188,17 @@ main { flex: 1; display: flex; overflow: hidden; position: relative; }
 }
 
 /* Unique Link Styles */
+.markdown-body a {
+    color: var(--accent-color);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: 0.2s;
+}
+
+.markdown-body a:hover {
+    border-bottom-color: var(--accent-color);
+}
+
 .link-web { color: #89b4fa !important; border-bottom-color: rgba(137, 180, 250, 0.3) !important; }
 .link-anchor { color: #a6e3a1 !important; border-bottom-color: rgba(166, 227, 161, 0.3) !important; }
 .link-file { color: #cba6f7 !important; border-bottom-color: rgba(203, 166, 247, 0.3) !important; }

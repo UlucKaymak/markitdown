@@ -212,7 +212,7 @@
             document.getElementById('align-btn').innerText = state.textAlign === 'justify' ? 'FULL BLOCK' : 'PLAIN';
             document.getElementById('file-info').innerText = `[${state.fileName}${state.isDirty?' *':''}]`;
             document.getElementById('mode-text').innerText = state.isDirty ? 'EDITING' : state.mode.toUpperCase();
-            document.getElementById('link-types-btn').innerText = state.showLinkTypes ? 'VISIBLE' : 'OFF';
+            document.getElementById('link-types-btn').innerText = state.showLinkTypes ? 'VISIBLE' : 'ACCENT';
             document.getElementById('version-display').innerText = `v${state.version}`;
             
             document.getElementById('settings-panel').classList.toggle('hidden', !state.showSettings);
@@ -259,7 +259,6 @@
                     if (isAnchor) linkClass = 'link-anchor';
                     else if (isMd) linkClass = 'link-file';
                     else if (isWeb) linkClass = 'link-web';
-                    else linkClass = 'link-file';
                 }
                 if (isAnchor) {
                     const targetId = href.substring(1).toLowerCase().replace(/[^\w]+/g, '-');
