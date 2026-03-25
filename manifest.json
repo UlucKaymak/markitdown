@@ -1,6 +1,6 @@
 {
-  "name": "markitdown",
-  "short_name": "markitdown",
+  "name": "mark it down",
+  "short_name": "mark it down",
   "description": "Markdown reader and editor",
   "start_url": "./",
   "display": "standalone",
