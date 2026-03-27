@@ -30,7 +30,7 @@ Uygulamanın gücü, elinizi klavyeden kaldırmadan her şeyi yönetebilmenizded
 | `CMD + B` | **Kalın** (Bold) metin ekle |
 | `CMD + I` | *Eğik* (Italic) metin ekle |
 | `CMD + 1, 2, 3` | Başlıklar (H1, H2, H3) ekle |
-| `CMD + R` | Uygulamayı Yenile (Reload) |
+| `CMD + R` | Dosyayı Yeniden Yükle (Reopen) |
 
 ---
 

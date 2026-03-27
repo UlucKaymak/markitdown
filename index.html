@@ -308,6 +308,24 @@
         
         const isMarkdownFile = (name) => /\.(md|markdown|mdown|mkdn|mdwn|mkd|rmd|text)$/i.test(name);
 
+        window.reopenFile = async () => {
+            if (state.fileHandle) {
+                try {
+                    const file = await state.fileHandle.getFile();
+                    state.md = await file.text();
+                    state.fileName = file.name;
+                    if(editor) editor.value = state.md;
+                    state.isDirty = false;
+                    updateUI();
+                } catch (e) {}
+            } else if (state.fileName === 'Opening.md') {
+                try {
+                    const r = await fetch('Opening.md');
+                    if(r.ok) { state.md = await r.text(); state.fileName = 'Opening.md'; if(editor) editor.value = state.md; state.isDirty = false; updateUI(); }
+                } catch (e) {}
+            }
+        };
+
         window.openFile = async () => {
             if (window.showOpenFilePicker) {
                 try {
@@ -416,6 +434,7 @@
                 if (isCmd && !e.shiftKey && e.key === 's') { e.preventDefault(); saveFile(); }
                 if (isCmd && e.shiftKey && e.key === 's') { e.preventDefault(); saveFileAs(); }
                 if (isCmd && e.key === 'o') { e.preventDefault(); openFile(); }
+                if (isCmd && e.key === 'r') { e.preventDefault(); reopenFile(); }
             });
 
             if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err)); }); }

@@ -31,7 +31,8 @@ A modern, lightweight, and powerful Markdown editor and reader designed for spee
 ## ⌨️ Productivity
 - **Keyboard Shortcuts:**
   - `Cmd/Ctrl + S`: Save file.
-  - `Cmd/Ctrl + Shift + S`: Save as.
+  - `Cmd/Ctrl + Shift + S`: Save file as.
   - `Cmd/Ctrl + O`: Open file.
-  - `Cmd/Ctrl + Enter`: Toggle between Edit and Read modes.
+  - `Cmd/Ctrl + R`: Reopen current document.
+  - `Cmd/Ctrl + Enter`: Toggle between Read/Edit mode.
 - **Responsive Design:** Optimized for all screen sizes, featuring a draggable resizer for split views.
