@@ -1,4 +1,4 @@
-    <script>
+<script>
         const ACCENTS = {
             blue: { dark: '#89b4fa', light: '#1e66f5' },
             green: { dark: '#a6e3a1', light: '#40a02b' },
@@ -20,7 +20,8 @@
             fontFamily: localStorage.getItem('font') || 'serif',
             textAlign: localStorage.getItem('textAlign') || 'left',
             showSettings: false,
-            showTOC: false
+            showTOC: false,
+            fmPrefs: JSON.parse(localStorage.getItem('fmPrefs')) || { title: true, description: true, author: true, date: true, tags: true }
         };
 
         const editor = document.getElementById('editor');
@@ -32,7 +33,7 @@
         }
 
         function updateUI() {
-            const { mode, isDirty, theme, accentKey, fontSize, fontFamily, showSettings, showTOC, fileName } = state;
+            const { md, mode, isDirty, theme, accentKey, fontSize, fontFamily, showSettings, showTOC, fileName, fmPrefs } = state;
             const accentHex = theme === 'light' ? ACCENTS[accentKey].light : ACCENTS[accentKey].dark;
             
             const body = document.body;
@@ -105,13 +106,32 @@
             editor.style.fontSize = fontSize + 'px';
             preview.style.fontSize = fontSize + 'px';
             preview.style.textAlign = state.textAlign;
+            
+            let displayTitle = fileName;
+            let contentToRender = md || '';
+            const fmMatch = contentToRender.match(/^---\n([\s\S]*?)\n---(\n|$)/);
+            if (fmMatch) {
+                const fm = fmMatch[1];
+                const titleMatch = fm.match(/^title:\s*(.*)$/m);
+                if (titleMatch) {
+                    displayTitle = titleMatch[1].trim();
+                }
+                contentToRender = contentToRender.substring(fmMatch[0].length);
+            } else {
+                const firstLine = contentToRender.split('\n')[0]?.replace(/#/g, '').trim();
+                if (firstLine) displayTitle = firstLine;
+            }
             document.getElementById('file-info').innerText = `[${fileName}${isDirty ? ' *' : ''}]`;
-            document.title = `mark it down - [${fileName}${isDirty ? ' *' : ''}]`;
-            preview.innerHTML = marked.parse(state.md);
+            document.title = `mark it down - [${displayTitle}${isDirty ? ' *' : ''}]`;
+            preview.innerHTML = marked.parse(contentToRender);
 
             // 5. Grids
             document.getElementById('accent-grid').innerHTML = Object.keys(ACCENTS).map(k => `
                 <button onclick="setAccent('${k}')" class="w-4 h-4 rounded-full transition-transform active:scale-75 ${accentKey===k?'ring-2 ring-offset-2 ring-slate-400 scale-110':'opacity-40'}" style="background-color: ${theme==='light'?ACCENTS[k].light:ACCENTS[k].dark}"></button>
+            `).join('');
+
+            document.getElementById('fm-prefs-grid').innerHTML = Object.keys(fmPrefs).map(k => `
+                <button onclick="toggleFMPref('${k}')" style="background:${fmPrefs[k]?'var(--accent-color)':'rgba(0,0,0,0.1)'}; color:${fmPrefs[k]?'white':'inherit'}; border:none; padding:6px; border-radius:8px; cursor:pointer; font-size:9px; font-weight:900;">${k.toUpperCase()}</button>
             `).join('');
 
             document.getElementById('font-family-grid').innerHTML = ['sans', 'serif', 'mono'].map(f => `
@@ -122,6 +142,12 @@
         }
 
         // Action Handlers
+        window.toggleFMPref = (k) => {
+            state.fmPrefs[k] = !state.fmPrefs[k];
+            localStorage.setItem('fmPrefs', JSON.stringify(state.fmPrefs));
+            updateUI();
+        };
+
         window.setMode = (m) => { state.mode = m; updateUI(); };
         window.toggleSettings = () => { state.showSettings = !state.showSettings; updateUI(); };
         window.toggleTOC = () => { state.showTOC = !state.showTOC; updateUI(); };
@@ -157,7 +183,24 @@
             state.isDirty = false; autosave(); updateUI();
         };
         window.discardChanges = () => { state.isDirty = false; state.mode = 'reading'; updateUI(); };
-        window.newFile = () => { state.md = '# New File\n'; state.fileName = 'Untitled.md'; editor.value = state.md; state.isDirty = false; state.mode = 'editing'; autosave(); updateUI(); };
+        window.newFile = () => { 
+            let fm = '---\n';
+            let hasFM = false;
+            if (state.fmPrefs.title) { fm += 'title: New File\n'; hasFM = true; }
+            if (state.fmPrefs.description) { fm += 'description: \n'; hasFM = true; }
+            if (state.fmPrefs.author) { fm += 'author: \n'; hasFM = true; }
+            if (state.fmPrefs.date) { fm += `date: ${new Date().toISOString().split('T')[0]}\n`; hasFM = true; }
+            if (state.fmPrefs.tags) { fm += 'tags: []\n'; hasFM = true; }
+            fm += '---\n\n';
+
+            state.md = (hasFM ? fm : '') + '# New File\n'; 
+            state.fileName = 'Untitled.md'; 
+            editor.value = state.md; 
+            state.isDirty = false; 
+            state.mode = 'editing'; 
+            autosave(); 
+            updateUI(); 
+        };
         window.openFile = async () => {
             if (window.showOpenFilePicker) {
                 try {
