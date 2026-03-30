@@ -187,6 +187,28 @@ main { flex: 1; display: flex; overflow: hidden; position: relative; }
     opacity: 0.3; 
 }
 
+/* Hex Code Swatch Styles */
+.hex-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(127, 127, 127, 0.1);
+    padding: 0 4px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+    vertical-align: middle;
+}
+
+.hex-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background-color: var(--hex-color);
+}
+
 /* Unique Link Styles */
 .markdown-body a {
     color: var(--accent-color);

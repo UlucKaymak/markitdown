@@ -386,6 +386,24 @@
             marked.setOptions({ renderer });
             preview.innerHTML = marked.parse(contentToRender);
 
+            // Hex Color Visualization
+            const hexRegex = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\b/g;
+            const walker = document.createTreeWalker(preview, NodeFilter.SHOW_TEXT, null, false);
+            const textNodes = [];
+            let n;
+            while (n = walker.nextNode()) {
+                if (hexRegex.test(n.nodeValue)) textNodes.push(n);
+            }
+            textNodes.forEach(node => {
+                const parent = node.parentNode;
+                if (parent.closest("a")) return; // Skip if inside a link
+                const span = document.createElement("span");
+                span.innerHTML = node.nodeValue.replace(hexRegex, match =>
+                    `<span class="hex-tag" style="--hex-color:${match}">${match}<span class="hex-swatch"></span></span>`
+                );
+                parent.replaceChild(span, node);
+            });
+
             const headers = Array.from(new DOMParser().parseFromString(marked.parse(contentToRender), 'text/html').querySelectorAll('h1, h2, h3'));
             document.getElementById('toc-content').innerHTML = headers.length ? headers.map(h => `<button onclick="document.getElementById('${String(h.innerText).toLowerCase().replace(/[^\w]+/g, '-')}').scrollIntoView({behavior:'smooth'});" class="toc-btn" style="padding-left:${h.tagName === 'H1' ? '0' : h.tagName === 'H2' ? '12px' : '24px'}">${h.innerText}</button>`).join('') : '<div style="font-size:10px; opacity:0.3;">No headers found</div>';
 
@@ -616,6 +634,16 @@
                 } catch (e) {
                     if (!state.mainFileFound) {
                         state.md = '# mark it down';
+                        if (editor) editor.value = state.md;
+                        updateUI();
+                    }
+                }
+            })();
+        });
+    </script>
+</body>
+
+</html> it down';
                         if (editor) editor.value = state.md;
                         updateUI();
                     }
