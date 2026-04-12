@@ -114,8 +114,10 @@
                 <div class="row" style="margin-bottom:24px; opacity:1;">
                     <span id="version-display"
                         style="font-weight:900; letter-spacing:2px; font-size:10px; opacity:0.3;"></span>
+                    <button id="update-btn" onclick="updateApp()" class="hidden"
+                        style="color:var(--accent-color); background:none; border:1px solid var(--accent-color); cursor:pointer; font-weight:900; font-size:9px; padding:2px 6px; border-radius:4px; margin-left:8px; animation: blink 1s infinite;">UPDATE AVAILABLE</button>
                     <button onclick="toggleSettings()"
-                        style="color:var(--accent-color); background:none; border:none; cursor:pointer; font-weight:900; font-size:9px; letter-spacing:1px;">CLOSE</button>
+                        style="color:var(--accent-color); background:none; border:none; cursor:pointer; font-weight:900; font-size:9px; letter-spacing:1px; margin-left:auto;">CLOSE</button>
                 </div>
 
                 <div class="row">
@@ -222,7 +224,8 @@
             assetMap: new Map(),
             fileHandle: null,
             mainFileFound: false,
-            version: '0.0.28',
+            version: '1.0.28',
+            updateWaiting: false,
             isSync: false,
             fmPrefs: JSON.parse(localStorage.getItem('fmPrefs')) || { title: true, description: true, author: true, date: true, tags: true }
         };
@@ -326,6 +329,7 @@
             document.getElementById('mode-text').innerText = state.isDirty ? 'EDITING' : state.mode.toUpperCase();
             document.getElementById('link-types-btn').innerText = state.showLinkTypes ? 'VISIBLE' : 'ACCENT';
             document.getElementById('version-display').innerText = `v${state.version}`;
+            document.getElementById('update-btn').classList.toggle('hidden', !state.updateWaiting);
 
             document.getElementById('settings-panel').classList.toggle('hidden', !state.showSettings);
             document.getElementById('toc-sidebar').classList.toggle('hidden-panel', !state.showTOC);
@@ -440,6 +444,13 @@
         window.toggleLinkTypes = () => { state.showLinkTypes = !state.showLinkTypes; localStorage.setItem('linkTypes', state.showLinkTypes); updateUI(); };
         window.toggleTextAlign = () => { state.textAlign = state.textAlign === 'left' ? 'justify' : 'left'; localStorage.setItem('textAlign', state.textAlign); updateUI(); };
         window.resetSettings = () => { if (confirm('Reset all settings to default?')) { localStorage.clear(); location.reload(); } };
+        window.updateApp = () => {
+            navigator.serviceWorker.getRegistration().then(reg => {
+                if (reg && reg.waiting) {
+                    reg.waiting.postMessage('skipWaiting');
+                }
+            });
+        };
         window.insertText = (b, a = '') => { if (!editor) return; const s = editor.selectionStart, e = editor.selectionEnd; state.md = state.md.substring(0, s) + b + state.md.substring(s, e) + a + state.md.substring(e); editor.value = state.md; state.isDirty = true; updateUI(); };
         window.insertTable = () => insertText('\n| Col 1 | Col 2 |\n| --- | --- |\n| Item 1 | Item 2 |');
 
@@ -602,7 +613,32 @@
                 if (isCmd && e.key === 'r') { e.preventDefault(); reopenFile(); }
             });
 
-            if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err)); }); }
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js').then(reg => {
+                        reg.onupdatefound = () => {
+                            const installingWorker = reg.installing;
+                            installingWorker.onstatechange = () => {
+                                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    state.updateWaiting = true;
+                                    updateUI();
+                                }
+                            };
+                        };
+                        if (reg.waiting) {
+                            state.updateWaiting = true;
+                            updateUI();
+                        }
+                    }).catch(err => console.log('SW registration failed:', err));
+                });
+
+                let refreshing;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (refreshing) return;
+                    window.location.reload();
+                    refreshing = true;
+                });
+            }
 
             if ('launchQueue' in window) {
                 window.launchQueue.setConsumer(async (launchParams) => {
