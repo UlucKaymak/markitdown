@@ -508,8 +508,17 @@
             if (editor) editor.value = state.md;
             updateUI();
         };
+        const triggerSaveEffect = () => {
+            const r = document.getElementById('root');
+            if (r) {
+                r.style.boxShadow = "inset 0 -100px 100px -50px var(--accent-color)";
+                setTimeout(() => { r.style.boxShadow = "none"; }, 500);
+            }
+        };
+
         window.saveFile = async () => {
             if (state.fileHandle) {
+                triggerSaveEffect();
                 try { const writable = await state.fileHandle.createWritable(); await writable.write(state.md); await writable.close(); state.isDirty = false; updateUI(); return; } catch (e) { return window.saveFileAs(); }
             } else { return window.saveFileAs(); }
         };
@@ -520,10 +529,12 @@
                     let suggestedName = state.fileName.split('/').pop();
                     if (!suggestedName.toLowerCase().endsWith('.md') && !suggestedName.toLowerCase().endsWith('.markdown')) suggestedName += '.md';
                     const h = await window.showSaveFilePicker({ suggestedName: suggestedName, types: [{ description: 'Markdown Files', accept: { 'text/markdown': ['.md', '.markdown'] } }] });
+                    triggerSaveEffect();
                     const w = await h.createWritable(); await w.write(state.md); await w.close();
                     state.fileName = h.name; state.fileHandle = h; state.isDirty = false; updateUI();
                 } catch (e) { }
             } else {
+                triggerSaveEffect();
                 const b = new Blob([state.md], { type: 'text/markdown' }); const a = document.createElement('a');
                 let downloadName = state.fileName.split('/').pop();
                 if (!downloadName.toLowerCase().endsWith('.md') && !downloadName.toLowerCase().endsWith('.markdown')) downloadName += '.md';
@@ -634,16 +645,6 @@
                 } catch (e) {
                     if (!state.mainFileFound) {
                         state.md = '# mark it down';
-                        if (editor) editor.value = state.md;
-                        updateUI();
-                    }
-                }
-            })();
-        });
-    </script>
-</body>
-
-</html> it down';
                         if (editor) editor.value = state.md;
                         updateUI();
                     }
