@@ -282,3 +282,33 @@ main { flex: 1; display: flex; overflow: hidden; position: relative; }
 ::-webkit-scrollbar-track { background-color: transparent; }
 ::-webkit-scrollbar-thumb { border-radius: 9999px; background-color: rgba(100, 116, 139, 0.2); transition: background-color 0.15s; }
 ::-webkit-scrollbar-thumb:hover { background-color: rgba(100, 116, 139, 0.4); }
+
+
+.mermaid {
+  overflow-x: auto;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mermaid svg foreignObject {
+  overflow: visible;
+}
+
+.mermaid svg .label {
+  font-family: inherit;
+}
+
+.mermaid-rendered {
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+.mermaid-rendered svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}

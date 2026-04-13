@@ -21,6 +21,7 @@
         rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -115,7 +116,8 @@
                     <span id="version-display"
                         style="font-weight:900; letter-spacing:2px; font-size:10px; opacity:0.3;"></span>
                     <button id="update-btn" onclick="updateApp()" class="hidden"
-                        style="color:var(--accent-color); background:none; border:1px solid var(--accent-color); cursor:pointer; font-weight:900; font-size:9px; padding:2px 6px; border-radius:4px; margin-left:8px; animation: blink 1s infinite;">UPDATE AVAILABLE</button>
+                        style="color:var(--accent-color); background:none; border:1px solid var(--accent-color); cursor:pointer; font-weight:900; font-size:9px; padding:2px 6px; border-radius:4px; margin-left:8px; animation: blink 1s infinite;">UPDATE
+                        AVAILABLE</button>
                     <button onclick="toggleSettings()"
                         style="color:var(--accent-color); background:none; border:none; cursor:pointer; font-weight:900; font-size:9px; letter-spacing:1px; margin-left:auto;">CLOSE</button>
                 </div>
@@ -275,6 +277,42 @@
             return path;
         };
 
+        async function renderMermaidBlocks() {
+            const pending = preview.querySelectorAll('.mermaid-pending');
+            if (!pending.length) return;
+
+            const theme = (state.theme === 'dark' || state.theme === 'dim') ? 'dark' : 'default';
+            mermaid.initialize({
+  startOnLoad: false,
+  theme: theme,
+  securityLevel: 'loose',
+  flowchart: {
+    htmlLabels: false,   // <-- bu satır kritik
+    useMaxWidth: true
+  },
+  graph: {
+    htmlLabels: false
+  }
+});
+
+            for (const el of pending) {
+                const code = decodeURIComponent(el.getAttribute('data-code'));
+                const id = 'mermaid-' + Math.random().toString(36).slice(2, 9);
+                try {
+                    const { svg } = await mermaid.render(id, code);
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'mermaid-rendered';
+                    wrapper.innerHTML = svg;
+                    el.replaceWith(wrapper);
+                } catch (e) {
+                    const errBox = document.createElement('pre');
+                    errBox.style.cssText = 'color:red; font-size:11px; opacity:0.7;';
+                    errBox.textContent = 'Mermaid hata: ' + e.message;
+                    el.replaceWith(errBox);
+                }
+            }
+        }
+
         function updateUI() {
             if (!editor) return;
             const isSplit = state.mode === 'split' || state.mode === 'sync';
@@ -387,8 +425,46 @@
                 const target = isWeb ? ' target="_blank" rel="noopener noreferrer"' : '';
                 return `<a href="${href}"${target} class="${linkClass}">${text}</a>`;
             };
+
+            renderer.code = (arg1, lang) => {
+                const code = typeof arg1 === 'object' ? arg1.text : arg1;
+                const language = typeof arg1 === 'object' ? arg1.lang : lang;
+                if (language === 'mermaid') {
+                    // Ham kodu data attribute'a göm, SVG render etme
+                    return `<div class="mermaid-pending" data-code="${encodeURIComponent(code)}"></div>`;
+                }
+                return `<pre><code class="language-${language || ''}">${code}</code></pre>`;
+            };
+
+
             marked.setOptions({ renderer });
             preview.innerHTML = marked.parse(contentToRender);
+            renderMermaidBlocks();
+
+
+            // Her render'da tema hesapla
+            const mermaidTheme = state.theme === 'dark' || state.theme === 'dim' ? 'dark' : 'default';
+
+            // Mermaid node'larını önce temizle, sonra render et
+            const mermaidNodes = preview.querySelectorAll('.mermaid');
+            mermaidNodes.forEach(el => {
+                el.removeAttribute('data-processed');
+            });
+
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: mermaidTheme,
+                securityLevel: 'loose'
+            });
+
+            setTimeout(() => {
+                try {
+                    mermaid.run({ nodes: preview.querySelectorAll('.mermaid') });
+                } catch (e) {
+                    console.warn('Mermaid render error:', e);
+                }
+            }, 50);
+
 
             // Hex Color Visualization
             const hexRegex = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\b/g;
