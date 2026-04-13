@@ -281,19 +281,52 @@
             const pending = preview.querySelectorAll('.mermaid-pending');
             if (!pending.length) return;
 
-            const theme = (state.theme === 'dark' || state.theme === 'dim') ? 'dark' : 'default';
+            const isDark = state.theme === 'dark';
+            const isDim = state.theme === 'dim';
+            const isLight = state.theme === 'light';
+
+            // CSS değişkenlerinden renkleri al
+            const cs = getComputedStyle(document.body);
+            const bg = cs.getPropertyValue('--bg').trim();
+            const text = cs.getPropertyValue('--text').trim();
+            const border = cs.getPropertyValue('--border').trim();
+            const accent = cs.getPropertyValue('--accent-color').trim();
+
             mermaid.initialize({
-  startOnLoad: false,
-  theme: theme,
-  securityLevel: 'loose',
-  flowchart: {
-    htmlLabels: false,   // <-- bu satır kritik
-    useMaxWidth: true
-  },
-  graph: {
-    htmlLabels: false
-  }
-});
+                startOnLoad: false,
+                securityLevel: 'loose',
+                flowchart: { htmlLabels: false, useMaxWidth: true },
+                graph: { htmlLabels: false },
+                theme: 'base',
+                themeVariables: {
+                    // Genel
+                    background: bg,
+                    primaryColor: isDark || isDim ? '#2a2a3a' : '#e8eaf6',
+                    primaryTextColor: text,
+                    primaryBorderColor: border,
+                    lineColor: accent,
+                    secondaryColor: isDark || isDim ? '#1e1e2e' : '#f0f0f8',
+                    tertiaryColor: isDark || isDim ? '#181825' : '#eff1f5',
+
+                    // Node
+                    nodeBorder: border,
+                    clusterBkg: isDark || isDim ? '#1e1e2e' : '#e8eaf6',
+                    titleColor: accent,
+
+                    // Edge label
+                    edgeLabelBackground: bg,
+
+                    // Font
+                    fontFamily: cs.getPropertyValue('font-family') || 'sans-serif',
+                    fontSize: '14px',
+
+                    // xychart
+                    xyChart: {
+                        backgroundColor: bg,
+                        plotColorPalette: accent,
+                    }
+                }
+            });
 
             for (const el of pending) {
                 const code = decodeURIComponent(el.getAttribute('data-code'));
@@ -306,12 +339,13 @@
                     el.replaceWith(wrapper);
                 } catch (e) {
                     const errBox = document.createElement('pre');
-                    errBox.style.cssText = 'color:red; font-size:11px; opacity:0.7;';
+                    errBox.style.cssText = 'color:#ff6b6b; font-size:11px; opacity:0.7; padding:1rem; border:1px solid rgba(255,107,107,0.2); border-radius:8px;';
                     errBox.textContent = 'Mermaid hata: ' + e.message;
                     el.replaceWith(errBox);
                 }
             }
         }
+
 
         function updateUI() {
             if (!editor) return;
@@ -453,8 +487,38 @@
 
             mermaid.initialize({
                 startOnLoad: false,
-                theme: mermaidTheme,
-                securityLevel: 'loose'
+                securityLevel: 'loose',
+                flowchart: { htmlLabels: false, useMaxWidth: true },
+                graph: { htmlLabels: false },
+
+                // xychart ayrı top-level config olarak
+                xyChart: {
+                    backgroundColor: bg,
+                    plotColorPalette: accent,
+                },
+
+                theme: 'base',
+                themeVariables: {
+                    background: bg,
+                    primaryColor: isDark || isDim ? '#2a2a3a' : '#e8eaf6',
+                    primaryTextColor: text,
+                    primaryBorderColor: border,
+                    lineColor: accent,
+                    secondaryColor: isDark || isDim ? '#1e1e2e' : '#f0f0f8',
+                    tertiaryColor: isDark || isDim ? '#181825' : '#eff1f5',
+                    nodeBorder: border,
+                    clusterBkg: isDark || isDim ? '#1e1e2e' : '#e8eaf6',
+                    titleColor: accent,
+                    edgeLabelBackground: bg,
+                    fontFamily: cs.getPropertyValue('font-family') || 'sans-serif',
+                    fontSize: '14px',
+
+                    // xychart themeVariables içinde de tekrar tanımla
+                    xyChart: {
+                        backgroundColor: bg,
+                        plotColorPalette: accent,
+                    }
+                }
             });
 
             setTimeout(() => {
