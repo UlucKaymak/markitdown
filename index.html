@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;700;900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;700;900&family=Indie+Flower&display=swap"
         rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -56,6 +56,11 @@
             <button onclick="insertText('[','](url)')" title="Link" class="t-btn"><svg viewBox="0 0 24 24">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg></button>
+            <button onclick="insertImage()" title="Image" class="t-btn"><svg viewBox="0 0 24 24">
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                    <circle cx="9" cy="9" r="2"></circle>
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
                 </svg></button>
             <button onclick="insertTable()" title="Table" class="t-btn"><svg viewBox="0 0 24 24">
                     <path d="M12 3v18"></path>
@@ -113,10 +118,10 @@
             <!-- Settings Panel -->
             <div id="settings-panel" class="hidden panel">
                 <div class="row" style="margin-bottom:24px; opacity:1;">
-                    <span id="version-display"
-                        style="font-weight:900; letter-spacing:2px; font-size:10px; opacity:0.3;"></span>
+                    <span id="version-display" onclick="checkForUpdates()"
+                        style="font-weight:900; letter-spacing:2px; font-size:10px; opacity:0.3; cursor:pointer;" title="Click to check for updates"></span>
                     <button id="update-btn" onclick="updateApp()" class="hidden"
-                        style="color:var(--accent-color); background:none; border:1px solid var(--accent-color); cursor:pointer; font-weight:900; font-size:9px; padding:2px 6px; border-radius:4px; margin-left:8px; animation: blink 1s infinite;">UPDATE
+                        style="color:var(--accent-color); background:none; border:1px solid var(--border); cursor:pointer; font-weight:900; font-size:9px; padding:2px 6px; border-radius:4px; margin-left:8px; animation: blink 1s infinite;">UPDATE
                         AVAILABLE</button>
                     <button onclick="toggleSettings()"
                         style="color:var(--accent-color); background:none; border:none; cursor:pointer; font-weight:900; font-size:9px; letter-spacing:1px; margin-left:auto;">CLOSE</button>
@@ -178,11 +183,22 @@
                 </div>
                 <div id="toc-content"></div>
             </div>
+
+            <div id="recents-sidebar" class="panel hidden-panel">
+                <div class="row"
+                    style="margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+                    <span style="opacity:0.4;">Recent Files</span>
+                    <button onclick="clearRecents()" style="background:none; border:none; color:#ff6b6b; cursor:pointer; font:inherit; font-size:9px;">CLEAR</button>
+                </div>
+                <div id="recents-content"></div>
+            </div>
         </main>
 
         <footer id="footer">
             <div style="display:flex; align-items:center; gap:16px;">
                 <span id="mode-text" style="color:var(--accent-color);">READING</span>
+                <button onclick="toggleRecents()"
+                    style="background:none; border:none; color:inherit; cursor:pointer; font:inherit; opacity:0.5;">RECENTS</button>
                 <button onclick="openFile()"
                     style="background:none; border:none; color:inherit; cursor:pointer; font:inherit; opacity:0.5;">OPEN</button>
                 <button onclick="newFile()"
@@ -222,14 +238,65 @@
             isDirty: false,
             showSettings: false,
             showTOC: false,
+            showRecents: false,
             splitWidth: 50,
             assetMap: new Map(),
             fileHandle: null,
             mainFileFound: false,
-            version: '1.0.28',
+            version: '1.0.29',
             updateWaiting: false,
             isSync: false,
-            fmPrefs: JSON.parse(localStorage.getItem('fmPrefs')) || { title: true, description: true, author: true, date: true, tags: true }
+            fmPrefs: JSON.parse(localStorage.getItem('fmPrefs')) || { title: true, description: true, author: true, date: true, tags: true },
+            recentFiles: JSON.parse(localStorage.getItem('recentFiles')) || []
+        };
+
+        // IndexedDB Logic
+        const dbName = 'MarkItDownDB';
+        const storeName = 'fileHandles';
+        const initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, 1);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(storeName)) {
+                        db.createObjectStore(storeName);
+                    }
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        };
+
+        const saveHandle = async (name, handle) => {
+            const db = await initDB();
+            const tx = db.transaction(storeName, 'readwrite');
+            tx.objectStore(storeName).put(handle, name);
+        };
+
+        const getHandle = async (name) => {
+            const db = await initDB();
+            const tx = db.transaction(storeName, 'readonly');
+            return new Promise((resolve) => {
+                const request = tx.objectStore(storeName).get(name);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => resolve(null);
+            });
+        };
+
+        const deleteHandle = async (name) => {
+            const db = await initDB();
+            const tx = db.transaction(storeName, 'readwrite');
+            tx.objectStore(storeName).delete(name);
+        };
+
+        const addToRecents = async (name, handle) => {
+            if (name === 'Opening.md' || name === 'Untitled.md') return;
+            const newRecents = state.recentFiles.filter(f => f !== name);
+            newRecents.unshift(name);
+            state.recentFiles = newRecents.slice(0, 10);
+            localStorage.setItem('recentFiles', JSON.stringify(state.recentFiles));
+            if (handle) await saveHandle(name, handle);
+            updateUI();
         };
 
         let editor, preview, editorContainer, resizer;
@@ -405,15 +472,16 @@
 
             document.getElementById('settings-panel').classList.toggle('hidden', !state.showSettings);
             document.getElementById('toc-sidebar').classList.toggle('hidden-panel', !state.showTOC);
+            document.getElementById('recents-sidebar').classList.toggle('hidden-panel', !state.showRecents);
 
             const fa = document.getElementById('footer-actions');
             fa.innerHTML = state.mode === 'reading' ? `<button onclick="setMode('editing')" style="color:var(--accent-color); background:none; border:none; cursor:pointer; font:inherit;">EDIT</button>` : `<button onclick="saveFile()" style="color:var(--accent-color); background:none; border:none; cursor:pointer; font:inherit;">SAVE</button>`;
 
             document.getElementById('accent-grid').innerHTML = Object.keys(ACCENTS).map(k => `<div onclick="setAccent('${k}')" class="dot ${state.accentKey === k ? 'active' : ''}" style="background:${state.theme === 'light' ? ACCENTS[k].light : ACCENTS[k].dark}"></div>`).join('');
             document.getElementById('fm-prefs-grid').innerHTML = Object.keys(state.fmPrefs).map(k => `<button onclick="toggleFMPref('${k}')" style="background:${state.fmPrefs[k] ? 'var(--accent-color)' : 'rgba(0,0,0,0.1)'}; color:${state.fmPrefs[k] ? 'white' : 'inherit'}; border:none; padding:6px; border-radius:8px; cursor:pointer; font-size:9px; font-weight:900;">${k.toUpperCase()}</button>`).join('');
-            document.getElementById('font-family-grid').innerHTML = ['sans', 'serif', 'mono'].map(f => `<button onclick="setFont('${f}')" style="flex:1; background:${state.fontFamily === f ? 'var(--accent-color)' : 'rgba(0,0,0,0.1)'}; color:${state.fontFamily === f ? 'white' : 'inherit'}; border:none; padding:6px; border-radius:8px; cursor:pointer; font-size:9px; font-weight:900;">${f.toUpperCase()}</button>`).join('');
+            document.getElementById('font-family-grid').innerHTML = ['sans', 'serif', 'mono', 'cursive'].map(f => `<button onclick="setFont('${f}')" style="flex:1; background:${state.fontFamily === f ? 'var(--accent-color)' : 'rgba(0,0,0,0.1)'}; color:${state.fontFamily === f ? 'white' : 'inherit'}; border:none; padding:6px; border-radius:8px; cursor:pointer; font-size:9px; font-weight:900;">${f.toUpperCase()}</button>`).join('');
 
-            const scales = { sans: 1.0, serif: 1.0, mono: 1.0 };
+            const scales = { sans: 1.0, serif: 1.0, mono: 1.0, cursive: 1.2 };
             const visualSize = state.fontSize * (scales[state.fontFamily] || 1.0);
             editor.style.fontSize = visualSize + 'px';
             preview.style.fontSize = visualSize + 'px';
@@ -551,6 +619,8 @@
             const headers = Array.from(new DOMParser().parseFromString(marked.parse(contentToRender), 'text/html').querySelectorAll('h1, h2, h3'));
             document.getElementById('toc-content').innerHTML = headers.length ? headers.map(h => `<button onclick="document.getElementById('${String(h.innerText).toLowerCase().replace(/[^\w]+/g, '-')}').scrollIntoView({behavior:'smooth'});" class="toc-btn" style="padding-left:${h.tagName === 'H1' ? '0' : h.tagName === 'H2' ? '12px' : '24px'}">${h.innerText}</button>`).join('') : '<div style="font-size:10px; opacity:0.3;">No headers found</div>';
 
+            document.getElementById('recents-content').innerHTML = state.recentFiles.length ? state.recentFiles.map(f => `<button onclick="loadFromRecents('${f}')" class="toc-btn">${f}</button>`).join('') : '<div style="font-size:10px; opacity:0.3;">No recent files</div>';
+
             ['editing', 'split', 'reading'].forEach(m => { const b = document.getElementById('btn-' + m); if (b) b.classList.toggle('active', state.mode === m); });
             const sBtn = document.getElementById('btn-sync');
             if (sBtn) {
@@ -579,8 +649,57 @@
         window.setFont = f => { state.fontFamily = f; localStorage.setItem('font', f); updateUI(); };
         window.changeFontSize = d => { state.fontSize = Math.max(12, Math.min(32, state.fontSize + d)); localStorage.setItem('size', state.fontSize); updateUI(); };
         window.cycleTheme = () => { const t = ['light', 'dim', 'dark']; state.theme = t[(t.indexOf(state.theme) + 1) % 3]; localStorage.setItem('theme', state.theme); updateUI(); };
-        window.toggleSettings = () => { state.showSettings = !state.showSettings; if (state.showSettings) state.showTOC = false; updateUI(); };
-        window.toggleTOC = () => { state.showTOC = !state.showTOC; if (state.showTOC) state.showSettings = false; updateUI(); };
+        window.toggleSettings = () => { state.showSettings = !state.showSettings; if (state.showSettings) { state.showTOC = false; state.showRecents = false; } updateUI(); };
+        window.toggleTOC = () => { state.showTOC = !state.showTOC; if (state.showTOC) { state.showSettings = false; state.showRecents = false; } updateUI(); };
+        window.toggleRecents = () => { state.showRecents = !state.showRecents; if (state.showRecents) { state.showSettings = false; state.showTOC = false; } updateUI(); };
+        window.clearRecents = async () => { if (confirm('Clear recent files list?')) { for (const f of state.recentFiles) await deleteHandle(f); state.recentFiles = []; localStorage.setItem('recentFiles', JSON.stringify([])); updateUI(); } };
+
+        window.loadFromRecents = async (name) => {
+            const handle = await getHandle(name);
+            if (handle) {
+                try {
+                    // Browser requires a fresh user gesture for permission request
+                    if ((await handle.queryPermission({ mode: 'readwrite' })) !== 'granted') {
+                        if ((await handle.requestPermission({ mode: 'readwrite' })) !== 'granted') return;
+                    }
+                    const file = await handle.getFile();
+                    state.md = await file.text();
+                    state.fileName = file.name;
+                    state.fileHandle = handle;
+                    if (editor) editor.value = state.md;
+                    state.isDirty = false;
+                    state.showRecents = false;
+                    addToRecents(name, handle);
+                    updateUI();
+                } catch (e) {
+                    console.error('Error loading recent file:', e);
+                    if (confirm('Could not access file. Remove from recents?')) {
+                        state.recentFiles = state.recentFiles.filter(f => f !== name);
+                        localStorage.setItem('recentFiles', JSON.stringify(state.recentFiles));
+                        await deleteHandle(name);
+                        updateUI();
+                    }
+                }
+            }
+        };
+
+        window.checkForUpdates = async () => {
+            const el = document.getElementById('version-display');
+            const originalText = `v${state.version}`;
+            el.innerText = 'CHECKING...';
+            el.style.opacity = '1';
+            try {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg) {
+                    await reg.update();
+                }
+            } catch (e) { console.error('Update check failed:', e); }
+            setTimeout(() => { 
+                el.innerText = originalText; 
+                el.style.opacity = '0.3'; 
+            }, 1000);
+        };
+
         window.toggleLinkTypes = () => { state.showLinkTypes = !state.showLinkTypes; localStorage.setItem('linkTypes', state.showLinkTypes); updateUI(); };
         window.toggleTextAlign = () => { state.textAlign = state.textAlign === 'left' ? 'justify' : 'left'; localStorage.setItem('textAlign', state.textAlign); updateUI(); };
         window.resetSettings = () => { if (confirm('Reset all settings to default?')) { localStorage.clear(); location.reload(); } };
@@ -588,10 +707,26 @@
             navigator.serviceWorker.getRegistration().then(reg => {
                 if (reg && reg.waiting) {
                     reg.waiting.postMessage('skipWaiting');
+                } else {
+                    window.location.reload();
                 }
             });
         };
         window.insertText = (b, a = '') => { if (!editor) return; const s = editor.selectionStart, e = editor.selectionEnd; state.md = state.md.substring(0, s) + b + state.md.substring(s, e) + a + state.md.substring(e); editor.value = state.md; state.isDirty = true; updateUI(); };
+
+        window.insertImage = async () => {
+            const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*';
+            i.onchange = async e => {
+                const f = e.target.files[0];
+                if (f) {
+                    const blobUrl = URL.createObjectURL(f);
+                    state.assetMap.set(f.name, blobUrl);
+                    window.insertText(`![${f.name}](${f.name})`);
+                }
+            };
+            i.click();
+        };
+
         window.insertTable = () => insertText('\n| Col 1 | Col 2 |\n| --- | --- |\n| Item 1 | Item 2 |');
 
         const isMarkdownFile = (name) => /\.(md|markdown|mdown|mkdn|mdwn|mkd|rmd|text)$/i.test(name);
@@ -624,7 +759,7 @@
                         const f = await h.getFile(); const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl);
                         if (isMarkdownFile(f.name)) { if (!mainMd || f.name.toLowerCase() === 'readme.md') { mainMd = f; state.fileHandle = h; } }
                     }
-                    if (mainMd) { state.md = await mainMd.text(); state.fileName = mainMd.name; if (editor) editor.value = state.md; state.isDirty = false; updateUI(); }
+                    if (mainMd) { state.md = await mainMd.text(); state.fileName = mainMd.name; if (editor) editor.value = state.md; state.isDirty = false; state.mode = 'reading'; addToRecents(mainMd.name, state.fileHandle); updateUI(); }
                 } catch (e) { }
             } else {
                 const i = document.createElement('input'); i.type = 'file'; i.multiple = true; i.accept = '.md,.markdown,.mdown,.mkdn,.mdwn,.mkd,.rmd,.text,text/markdown,text/plain';
@@ -636,7 +771,7 @@
                         const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl);
                         if (isMarkdownFile(f.name)) { if (!mainMd || f.name.toLowerCase() === 'readme.md') mainMd = f; }
                     }
-                    if (mainMd) { state.md = await mainMd.text(); state.fileName = mainMd.name; if (editor) editor.value = state.md; state.isDirty = false; state.fileHandle = null; updateUI(); }
+                    if (mainMd) { state.md = await mainMd.text(); state.fileName = mainMd.name; if (editor) editor.value = state.md; state.isDirty = false; state.fileHandle = null; state.mode = 'reading'; addToRecents(mainMd.name, null); updateUI(); }
                 }; i.click();
             }
         };
@@ -670,7 +805,7 @@
         window.saveFile = async () => {
             if (state.fileHandle) {
                 triggerSaveEffect();
-                try { const writable = await state.fileHandle.createWritable(); await writable.write(state.md); await writable.close(); state.isDirty = false; updateUI(); return; } catch (e) { return window.saveFileAs(); }
+                try { const writable = await state.fileHandle.createWritable(); await writable.write(state.md); await writable.close(); state.isDirty = false; addToRecents(state.fileName, state.fileHandle); updateUI(); return; } catch (e) { return window.saveFileAs(); }
             } else { return window.saveFileAs(); }
         };
 
@@ -682,14 +817,14 @@
                     const h = await window.showSaveFilePicker({ suggestedName: suggestedName, types: [{ description: 'Markdown Files', accept: { 'text/markdown': ['.md', '.markdown'] } }] });
                     triggerSaveEffect();
                     const w = await h.createWritable(); await w.write(state.md); await w.close();
-                    state.fileName = h.name; state.fileHandle = h; state.isDirty = false; updateUI();
+                    state.fileName = h.name; state.fileHandle = h; state.isDirty = false; addToRecents(h.name, h); updateUI();
                 } catch (e) { }
             } else {
                 triggerSaveEffect();
                 const b = new Blob([state.md], { type: 'text/markdown' }); const a = document.createElement('a');
                 let downloadName = state.fileName.split('/').pop();
                 if (!downloadName.toLowerCase().endsWith('.md') && !downloadName.toLowerCase().endsWith('.markdown')) downloadName += '.md';
-                a.href = URL.createObjectURL(b); a.download = downloadName; a.click(); state.isDirty = false; updateUI();
+                a.href = URL.createObjectURL(b); a.download = downloadName; a.click(); state.isDirty = false; addToRecents(downloadName, null); updateUI();
             }
         };
 
@@ -708,7 +843,22 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             editor = document.getElementById('editor'); preview = document.getElementById('preview'); editorContainer = document.getElementById('editor-container'); resizer = document.getElementById('resizer');
-            if (editor) editor.oninput = () => { state.md = editor.value; state.isDirty = true; updateUI(); };
+            if (editor) {
+                editor.oninput = () => { state.md = editor.value; state.isDirty = true; updateUI(); };
+                editor.addEventListener('keydown', e => {
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const start = editor.selectionStart;
+                        const end = editor.selectionEnd;
+                        const val = editor.value;
+                        editor.value = val.substring(0, start) + '    ' + val.substring(end);
+                        editor.selectionStart = editor.selectionEnd = start + 4;
+                        state.md = editor.value;
+                        state.isDirty = true;
+                        updateUI();
+                    }
+                });
+            }
             let isResizing = false;
             resizer.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'col-resize'; resizer.classList.add('resizing'); });
             window.addEventListener('mousemove', e => { if (!isResizing) return; const w = (e.clientX / window.innerWidth) * 100; if (w > 20 && w < 80) { state.splitWidth = w; editorContainer.style.width = w + '%'; } });
@@ -733,15 +883,55 @@
                 editor.scrollTop = percentage * (editor.scrollHeight - editor.clientHeight);
             });
 
+            editor.addEventListener('paste', async e => {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (const item of items) {
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        const file = item.getAsFile();
+                        const blobUrl = URL.createObjectURL(file);
+                        const fileName = `pasted-image-${Date.now()}.png`;
+                        state.assetMap.set(fileName, blobUrl);
+                        window.insertText(`![${fileName}](${fileName})`);
+                        e.preventDefault();
+                    }
+                }
+            });
+
             window.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); document.getElementById('root').style.boxShadow = "inset 0 -100px 100px -50px var(--accent-color)"; });
             window.addEventListener('dragenter', e => { e.preventDefault(); e.stopPropagation(); });
             window.addEventListener('dragleave', () => document.getElementById('root').style.boxShadow = "none");
             window.addEventListener('drop', async e => {
-                e.preventDefault(); e.stopPropagation(); document.getElementById('root').style.boxShadow = "none"; state.assetMap.clear(); state.mainFileFound = false; state.fileHandle = null;
-                const items = e.dataTransfer.items ? Array.from(e.dataTransfer.items) : []; const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+                e.preventDefault(); e.stopPropagation(); document.getElementById('root').style.boxShadow = "none";
+                const items = e.dataTransfer.items ? Array.from(e.dataTransfer.items) : [];
+                const files = e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+
+                // Determine if we should clear or append
+                const hasMd = files.some(f => isMarkdownFile(f.name));
+                if (hasMd) {
+                    state.assetMap.clear();
+                    state.mainFileFound = false;
+                    state.fileHandle = null;
+                }
+
                 for (const item of items) { if (item.kind === 'file' && item.getAsFileSystemHandle) { try { const handle = await item.getAsFileSystemHandle(); if (handle && handle.kind === 'file' && isMarkdownFile(handle.name)) { if (!state.fileHandle || handle.name.toLowerCase() === 'readme.md') state.fileHandle = handle; } } catch (err) { } } }
                 if (items.length > 0 && items[0].webkitGetAsEntry) { for (const item of items) { const entry = item.webkitGetAsEntry(); if (entry) await readEntry(entry); } }
-                if (!state.mainFileFound && files.length > 0) { for (const f of files) { const blobUrl = URL.createObjectURL(f); state.assetMap.set(f.name, blobUrl); if (isMarkdownFile(f.name)) { if (!state.mainFileFound || f.name.toLowerCase() === 'readme.md') { try { state.md = await f.text(); state.fileName = f.name; if (editor) editor.value = state.md; state.isDirty = false; state.mainFileFound = true; } catch (err) { } } } } }
+
+                if (files.length > 0) {
+                    for (const f of files) {
+                        const blobUrl = URL.createObjectURL(f);
+                        state.assetMap.set(f.name, blobUrl);
+                        if (isMarkdownFile(f.name)) {
+                            if (!state.mainFileFound || f.name.toLowerCase() === 'readme.md') {
+                                try {
+                                    state.md = await f.text(); state.fileName = f.name; if (editor) editor.value = state.md; state.isDirty = false; state.mainFileFound = true;
+                                } catch (err) { }
+                            }
+                        } else if (f.type.startsWith('image/') && !hasMd) {
+                            // If dropping just images, insert them at cursor
+                            window.insertText(`![${f.name}](${f.name})`);
+                        }
+                    }
+                }
                 if (state.mainFileFound) state.mode = 'reading'; updateUI();
             });
             window.addEventListener('keydown', e => {
@@ -780,6 +970,24 @@
                 });
             }
 
+            const loadOpeningFile = async () => {
+                if (state.mainFileFound) return;
+                try {
+                    const r = await fetch('Opening.md');
+                    if (r.ok && !state.mainFileFound) {
+                        state.md = await r.text();
+                        if (editor) editor.value = state.md;
+                        updateUI();
+                    }
+                } catch (e) {
+                    if (!state.mainFileFound) {
+                        state.md = '# mark it down';
+                        if (editor) editor.value = state.md;
+                        updateUI();
+                    }
+                }
+            };
+
             if ('launchQueue' in window) {
                 window.launchQueue.setConsumer(async (launchParams) => {
                     if (launchParams.files && launchParams.files.length) {
@@ -802,30 +1010,15 @@
                             }
                         }
                         if (state.mainFileFound) state.mode = 'reading';
+                        else await loadOpeningFile();
                         updateUI();
+                    } else {
+                        await loadOpeningFile();
                     }
                 });
+            } else {
+                loadOpeningFile();
             }
-
-            // Load default file if none was launched via OS
-            (async () => {
-                await new Promise(r => setTimeout(r, 100)); // Brief wait for launchQueue
-                if (state.mainFileFound) return;
-                try {
-                    const r = await fetch('Opening.md');
-                    if (r.ok && !state.mainFileFound) {
-                        state.md = await r.text();
-                        if (editor) editor.value = state.md;
-                        updateUI();
-                    }
-                } catch (e) {
-                    if (!state.mainFileFound) {
-                        state.md = '# mark it down';
-                        if (editor) editor.value = state.md;
-                        updateUI();
-                    }
-                }
-            })();
         });
     </script>
 </body>

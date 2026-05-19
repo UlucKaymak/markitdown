@@ -52,6 +52,10 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
+.font-cursive {
+    font-family: 'Indie Flower', cursive;
+}
+
 #root {
     height: 100%;
     display: flex;
