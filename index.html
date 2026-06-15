@@ -197,8 +197,6 @@
         <footer id="footer">
             <div style="display:flex; align-items:center; gap:16px;">
                 <span id="mode-text" style="color:var(--accent-color);">READING</span>
-                <button onclick="toggleRecents()"
-                    style="background:none; border:none; color:inherit; cursor:pointer; font:inherit; opacity:0.5;">RECENTS</button>
                 <button onclick="openFile()"
                     style="background:none; border:none; color:inherit; cursor:pointer; font:inherit; opacity:0.5;">OPEN</button>
                 <button onclick="newFile()"
@@ -243,7 +241,7 @@
             assetMap: new Map(),
             fileHandle: null,
             mainFileFound: false,
-            version: '1.0.29',
+            version: '1.0.30',
             updateWaiting: false,
             isSync: false,
             fmPrefs: JSON.parse(localStorage.getItem('fmPrefs')) || { title: true, description: true, author: true, date: true, tags: true },
@@ -290,7 +288,7 @@
         };
 
         const addToRecents = async (name, handle) => {
-            if (name === 'Opening.md' || name === 'Untitled.md') return;
+            if (!handle && (name === 'Opening.md' || name === 'Untitled.md')) return;
             const newRecents = state.recentFiles.filter(f => f !== name);
             newRecents.unshift(name);
             state.recentFiles = newRecents.slice(0, 10);
@@ -486,7 +484,7 @@
             editor.style.fontSize = visualSize + 'px';
             preview.style.fontSize = visualSize + 'px';
             preview.style.textAlign = state.textAlign;
-            preview.style.maxWidth = (720 + (state.fontSize - 16) * 40) + 'px';
+            preview.style.maxWidth = '100%';
 
             const renderer = new marked.Renderer();
             renderer.heading = (arg1, arg2) => {
@@ -542,60 +540,6 @@
             marked.setOptions({ renderer });
             preview.innerHTML = marked.parse(contentToRender);
             renderMermaidBlocks();
-
-
-            // Her render'da tema hesapla
-            const mermaidTheme = state.theme === 'dark' || state.theme === 'dim' ? 'dark' : 'default';
-
-            // Mermaid node'larını önce temizle, sonra render et
-            const mermaidNodes = preview.querySelectorAll('.mermaid');
-            mermaidNodes.forEach(el => {
-                el.removeAttribute('data-processed');
-            });
-
-            mermaid.initialize({
-                startOnLoad: false,
-                securityLevel: 'loose',
-                flowchart: { htmlLabels: false, useMaxWidth: true },
-                graph: { htmlLabels: false },
-
-                // xychart ayrı top-level config olarak
-                xyChart: {
-                    backgroundColor: bg,
-                    plotColorPalette: accent,
-                },
-
-                theme: 'base',
-                themeVariables: {
-                    background: bg,
-                    primaryColor: isDark || isDim ? '#2a2a3a' : '#e8eaf6',
-                    primaryTextColor: text,
-                    primaryBorderColor: border,
-                    lineColor: accent,
-                    secondaryColor: isDark || isDim ? '#1e1e2e' : '#f0f0f8',
-                    tertiaryColor: isDark || isDim ? '#181825' : '#eff1f5',
-                    nodeBorder: border,
-                    clusterBkg: isDark || isDim ? '#1e1e2e' : '#e8eaf6',
-                    titleColor: accent,
-                    edgeLabelBackground: bg,
-                    fontFamily: cs.getPropertyValue('font-family') || 'sans-serif',
-                    fontSize: '14px',
-
-                    // xychart themeVariables içinde de tekrar tanımla
-                    xyChart: {
-                        backgroundColor: bg,
-                        plotColorPalette: accent,
-                    }
-                }
-            });
-
-            setTimeout(() => {
-                try {
-                    mermaid.run({ nodes: preview.querySelectorAll('.mermaid') });
-                } catch (e) {
-                    console.warn('Mermaid render error:', e);
-                }
-            }, 50);
 
 
             // Hex Color Visualization
@@ -673,12 +617,18 @@
                     updateUI();
                 } catch (e) {
                     console.error('Error loading recent file:', e);
-                    if (confirm('Could not access file. Remove from recents?')) {
+                    if (confirm('Could not access file. It might have been moved or deleted. Remove from recents?')) {
                         state.recentFiles = state.recentFiles.filter(f => f !== name);
                         localStorage.setItem('recentFiles', JSON.stringify(state.recentFiles));
                         await deleteHandle(name);
                         updateUI();
                     }
+                }
+            } else {
+                if (confirm('File handle is no longer available in this session. Remove from recents?')) {
+                    state.recentFiles = state.recentFiles.filter(f => f !== name);
+                    localStorage.setItem('recentFiles', JSON.stringify(state.recentFiles));
+                    updateUI();
                 }
             }
         };
@@ -805,8 +755,21 @@
         window.saveFile = async () => {
             if (state.fileHandle) {
                 triggerSaveEffect();
-                try { const writable = await state.fileHandle.createWritable(); await writable.write(state.md); await writable.close(); state.isDirty = false; addToRecents(state.fileName, state.fileHandle); updateUI(); return; } catch (e) { return window.saveFileAs(); }
-            } else { return window.saveFileAs(); }
+                try {
+                    const writable = await state.fileHandle.createWritable();
+                    await writable.write(state.md);
+                    await writable.close();
+                    state.isDirty = false;
+                    addToRecents(state.fileName, state.fileHandle);
+                    updateUI();
+                    return;
+                } catch (e) {
+                    console.error('Save failed, falling back to Save As:', e);
+                    return window.saveFileAs();
+                }
+            } else {
+                return window.saveFileAs();
+            }
         };
 
         window.saveFileAs = async () => {
@@ -824,7 +787,9 @@
                 const b = new Blob([state.md], { type: 'text/markdown' }); const a = document.createElement('a');
                 let downloadName = state.fileName.split('/').pop();
                 if (!downloadName.toLowerCase().endsWith('.md') && !downloadName.toLowerCase().endsWith('.markdown')) downloadName += '.md';
-                a.href = URL.createObjectURL(b); a.download = downloadName; a.click(); state.isDirty = false; addToRecents(downloadName, null); updateUI();
+                a.href = URL.createObjectURL(b); a.download = downloadName; a.click(); state.isDirty = false;
+                // Note: We can't get a handle from a manual download, so we don't update state.fileHandle
+                addToRecents(downloadName, null); updateUI();
             }
         };
 
