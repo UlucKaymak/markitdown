@@ -157,6 +157,26 @@ main {
     color: var(--text);
 }
 
+.fm-meta-strip {
+    margin-top: -0.75rem;
+    margin-bottom: 2rem;
+}
+
+.fm-meta-desc {
+    font-size: 0.95em;
+    opacity: 0.6;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.fm-meta-line {
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.4;
+}
+
 .markdown-body p {
     margin-bottom: 1.5rem;
     opacity: 0.8;

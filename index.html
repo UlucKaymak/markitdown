@@ -448,6 +448,7 @@
 
             let displayTitle = state.fileName;
             let contentToRender = state.md || '';
+            let fmMetaHtml = '';
             const fmMatch = contentToRender.match(/^---\n([\s\S]*?)\n---(\n|$)/);
             if (fmMatch) {
                 const fm = fmMatch[1];
@@ -455,6 +456,25 @@
                 if (titleMatch) {
                     displayTitle = titleMatch[1].trim();
                 }
+                const grab = (key) => {
+                    const m = fm.match(new RegExp(`^${key}:\\s*(.*)$`, 'm'));
+                    return m ? m[1].trim() : '';
+                };
+                const author = grab('author');
+                const date = grab('date');
+                const description = grab('description');
+                let tagsRaw = grab('tags');
+                const tags = tagsRaw ? tagsRaw.replace(/^\[|\]$/g, '').split(',').map(t => t.trim().replace(/^["']|["']$/g, '')).filter(Boolean) : [];
+
+                const escapeHtml = (s) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+                const metaParts = [];
+                if (author) metaParts.push(escapeHtml(author));
+                if (date) metaParts.push(escapeHtml(date));
+                if (tags.length) metaParts.push(tags.map(t => escapeHtml(t)).join(', '));
+                let metaLine = metaParts.length ? `<div class="fm-meta-line">${metaParts.join(' &middot; ')}</div>` : '';
+                let descLine = description ? `<div class="fm-meta-desc">${escapeHtml(description)}</div>` : '';
+                if (metaLine || descLine) fmMetaHtml = `<div class="fm-meta-strip">${descLine}${metaLine}</div>`;
+
                 contentToRender = contentToRender.substring(fmMatch[0].length);
             } else {
                 const firstLine = contentToRender.split('\n')[0]?.replace(/#/g, '').trim();
@@ -538,7 +558,11 @@
 
 
             marked.setOptions({ renderer });
-            preview.innerHTML = marked.parse(contentToRender);
+            const parsedHtml = marked.parse(contentToRender);
+            const h1Close = parsedHtml.indexOf('</h1>');
+            preview.innerHTML = (h1Close !== -1)
+                ? parsedHtml.slice(0, h1Close + 5) + fmMetaHtml + parsedHtml.slice(h1Close + 5)
+                : fmMetaHtml + parsedHtml;
             renderMermaidBlocks();
 
 
