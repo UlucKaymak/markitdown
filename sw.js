@@ -1,8 +1,10 @@
-const CACHE_NAME = 'markitdown-v1.0.30';
+const CACHE_NAME = 'markitdown-v1.0.31';
 const ASSETS = [
   './',
   './index.html',
-  './style.css',
+  './markitdown.css',
+  './markitdown-core.js',
+  './markitdown-ui.js',
   './manifest.json',
   './favicon.png',
   './Opening.md',
